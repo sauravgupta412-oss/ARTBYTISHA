@@ -43,7 +43,6 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* TOP BANNER WITH VISITOR COUNT */
         #topBanner {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
@@ -72,7 +71,6 @@
             font-size: 11px;
             font-weight: 800;
             cursor: pointer;
-            backdrop-filter: blur(5px);
         }
         body.dark-mode #themeToggleBtn {
             background: #2a2a2a;
@@ -127,6 +125,14 @@
         }
         .section-header .line { flex: 1; height: 1px; background: var(--border-color); }
         .section-header .count { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+        .sub-section-label {
+            padding: 4px 15px 8px 15px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
         .carousel-track {
             display: flex; gap: 15px; padding: 0 15px 15px 15px;
@@ -216,7 +222,6 @@
 </head>
 <body>
 
-    <!-- TOP BANNER: VISITOR COUNT + DARK MODE TOGGLE -->
     <div id="topBanner">
         <span>👁️ Visitors: <span id="visitNumber">...</span> • ✨ Free Shipping Above ₹999</span>
         <button id="themeToggleBtn" onclick="toggleTheme()">🌙 Dark</button>
@@ -291,7 +296,7 @@
     const CAROUSEL_SPEED = 2000;
     let rotationInterval = null, carouselInterval = null, modalImages = [], currentImgIdx = 0;
 
-    // ===== THEME LOGIC =====
+    // ===== THEME =====
     function initTheme() {
         const saved = localStorage.getItem('tisha_theme');
         const btn = document.getElementById('themeToggleBtn');
@@ -313,7 +318,7 @@
         document.getElementById('themeColorMeta').setAttribute('content', isDark ? '#121212' : '#ffffff');
     }
 
-    // ===== VISITOR FOOTPRINTS (TOP BANNER) =====
+    // ===== VISITOR COUNT =====
     async function loadVisitorCount() {
         const visitEl = document.getElementById('visitNumber');
         try {
@@ -339,93 +344,388 @@
         installBtn.style.display = 'none'; deferredPrompt.prompt(); deferredPrompt = null;
     }
 
-    function calcPricing(s) { const selling = parseFloat(s) || 0; const mrp = Math.round(selling * 1.6); const discount = mrp > 0 ? Math.round(((mrp - selling) / mrp) * 100) : 0; return { selling, mrp, discount, sellingText: "₹" + selling, mrpText: "₹" + mrp, discountText: discount + "% OFF" }; }
-    function cleanImageUrl(url) { if (!url) return ''; url = url.trim(); if (url.includes('drive.google.com')) { let fileId = ''; const regD = /\/d\/([a-zA-Z0-9_-]+)/, regId = /[?&]id=([a-zA-Z0-9_-]+)/; const mD = url.match(regD), mId = url.match(regId); if (mD && mD[1]) fileId = mD[1]; else if (mId && mId[1]) fileId = mId[1]; if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`; } return url; }
-    function hasValidImages(p) { for (let i = 1; i <= 5; i++) { const url = p[`Image ${i}`]; if (url && String(url).trim().length > 5) return true; } return false; }
-    function isTopSelling(p) { return (p["Category"] || "").trim().toUpperCase() === "TOP SELLING"; }
-    function sortList(list, f) { const arr = [...list]; if (f === "PRICE_ASC") arr.sort((a,b)=>(parseFloat(a["Selling"])||0)-(parseFloat(b["Selling"])||0)); else if (f === "PRICE_DESC") arr.sort((a,b)=>(parseFloat(b["Selling"])||0)-(parseFloat(a["Selling"])||0)); else if (f === "NAME_ASC") arr.sort((a,b)=>(a["Product Name"]||"").localeCompare(b["Product Name"]||"")); return arr; }
-    function sortCategories(arr) { return arr.sort((a,b)=>{ const iA=CATEGORY_ORDER.indexOf(a.toUpperCase()), iB=CATEGORY_ORDER.indexOf(b.toUpperCase()); if(iA!==-1&&iB!==-1) return iA-iB; if(iA!==-1) return -1; if(iB!==-1) return 1; return a.localeCompare(b); }); }
+    function calcPricing(s) {
+        const selling = parseFloat(s) || 0;
+        const mrp = Math.round(selling * 1.6);
+        const discount = mrp > 0 ? Math.round(((mrp - selling) / mrp) * 100) : 0;
+        return { selling, mrp, discount, sellingText: "₹" + selling, mrpText: "₹" + mrp, discountText: discount + "% OFF" };
+    }
+
+    function cleanImageUrl(url) {
+        if (!url) return '';
+        url = url.trim();
+        if (url.includes('drive.google.com')) {
+            let fileId = '';
+            const regD = /\/d\/([a-zA-Z0-9_-]+)/, regId = /[?&]id=([a-zA-Z0-9_-]+)/;
+            const mD = url.match(regD), mId = url.match(regId);
+            if (mD && mD[1]) fileId = mD[1];
+            else if (mId && mId[1]) fileId = mId[1];
+            if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`;
+        }
+        return url;
+    }
+
+    function hasValidImages(p) {
+        for (let i = 1; i <= 5; i++) {
+            const url = p[`Image ${i}`];
+            if (url && String(url).trim().length > 5) return true;
+        }
+        return false;
+    }
+
+    function isTopSelling(p) {
+        return (p["Category"] || "").trim().toUpperCase() === "TOP SELLING";
+    }
+
+    // Price / Name sort only
+    function sortList(list, f) {
+        const arr = [...list];
+        if (f === "PRICE_ASC") arr.sort((a,b)=>(parseFloat(a["Selling"])||0)-(parseFloat(b["Selling"])||0));
+        else if (f === "PRICE_DESC") arr.sort((a,b)=>(parseFloat(b["Selling"])||0)-(parseFloat(a["Selling"])||0));
+        else if (f === "NAME_ASC") arr.sort((a,b)=>(a["Product Name"]||"").localeCompare(b["Product Name"]||""));
+        return arr;
+    }
+
+    // KEY FEATURE: Images first, then Coming Soon (within any list)
+    function sortImagesFirst(list, sortFilter) {
+        const withImg = [];
+        const noImg = [];
+        list.forEach(p => {
+            if (hasValidImages(p)) withImg.push(p);
+            else noImg.push(p);
+        });
+        return [
+            ...sortList(withImg, sortFilter),
+            ...sortList(noImg, sortFilter)
+        ];
+    }
+
+    function sortCategories(arr) {
+        return arr.sort((a,b)=>{
+            const iA = CATEGORY_ORDER.indexOf(a.toUpperCase());
+            const iB = CATEGORY_ORDER.indexOf(b.toUpperCase());
+            if (iA !== -1 && iB !== -1) return iA - iB;
+            if (iA !== -1) return -1;
+            if (iB !== -1) return 1;
+            return a.localeCompare(b);
+        });
+    }
 
     window.onload = async function() {
         initTheme();
         loadVisitorCount();
         const statusEl = document.getElementById('status');
         try {
-            const res = await fetch(CSV_URL); const text = await res.text();
-            const lines = text.split('\n'); const headers = lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
-            for (let i=1;i<lines.length;i++){ if(!lines[i].trim()) continue; const values=lines[i].split(',').map(v=>v.trim().replace(/^"|"$/g,'')); const obj={}; headers.forEach((h,idx)=>obj[h]=values[idx]||''); const isActive=String(obj["Active"]).toUpperCase().trim(); if(isActive!=="FALSE"&&isActive!=="0"&&isActive!=="NO") products.push(obj); }
-            statusEl.style.display='none'; populateCategories(); applyFiltersAndSort();
-        } catch(e){ statusEl.innerText="❌ Could not load collection."; }
+            const res = await fetch(CSV_URL);
+            const text = await res.text();
+            const lines = text.split('\n');
+            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+                const obj = {};
+                headers.forEach((h, idx) => obj[h] = values[idx] || '');
+                const isActive = String(obj["Active"]).toUpperCase().trim();
+                if (isActive !== "FALSE" && isActive !== "0" && isActive !== "NO") products.push(obj);
+            }
+            statusEl.style.display = 'none';
+            populateCategories();
+            applyFiltersAndSort();
+        } catch (e) {
+            statusEl.innerText = "❌ Could not load collection.";
+        }
     };
 
-    function populateCategories(){
-        const catSelect=document.getElementById('categoryFilter'); const uniqueCats=new Set();
-        products.forEach(p=>{ const cat=(p["Category"]||"").trim(); if(cat&&cat.toUpperCase()!=="TOP SELLING") uniqueCats.add(cat); });
-        sortCategories(Array.from(uniqueCats)).forEach(c=>{ const opt=document.createElement('option'); opt.value=c.toUpperCase(); opt.innerText=c; catSelect.appendChild(opt); });
-    }
-
-    function renderCarousel(){
-        const topItems=products.filter(p=>isTopSelling(p)); const section=document.getElementById('carouselSection'); const track=document.getElementById('carouselTrack');
-        clearInterval(carouselInterval); track.innerHTML=""; if(topItems.length===0){ section.style.display='none'; return; }
-        section.style.display='block'; topItems.forEach(item=>track.appendChild(createCard(item,"⭐")));
-        if(topItems.length>2){ let slideIndex=0; carouselInterval=setInterval(()=>{ slideIndex++; if(slideIndex>topItems.length-2) slideIndex=0; const card=track.children[slideIndex]; if(card) track.scrollTo({left:card.offsetLeft-15,behavior:'smooth'}); }, CAROUSEL_SPEED); }
-    }
-    function hideCarousel(){ document.getElementById('carouselSection').style.display='none'; clearInterval(carouselInterval); }
-
-    function applyFiltersAndSort(){
-        const query=document.getElementById('searchInput').value.toLowerCase().trim();
-        const catFilter=document.getElementById('categoryFilter').value;
-        const sortFilter=document.getElementById('sortFilter').value;
-        if(catFilter==="ALL"&&query==="") renderCarousel(); else hideCarousel();
-        let filtered=products.filter(p=>{
-            const name=(p["Product Name"]||"").toLowerCase(), sku=(p["SKU Code"]||"").toLowerCase(), cat=(p["Category"]||"").trim().toUpperCase();
-            const matchesSearch=!query||name.includes(query)||sku.includes(query); let matchesCat=true;
-            switch(catFilter){ case "ALL": matchesCat=true; break; case "TOP_SELLING": matchesCat=cat==="TOP SELLING"; break; case "NO_CATEGORY": matchesCat=cat.length===0; break; default: matchesCat=cat===catFilter; }
-            return matchesSearch&&matchesCat;
+    function populateCategories() {
+        const catSelect = document.getElementById('categoryFilter');
+        const uniqueCats = new Set();
+        products.forEach(p => {
+            const cat = (p["Category"] || "").trim();
+            if (cat && cat.toUpperCase() !== "TOP SELLING") uniqueCats.add(cat);
         });
-        if(catFilter==="ALL"){ let gridItems=filtered.filter(p=>!isTopSelling(p)); gridItems=sortList(gridItems,sortFilter); renderGroupedSections(gridItems); }
-        else { let title=catFilter; if(catFilter==="TOP_SELLING") title="🔥 Top Selling"; if(catFilter==="NO_CATEGORY") title="📂 Uncategorized"; renderSection(document.getElementById('productGrid'),"",title,sortList(filtered,sortFilter),"✨",true); }
+        sortCategories(Array.from(uniqueCats)).forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.toUpperCase();
+            opt.innerText = c;
+            catSelect.appendChild(opt);
+        });
     }
 
-    function renderGroupedSections(data){
-        const grid=document.getElementById('productGrid'); grid.innerHTML=""; if(data.length===0){ grid.innerHTML="<div class='no-results'>No items found.</div>"; return; }
-        const catGroups={}, availDesigns=[], comingSoon=[];
-        data.forEach(p=>{ const cat=(p["Category"]||"").trim(); if(cat){ if(!catGroups[cat]) catGroups[cat]=[]; catGroups[cat].push(p); } else { if(hasValidImages(p)) availDesigns.push(p); else comingSoon.push(p); } });
-        sortCategories(Object.keys(catGroups)).forEach(catName=>renderSection(grid,"📂",catName,catGroups[catName],"✨",false));
-        if(availDesigns.length>0) renderSection(grid,"🖼️","Available Designs",availDesigns,"💎",false);
-        if(comingSoon.length>0) renderSection(grid,"📋","More Coming Soon",comingSoon,"🕐",false);
+    function renderCarousel() {
+        const topItems = products.filter(p => isTopSelling(p));
+        const section = document.getElementById('carouselSection');
+        const track = document.getElementById('carouselTrack');
+        clearInterval(carouselInterval);
+        track.innerHTML = "";
+        if (topItems.length === 0) { section.style.display = 'none'; return; }
+        section.style.display = 'block';
+        // Top selling: also prefer images first inside slider
+        sortImagesFirst(topItems, "DEFAULT").forEach(item => track.appendChild(createCard(item, "⭐")));
+        if (topItems.length > 2) {
+            let slideIndex = 0;
+            carouselInterval = setInterval(() => {
+                slideIndex++;
+                if (slideIndex > topItems.length - 2) slideIndex = 0;
+                const card = track.children[slideIndex];
+                if (card) track.scrollTo({ left: card.offsetLeft - 15, behavior: 'smooth' });
+            }, CAROUSEL_SPEED);
+        }
     }
 
-    function renderSection(container, icon, title, items, badgeEmoji, clearFirst){
-        if(clearFirst) container.innerHTML=""; if(items.length===0){ if(clearFirst) container.innerHTML="<div class='no-results'>No items found.</div>"; return; }
-        const header=document.createElement('div'); header.className="section-header"; header.innerHTML=`${icon} ${title} <span class="count">(${items.length})</span> <span class="line"></span>`; container.appendChild(header);
-        const gridEl=document.createElement('div'); gridEl.className="grid"; items.forEach(item=>gridEl.appendChild(createCard(item,badgeEmoji))); container.appendChild(gridEl);
+    function hideCarousel() {
+        document.getElementById('carouselSection').style.display = 'none';
+        clearInterval(carouselInterval);
     }
 
-    function createCard(item,badgeEmoji){
-        const pricing=calcPricing(item["Selling"]); const name=item["Product Name"]||"Jewelry"; const sku=item["SKU Code"]||""; const cat=(item["Category"]||"").trim(); const isTop=isTopSelling(item);
-        const card=document.createElement('div'); card.className="product-card"; card.onclick=()=>openModal(sku);
-        let imgSection=''; if(hasValidImages(item)){ const src=cleanImageUrl(item["Image 1"])||''; imgSection=src?`<img src="${src}" class="card-img" loading="lazy">`:`<div class="card-img-placeholder"><div>📷</div><span>Loading...</span></div>`; } else { imgSection=`<div class="card-img-placeholder"><div>💍</div><span>Coming Soon</span></div>`; }
-        const topBadge=isTop?`<div class="card-badge">${badgeEmoji} Top Selling</div>`:""; const discBadge=pricing.discount>0?`<div class="discount-badge">${pricing.discountText}</div>`:""; const catHtml=cat?`<p class="card-category">${cat}</p>`:"";
-        card.innerHTML=`<div class="card-img-wrapper">${topBadge}${discBadge}${imgSection}</div><div class="card-info">${catHtml}<p class="card-title">${name}</p><p class="card-sku">SKU: ${sku}</p><div class="card-price-row"><p class="card-mrp">${pricing.mrpText}</p><p class="card-price">${pricing.sellingText}</p><p class="card-off">${pricing.discountText}</p></div></div>`;
+    function applyFiltersAndSort() {
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        const catFilter = document.getElementById('categoryFilter').value;
+        const sortFilter = document.getElementById('sortFilter').value;
+
+        if (catFilter === "ALL" && query === "") renderCarousel();
+        else hideCarousel();
+
+        let filtered = products.filter(p => {
+            const name = (p["Product Name"] || "").toLowerCase();
+            const sku = (p["SKU Code"] || "").toLowerCase();
+            const cat = (p["Category"] || "").trim().toUpperCase();
+            const matchesSearch = !query || name.includes(query) || sku.includes(query);
+            let matchesCat = true;
+            switch (catFilter) {
+                case "ALL": matchesCat = true; break;
+                case "TOP_SELLING": matchesCat = cat === "TOP SELLING"; break;
+                case "NO_CATEGORY": matchesCat = cat.length === 0; break;
+                default: matchesCat = cat === catFilter;
+            }
+            return matchesSearch && matchesCat;
+        });
+
+        if (catFilter === "ALL") {
+            // Exclude Top Selling from grid (already in slider)
+            let gridItems = filtered.filter(p => !isTopSelling(p));
+            renderGroupedSections(gridItems, sortFilter);
+        } else {
+            let title = catFilter;
+            if (catFilter === "TOP_SELLING") title = "🔥 Top Selling";
+            if (catFilter === "NO_CATEGORY") title = "📂 Uncategorized";
+            // Single category view: images first, then coming soon
+            const ordered = sortImagesFirst(filtered, sortFilter);
+            renderSection(document.getElementById('productGrid'), "", title, ordered, "✨", true);
+        }
+    }
+
+    // Group by category name, and within each category: images first → coming soon
+    function renderGroupedSections(data, sortFilter) {
+        const grid = document.getElementById('productGrid');
+        grid.innerHTML = "";
+        if (data.length === 0) {
+            grid.innerHTML = "<div class='no-results'>No items found.</div>";
+            return;
+        }
+
+        const catGroups = {};
+        const uncategorized = [];
+
+        data.forEach(p => {
+            const cat = (p["Category"] || "").trim();
+            if (cat) {
+                if (!catGroups[cat]) catGroups[cat] = [];
+                catGroups[cat].push(p);
+            } else {
+                uncategorized.push(p);
+            }
+        });
+
+        // 1. Named categories in your fixed order
+        //    Inside each: WITH IMAGES first, then COMING SOON
+        sortCategories(Object.keys(catGroups)).forEach(catName => {
+            const ordered = sortImagesFirst(catGroups[catName], sortFilter);
+            renderCategoryWithSubgroups(grid, catName, ordered);
+        });
+
+        // 2. Uncategorized with images
+        const availDesigns = sortList(uncategorized.filter(p => hasValidImages(p)), sortFilter);
+        if (availDesigns.length > 0) {
+            renderSection(grid, "🖼️", "Available Designs", availDesigns, "💎", false);
+        }
+
+        // 3. Uncategorized without images
+        const comingSoon = sortList(uncategorized.filter(p => !hasValidImages(p)), sortFilter);
+        if (comingSoon.length > 0) {
+            renderSection(grid, "📋", "More Coming Soon", comingSoon, "🕐", false);
+        }
+    }
+
+    // Renders one category as:
+    // 📂 Bangles (12)
+    //    [image products grid]
+    //    Coming Soon
+    //    [no-image products grid]
+    function renderCategoryWithSubgroups(container, catName, orderedItems) {
+        const withImg = orderedItems.filter(p => hasValidImages(p));
+        const noImg = orderedItems.filter(p => !hasValidImages(p));
+        const total = orderedItems.length;
+
+        const header = document.createElement('div');
+        header.className = "section-header";
+        header.innerHTML = `📂 ${catName} <span class="count">(${total})</span> <span class="line"></span>`;
+        container.appendChild(header);
+
+        if (withImg.length > 0) {
+            const gridEl = document.createElement('div');
+            gridEl.className = "grid";
+            withImg.forEach(item => gridEl.appendChild(createCard(item, "✨")));
+            container.appendChild(gridEl);
+        }
+
+        if (noImg.length > 0) {
+            // Only show "Coming Soon" sub-label if there are ALSO image products above
+            if (withImg.length > 0) {
+                const sub = document.createElement('div');
+                sub.className = "sub-section-label";
+                sub.innerText = "Coming Soon";
+                container.appendChild(sub);
+            }
+            const gridEl = document.createElement('div');
+            gridEl.className = "grid";
+            noImg.forEach(item => gridEl.appendChild(createCard(item, "🕐")));
+            container.appendChild(gridEl);
+        }
+    }
+
+    function renderSection(container, icon, title, items, badgeEmoji, clearFirst) {
+        if (clearFirst) container.innerHTML = "";
+        if (items.length === 0) {
+            if (clearFirst) container.innerHTML = "<div class='no-results'>No items found.</div>";
+            return;
+        }
+        const header = document.createElement('div');
+        header.className = "section-header";
+        header.innerHTML = `${icon} ${title} <span class="count">(${items.length})</span> <span class="line"></span>`;
+        container.appendChild(header);
+        const gridEl = document.createElement('div');
+        gridEl.className = "grid";
+        items.forEach(item => gridEl.appendChild(createCard(item, badgeEmoji)));
+        container.appendChild(gridEl);
+    }
+
+    function createCard(item, badgeEmoji) {
+        const pricing = calcPricing(item["Selling"]);
+        const name = item["Product Name"] || "Jewelry";
+        const sku = item["SKU Code"] || "";
+        const cat = (item["Category"] || "").trim();
+        const isTop = isTopSelling(item);
+
+        const card = document.createElement('div');
+        card.className = "product-card";
+        card.onclick = () => openModal(sku);
+
+        let imgSection = '';
+        if (hasValidImages(item)) {
+            const src = cleanImageUrl(item["Image 1"]) || '';
+            imgSection = src
+                ? `<img src="${src}" class="card-img" loading="lazy">`
+                : `<div class="card-img-placeholder"><div>📷</div><span>Loading...</span></div>`;
+        } else {
+            imgSection = `<div class="card-img-placeholder"><div>💍</div><span>Coming Soon</span></div>`;
+        }
+
+        const topBadge = isTop ? `<div class="card-badge">${badgeEmoji} Top Selling</div>` : "";
+        const discBadge = pricing.discount > 0 ? `<div class="discount-badge">${pricing.discountText}</div>` : "";
+        const catHtml = cat ? `<p class="card-category">${cat}</p>` : "";
+
+        card.innerHTML = `
+            <div class="card-img-wrapper">
+                ${topBadge}${discBadge}${imgSection}
+            </div>
+            <div class="card-info">
+                ${catHtml}
+                <p class="card-title">${name}</p>
+                <p class="card-sku">SKU: ${sku}</p>
+                <div class="card-price-row">
+                    <p class="card-mrp">${pricing.mrpText}</p>
+                    <p class="card-price">${pricing.sellingText}</p>
+                    <p class="card-off">${pricing.discountText}</p>
+                </div>
+            </div>
+        `;
         return card;
     }
 
-    function openModal(sku){
-        const product=products.find(p=>p["SKU Code"]===sku); if(!product) return;
-        const pricing=calcPricing(product["Selling"]);
-        document.getElementById('mTitle').innerText=product["Product Name"]||"Jewelry"; document.getElementById('mSku').innerText="SKU: "+sku; document.getElementById('mCat').innerText=product["Category"]||"";
-        document.getElementById('mMrp').innerText=pricing.mrpText; document.getElementById('mDiscount').innerText=pricing.discountText; document.getElementById('mPrice').innerText=pricing.sellingText;
-        document.getElementById('mWhatsapp').href=`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hi, I am interested in:\n*${product["Product Name"]}*\n*SKU:* ${sku}\n*MRP:* ${pricing.mrpText}\n*Offer:* ${pricing.sellingText} (${pricing.discountText})`)}`;
-        const mImg=document.getElementById('mImg'), mThumbs=document.getElementById('mThumbs'); mThumbs.innerHTML=""; clearInterval(rotationInterval); modalImages=[]; currentImgIdx=0;
-        ["Image 1","Image 2","Image 3","Image 4","Image 5"].forEach(k=>{ const url=product[k]; if(url&&String(url).trim().length>5) modalImages.push(cleanImageUrl(String(url).trim())); }); modalImages=[...new Set(modalImages)];
-        if(modalImages.length===0){ mImg.src='https://via.placeholder.com/400x400?text=No+Image'; } else { mImg.src=modalImages[0]; modalImages.forEach((src,idx)=>{ const img=document.createElement('img'); img.src=src; img.className='modal-thumb'+(idx===0?' active':''); img.onclick=()=>{ currentImgIdx=idx; mImg.src=src; updateModalThumbs(); startModalRotation(); }; mThumbs.appendChild(img); }); if(modalImages.length>1) startModalRotation(); }
-        document.body.style.overflow='hidden'; document.getElementById('productModal').style.display='flex';
+    function openModal(sku) {
+        const product = products.find(p => p["SKU Code"] === sku);
+        if (!product) return;
+        const pricing = calcPricing(product["Selling"]);
+
+        document.getElementById('mTitle').innerText = product["Product Name"] || "Jewelry";
+        document.getElementById('mSku').innerText = "SKU: " + sku;
+        document.getElementById('mCat').innerText = product["Category"] || "";
+        document.getElementById('mMrp').innerText = pricing.mrpText;
+        document.getElementById('mDiscount').innerText = pricing.discountText;
+        document.getElementById('mPrice').innerText = pricing.sellingText;
+        document.getElementById('mWhatsapp').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+            `Hi, I am interested in:\n*${product["Product Name"]}*\n*SKU:* ${sku}\n*MRP:* ${pricing.mrpText}\n*Offer:* ${pricing.sellingText} (${pricing.discountText})`
+        )}`;
+
+        const mImg = document.getElementById('mImg');
+        const mThumbs = document.getElementById('mThumbs');
+        mThumbs.innerHTML = "";
+        clearInterval(rotationInterval);
+        modalImages = [];
+        currentImgIdx = 0;
+
+        ["Image 1","Image 2","Image 3","Image 4","Image 5"].forEach(k => {
+            const url = product[k];
+            if (url && String(url).trim().length > 5) modalImages.push(cleanImageUrl(String(url).trim()));
+        });
+        modalImages = [...new Set(modalImages)];
+
+        if (modalImages.length === 0) {
+            mImg.src = 'https://via.placeholder.com/400x400?text=No+Image';
+        } else {
+            mImg.src = modalImages[0];
+            modalImages.forEach((src, idx) => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.className = 'modal-thumb' + (idx === 0 ? ' active' : '');
+                img.onclick = () => {
+                    currentImgIdx = idx;
+                    mImg.src = src;
+                    updateModalThumbs();
+                    startModalRotation();
+                };
+                mThumbs.appendChild(img);
+            });
+            if (modalImages.length > 1) startModalRotation();
+        }
+
+        document.body.style.overflow = 'hidden';
+        document.getElementById('productModal').style.display = 'flex';
     }
-    function closeModal(){ document.getElementById('productModal').style.display='none'; document.body.style.overflow='auto'; clearInterval(rotationInterval); }
-    function updateModalThumbs(){ document.querySelectorAll('.modal-thumb').forEach((t,i)=>t.classList.toggle('active',i===currentImgIdx)); }
-    function startModalRotation(){ clearInterval(rotationInterval); rotationInterval=setInterval(()=>{ currentImgIdx=(currentImgIdx+1)%modalImages.length; document.getElementById('mImg').src=modalImages[currentImgIdx]; updateModalThumbs(); }, ROTATION_SPEED); }
+
+    function closeModal() {
+        document.getElementById('productModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        clearInterval(rotationInterval);
+    }
+
+    function updateModalThumbs() {
+        document.querySelectorAll('.modal-thumb').forEach((t, i) => t.classList.toggle('active', i === currentImgIdx));
+    }
+
+    function startModalRotation() {
+        clearInterval(rotationInterval);
+        rotationInterval = setInterval(() => {
+            currentImgIdx = (currentImgIdx + 1) % modalImages.length;
+            document.getElementById('mImg').src = modalImages[currentImgIdx];
+            updateModalThumbs();
+        }, ROTATION_SPEED);
+    }
 </script>
-<script> if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(()=>{}); } </script>
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+</script>
 </body>
 </html>
