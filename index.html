@@ -145,15 +145,18 @@
             letter-spacing: 1px;
         }
 
-        /* SEAMLESS CONTINUOUS CAROUSEL TRACK */
+        /* HARDWARE ACCELERATED INFINITE CAROUSEL VIEWPORT */
+        .carousel-viewport {
+            overflow: hidden;
+            width: 100%;
+            position: relative;
+        }
         .carousel-track {
             display: flex; 
             gap: 15px; 
             padding: 0 15px 15px 15px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+            will-change: transform;
         }
-        .carousel-track::-webkit-scrollbar { display: none; }
         .carousel-track .product-card { 
             flex: 0 0 calc(50% - 7.5px); 
             min-width: calc(50% - 7.5px);
@@ -305,7 +308,9 @@
 
     <div id="carouselSection" style="display: none;">
         <div class="section-header">🏆 Featured Top Sellers <span class="line"></span></div>
-        <div id="carouselTrack" class="carousel-track"></div>
+        <div class="carousel-viewport">
+            <div id="carouselTrack" class="carousel-track"></div>
+        </div>
     </div>
 
     <div id="productGrid"></div>
@@ -363,6 +368,7 @@
     const ROTATION_SPEED = 1500;
     const CAROUSEL_SPEED = 2000; // 2 Seconds
     let rotationInterval = null, carouselInterval = null, modalImages = [], currentImgIdx = 0;
+    let isCarouselSliding = false;
 
     // ===== INSTANT VISITOR COUNTER =====
     function initVisitorCounter() {
@@ -413,7 +419,7 @@
         }
     }
 
-    // ===== WATCHING NOW (2–5, LOCKED 10 MIN PER SKU, TOP SELLING ONLY) =====
+    // ===== WATCHING NOW =====
     function getWatchingCount(sku) {
         const storageKey = 'abt_watch_top_' + String(sku || 'unknown');
         const now = Date.now();
@@ -604,13 +610,16 @@
         });
     }
 
-    // ===== INFINITE CONTINUOUS TOP SELLING CAROUSEL (1 -> 2 -> 3 -> 1 -> 2 -> 3...) =====
+    // ===== SEAMLESS CONTINUOUS INFINITE CAROUSEL ENGINE (1 -> 2 -> 3 -> 4 -> 1 -> 2 -> 3...) =====
     function renderCarousel() {
         const topItems = products.filter(p => isTopSelling(p));
         const section = document.getElementById('carouselSection');
         const track = document.getElementById('carouselTrack');
         
         clearInterval(carouselInterval);
+        isCarouselSliding = false;
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(0px)';
         track.innerHTML = "";
 
         if (topItems.length === 0) { 
@@ -621,40 +630,40 @@
         section.style.display = 'block';
         sortImagesFirst(topItems, "DEFAULT").forEach(item => track.appendChild(createCard(item, "⭐")));
 
-        // Enable Seamless Continuous Loop if more than 2 items
         if (topItems.length > 2) {
-            track.style.scrollBehavior = 'auto';
-            track.scrollLeft = 0;
             startInfiniteCarousel();
         }
     }
 
-    function startInfiniteCarousel() {
+    function slideNextTopSelling() {
         const track = document.getElementById('carouselTrack');
-        clearInterval(carouselInterval);
+        if (!track || track.children.length <= 2 || isCarouselSliding) return;
 
-        carouselInterval = setInterval(() => {
-            if (!track || track.children.length <= 2) return;
+        const firstCard = track.firstElementChild;
+        if (!firstCard) return;
+
+        isCarouselSliding = true;
+        const cardWidth = firstCard.offsetWidth + 15; // Width + 15px Gap
+
+        // 1. Smoothly slide 1 card left using GPU transform
+        track.style.transition = 'transform 0.5s ease-in-out';
+        track.style.transform = `translateX(-${cardWidth}px)`;
+
+        // 2. When animation completes (500ms), silently move first card to back and reset transform
+        setTimeout(() => {
+            track.style.transition = 'none';
+            track.appendChild(firstCard); // Append first card to end of DOM
+            track.style.transform = 'translateX(0px)';
             
-            const firstCard = track.firstElementChild;
-            if (!firstCard) return;
+            // Force DOM reflow
+            void track.offsetWidth;
+            isCarouselSliding = false;
+        }, 500);
+    }
 
-            // Compute exact width of 1 card + gap (15px)
-            const cardWidth = firstCard.getBoundingClientRect().width + 15;
-
-            // 1. Smooth scroll right by 1 card
-            track.style.scrollBehavior = 'smooth';
-            track.scrollLeft += cardWidth;
-
-            // 2. When scroll completes (500ms), move first card to back and adjust scroll position instantly
-            setTimeout(() => {
-                if (!track.firstElementChild) return;
-                track.appendChild(firstCard); // Move first card to the back of DOM
-                track.style.scrollBehavior = 'auto'; // Instant shift
-                track.scrollLeft -= cardWidth; // Zero-out scroll position seamlessly
-            }, 500);
-
-        }, CAROUSEL_SPEED);
+    function startInfiniteCarousel() {
+        clearInterval(carouselInterval);
+        carouselInterval = setInterval(slideNextTopSelling, CAROUSEL_SPEED);
     }
 
     function hideCarousel() {
