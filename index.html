@@ -124,7 +124,23 @@
             font-weight: 600;
         }
 
-        /* GRID LAYOUT */
+        /* AUTO-ROTATING CAROUSEL */
+        .carousel-track {
+            display: flex;
+            gap: 15px;
+            padding: 0 15px 15px 15px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .carousel-track::-webkit-scrollbar { display: none; }
+        .carousel-track .product-card {
+            flex: 0 0 calc(50% - 7.5px);
+            scroll-snap-align: start;
+        }
+
+        /* GRID */
         .grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -139,9 +155,7 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
-        .product-card:active {
-            transform: scale(0.97);
-        }
+        .product-card:active { transform: scale(0.97); }
         .card-img-wrapper {
             width: 100%;
             aspect-ratio: 1 / 1;
@@ -166,6 +180,20 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             box-shadow: 0 2px 8px rgba(201, 122, 141, 0.4);
+            z-index: 2;
+        }
+        .discount-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #27ae60;
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 7px;
+            border-radius: 6px;
+            z-index: 2;
+            box-shadow: 0 2px 6px rgba(39, 174, 96, 0.35);
         }
         .card-img-placeholder {
             width: 100%;
@@ -180,12 +208,9 @@
             font-weight: 600;
             gap: 6px;
         }
-        .card-img-placeholder .icon {
-            font-size: 30px;
-            opacity: 0.5;
-        }
+        .card-img-placeholder .icon { font-size: 30px; opacity: 0.5; }
         .card-info {
-            padding: 12px;
+            padding: 12px 10px;
             text-align: center;
         }
         .card-category {
@@ -208,8 +233,20 @@
         .card-sku {
             font-size: 11px;
             color: #999;
-            margin: 0 0 5px 0;
+            margin: 0 0 6px 0;
             text-transform: uppercase;
+        }
+        .card-price-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .card-mrp {
+            font-size: 12px;
+            color: #999;
+            text-decoration: line-through;
+            margin: 0;
         }
         .card-price {
             font-size: 16px;
@@ -217,16 +254,19 @@
             font-weight: 800;
             margin: 0;
         }
+        .card-off {
+            font-size: 11px;
+            color: #27ae60;
+            font-weight: 700;
+            margin: 2px 0 0 0;
+        }
 
-        /* LOADING */
         .status-msg {
             text-align: center;
             color: #d88fa0;
             padding: 40px 20px;
             font-weight: 600;
         }
-
-        /* NO RESULTS */
         .no-results {
             text-align: center;
             padding: 30px 15px;
@@ -234,7 +274,7 @@
             font-size: 14px;
         }
 
-        /* FULL SCREEN MODAL */
+        /* MODAL */
         .modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -261,7 +301,6 @@
         .back-btn {
             background: none; border: none; font-size: 24px; color: #333; cursor: pointer;
         }
-        
         .modal-content {
             padding: 20px;
             padding-bottom: 100px;
@@ -289,10 +328,53 @@
         
         .modal-cat { font-size: 12px; color: #d88fa0; font-weight: bold; text-transform: uppercase; margin: 0 0 5px 0; }
         .modal-title { font-size: 22px; color: #333; margin: 0 0 5px 0; }
-        .modal-sku { font-size: 13px; color: #888; margin: 0 0 15px 0; }
-        .modal-price { font-size: 26px; color: #c97a8d; font-weight: 900; margin: 0 0 20px 0; }
+        .modal-sku { font-size: 13px; color: #888; margin: 0 0 18px 0; }
         
-        /* WHATSAPP BUTTON */
+        .modal-price-box {
+            background: #fff9fa;
+            border: 1px solid #ecd3d8;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+        }
+        .modal-mrp-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        .modal-mrp-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .modal-mrp {
+            font-size: 16px;
+            color: #999;
+            text-decoration: line-through;
+        }
+        .modal-discount-pill {
+            background: #e8f8ef;
+            color: #27ae60;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        .modal-price {
+            font-size: 28px;
+            color: #c97a8d;
+            font-weight: 900;
+            margin: 0;
+        }
+        .modal-price-note {
+            font-size: 12px;
+            color: #888;
+            margin: 4px 0 0 0;
+        }
+        
         .whatsapp-btn {
             position: fixed;
             bottom: 20px;
@@ -319,14 +401,12 @@
 </head>
 <body>
 
-    <!-- HEADER -->
     <header>
         <img src="logo.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
         <h1 class="header-title">Art By Tisha</h1>
         <div class="header-tagline">Official Collection</div>
     </header>
 
-    <!-- SEARCH & FILTERS -->
     <div class="controls-container">
         <input type="text" id="searchInput" class="search-input" placeholder="Search Collection..." oninput="applyFiltersAndSort()">
         
@@ -346,10 +426,14 @@
         </div>
     </div>
 
-    <!-- STATUS -->
     <div id="status" class="status-msg">✨ Loading Collection...</div>
 
-    <!-- PRODUCT GRID (Dynamically rendered in sections) -->
+    <!-- TOP SELLING SLIDER -->
+    <div id="carouselSection" style="display: none;">
+        <div class="section-header">🏆 Featured Top Sellers <span class="line"></span></div>
+        <div id="carouselTrack" class="carousel-track"></div>
+    </div>
+
     <div id="productGrid"></div>
 
     <!-- PRODUCT MODAL -->
@@ -365,7 +449,17 @@
             <p id="mCat" class="modal-cat"></p>
             <h2 id="mTitle" class="modal-title"></h2>
             <p id="mSku" class="modal-sku"></p>
-            <p id="mPrice" class="modal-price"></p>
+
+            <!-- PRICE BOX WITH MRP + DISCOUNT -->
+            <div class="modal-price-box">
+                <div class="modal-mrp-row">
+                    <span class="modal-mrp-label">MRP</span>
+                    <span id="mMrp" class="modal-mrp"></span>
+                    <span id="mDiscount" class="modal-discount-pill"></span>
+                </div>
+                <p id="mPrice" class="modal-price"></p>
+                <p class="modal-price-note">Inclusive of all taxes</p>
+            </div>
         </div>
         <a id="mWhatsapp" href="#" class="whatsapp-btn" target="_blank">
             💬 Inquire on WhatsApp
@@ -373,18 +467,37 @@
     </div>
 
 <script>
-    // ===== APP CONFIG =====
     const WHATSAPP_NUMBER = "918287567099";
     const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
 
     let products = [];
+    
     const ROTATION_SPEED = 1500;
+    const CAROUSEL_SPEED = 2000;
     let rotationInterval = null;
+    let carouselInterval = null;
     let modalImages = [];
     let currentImgIdx = 0;
 
-    // ===== HELPERS =====
+    // ===== MRP / DISCOUNT HELPERS =====
+    // Formula: MRP = Selling × 1.6  |  Discount% = ((MRP - Selling) / MRP) × 100
+    function calcPricing(sellingRaw) {
+        const selling = parseFloat(sellingRaw) || 0;
+        const mrp = Math.round(selling * 1.6);           // 160% of selling
+        const discount = mrp > 0
+            ? Math.round(((mrp - selling) / mrp) * 100)  // % off
+            : 0;
+        return {
+            selling: selling,
+            mrp: mrp,
+            discount: discount,
+            sellingText: "₹" + selling,
+            mrpText: "₹" + mrp,
+            discountText: discount + "% OFF"
+        };
+    }
+
     function cleanImageUrl(url) {
         if (!url) return '';
         url = url.trim();
@@ -410,19 +523,13 @@
     }
 
     function hasCategory(product) {
-        const cat = (product["Category"] || "").trim();
-        return cat.length > 0;
+        return (product["Category"] || "").trim().length > 0;
     }
 
     function isTopSelling(product) {
         return (product["Category"] || "").trim().toUpperCase() === "TOP SELLING";
     }
 
-    // ===== PRIORITY CLASSIFICATION =====
-    // Priority 1 = Top Selling
-    // Priority 2 = Other Categories (not Top Selling, has category)
-    // Priority 3 = No Category but has images
-    // Priority 4 = No Category and no images
     function getPriority(product) {
         if (isTopSelling(product)) return 1;
         if (hasCategory(product)) return 2;
@@ -439,7 +546,7 @@
         }
     }
 
-    // ===== INITIALIZE =====
+    // ===== INIT =====
     window.onload = async function() {
         const statusEl = document.getElementById('status');
         try {
@@ -456,10 +563,8 @@
                 const obj = {};
                 headers.forEach((h, idx) => obj[h] = values[idx] !== undefined ? values[idx] : '');
                 
-                // Only push active products
                 const isActive = String(obj["Active"]).toUpperCase().trim();
                 if (isActive !== "FALSE" && isActive !== "0" && isActive !== "NO") {
-                    // Assign a sort priority number to each product
                     obj._priority = getPriority(obj);
                     products.push(obj);
                 }
@@ -473,13 +578,42 @@
         }
     };
 
-    // ===== MAIN FILTER + SORT + GROUP ENGINE =====
+    // ===== CAROUSEL =====
+    function renderCarousel(data) {
+        const topSellingItems = data.filter(p => isTopSelling(p));
+        const section = document.getElementById('carouselSection');
+        const track = document.getElementById('carouselTrack');
+
+        clearInterval(carouselInterval);
+        track.innerHTML = "";
+
+        if (topSellingItems.length === 0) {
+            section.style.display = 'none';
+            return;
+        }
+
+        section.style.display = 'block';
+        topSellingItems.forEach(item => track.appendChild(createCard(item, "⭐")));
+
+        if (topSellingItems.length > 2) {
+            let slideIndex = 0;
+            carouselInterval = setInterval(() => {
+                slideIndex++;
+                if (slideIndex > topSellingItems.length - 2) slideIndex = 0;
+                const card = track.children[slideIndex];
+                if (card) {
+                    track.scrollTo({ left: card.offsetLeft - 15, behavior: 'smooth' });
+                }
+            }, CAROUSEL_SPEED);
+        }
+    }
+
+    // ===== FILTER + SORT =====
     function applyFiltersAndSort() {
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
         const catFilter = document.getElementById('categoryFilter').value;
         const sortFilter = document.getElementById('sortFilter').value;
 
-        // STEP 1: FILTER
         let filtered = products.filter(p => {
             const name = (p["Product Name"] || "").toLowerCase();
             const sku = (p["SKU Code"] || "").toLowerCase();
@@ -489,23 +623,14 @@
             let matchesCat = true;
 
             switch (catFilter) {
-                case "ALL":
-                    matchesCat = true;
-                    break;
-                case "TOP_SELLING":
-                    matchesCat = cat === "TOP SELLING";
-                    break;
-                case "NO_CATEGORY":
-                    matchesCat = cat.length === 0;
-                    break;
-                default:
-                    matchesCat = cat === catFilter;
+                case "ALL": matchesCat = true; break;
+                case "TOP_SELLING": matchesCat = cat === "TOP SELLING"; break;
+                case "NO_CATEGORY": matchesCat = cat.length === 0; break;
+                default: matchesCat = cat === catFilter;
             }
-
             return matchesSearch && matchesCat;
         });
 
-        // STEP 2: APPLY USER SORT WITHIN the filtered set
         if (sortFilter === "PRICE_ASC") {
             filtered.sort((a, b) => (parseFloat(a["Selling"]) || 0) - (parseFloat(b["Selling"]) || 0));
         } else if (sortFilter === "PRICE_DESC") {
@@ -514,12 +639,17 @@
             filtered.sort((a, b) => (a["Product Name"] || "").localeCompare(b["Product Name"] || ""));
         }
 
-        // STEP 3: GROUP BY PRIORITY SECTIONS
-        // Re-assign priority after sorting
+        const isDefaultView = (query === "" && catFilter === "ALL" && sortFilter === "DEFAULT");
+        if (isDefaultView) {
+            renderCarousel(products);
+        } else {
+            document.getElementById('carouselSection').style.display = 'none';
+            clearInterval(carouselInterval);
+        }
+
         filtered.forEach(p => p._priority = getPriority(p));
 
         if (catFilter === "ALL") {
-            // Show 4 distinct sections
             renderGroupedSections(filtered);
         } else if (catFilter === "TOP_SELLING") {
             renderFlatGrid(filtered, "🔥 Top Selling");
@@ -530,7 +660,6 @@
         }
     }
 
-    // ===== RENDER: GROUPED BY PRIORITY SECTIONS =====
     function renderGroupedSections(data) {
         const grid = document.getElementById('productGrid');
         grid.innerHTML = "";
@@ -540,27 +669,19 @@
             return;
         }
 
-        // Group by priority
         const groups = { 1: [], 2: [], 3: [], 4: [] };
-        data.forEach(p => {
-            const pr = p._priority || 4;
-            groups[pr].push(p);
-        });
+        data.forEach(p => groups[p._priority || 4].push(p));
 
-        // Render each non-empty group
         [1, 2, 3, 4].forEach(priority => {
             const items = groups[priority];
             if (items.length === 0) return;
 
             const label = getPriorityLabel(priority);
-
-            // Section Header
             const header = document.createElement('div');
             header.className = "section-header";
             header.innerHTML = `${label.icon} ${label.title} <span class="count">(${items.length})</span> <span class="line"></span>`;
             grid.appendChild(header);
 
-            // Grid of cards
             const gridEl = document.createElement('div');
             gridEl.className = "grid";
             items.forEach(item => gridEl.appendChild(createCard(item, label.emoji)));
@@ -568,7 +689,6 @@
         });
     }
 
-    // ===== RENDER: FLAT GRID (when filtering by specific category) =====
     function renderFlatGrid(data, title) {
         const grid = document.getElementById('productGrid');
         grid.innerHTML = "";
@@ -589,9 +709,9 @@
         grid.appendChild(gridEl);
     }
 
-    // ===== CREATE PRODUCT CARD =====
+    // ===== PRODUCT CARD (with MRP + Discount) =====
     function createCard(item, badgeEmoji) {
-        const price = item["Selling"] || "0";
+        const pricing = calcPricing(item["Selling"]);
         const name = item["Product Name"] || "Jewelry";
         const sku = item["SKU Code"] || "";
         const cat = (item["Category"] || "").trim();
@@ -602,67 +722,66 @@
         card.onclick = () => openModal(sku);
 
         let imgSection = '';
-        let imgSrc = '';
-
-        // Check if product has valid images
         if (hasValidImages(item)) {
-            imgSrc = cleanImageUrl(item["Image 1"]) || '';
-            if (imgSrc) {
-                imgSection = `<img src="${imgSrc}" class="card-img" loading="lazy">`;
-            } else {
-                imgSection = `
-                    <div class="card-img-placeholder">
-                        <div class="icon">📷</div>
-                        <span>Image Loading...</span>
-                    </div>`;
-            }
+            const imgSrc = cleanImageUrl(item["Image 1"]) || '';
+            imgSection = imgSrc
+                ? `<img src="${imgSrc}" class="card-img" loading="lazy">`
+                : `<div class="card-img-placeholder"><div class="icon">📷</div><span>Image Loading...</span></div>`;
         } else {
-            // No image at all — show a nice placeholder
-            imgSection = `
-                <div class="card-img-placeholder">
-                    <div class="icon">💍</div>
-                    <span>Coming Soon</span>
-                </div>`;
+            imgSection = `<div class="card-img-placeholder"><div class="icon">💍</div><span>Coming Soon</span></div>`;
         }
 
-        const badgeHtml = (priority === 1) ? `<div class="card-badge">${badgeEmoji} Top Selling</div>` : "";
+        const topBadge = (priority === 1) ? `<div class="card-badge">${badgeEmoji} Top Selling</div>` : "";
+        const discBadge = pricing.discount > 0
+            ? `<div class="discount-badge">${pricing.discountText}</div>`
+            : "";
         const catHtml = cat ? `<p class="card-category">${cat}</p>` : "";
 
         card.innerHTML = `
             <div class="card-img-wrapper">
-                ${badgeHtml}
+                ${topBadge}
+                ${discBadge}
                 ${imgSection}
             </div>
             <div class="card-info">
                 ${catHtml}
                 <p class="card-title">${name}</p>
                 <p class="card-sku">SKU: ${sku}</p>
-                <p class="card-price">₹${price}</p>
+                <div class="card-price-row">
+                    <p class="card-mrp">${pricing.mrpText}</p>
+                    <p class="card-price">${pricing.sellingText}</p>
+                    <p class="card-off">${pricing.discountText}</p>
+                </div>
             </div>
         `;
         return card;
     }
 
-    // ===== PRODUCT MODAL =====
+    // ===== MODAL =====
     function openModal(sku) {
         const product = products.find(p => p["SKU Code"] === sku);
         if (!product) return;
 
+        const pricing = calcPricing(product["Selling"]);
+
         document.getElementById('mTitle').innerText = product["Product Name"] || "Jewelry";
         document.getElementById('mSku').innerText = "SKU: " + sku;
-        document.getElementById('mPrice').innerText = "₹" + (product["Selling"] || "0");
         document.getElementById('mCat').innerText = product["Category"] || "";
+        
+        document.getElementById('mMrp').innerText = pricing.mrpText;
+        document.getElementById('mDiscount').innerText = pricing.discountText;
+        document.getElementById('mPrice').innerText = pricing.sellingText;
 
         const message = encodeURIComponent(
             `Hi, I am interested in this item:\n\n` +
             `*${product["Product Name"]}*\n` +
             `*SKU:* ${sku}\n` +
-            `*Price:* ₹${product["Selling"]}\n\n` +
+            `*MRP:* ${pricing.mrpText}\n` +
+            `*Offer Price:* ${pricing.sellingText} (${pricing.discountText})\n\n` +
             `Can you share more details?`
         );
         document.getElementById('mWhatsapp').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
 
-        // Handle Images
         const mImg = document.getElementById('mImg');
         const mThumbs = document.getElementById('mThumbs');
         mThumbs.innerHTML = "";
@@ -686,7 +805,6 @@
             mThumbs.innerHTML = '<p style="color:#999; font-size:13px;">No images available for this product.</p>';
         } else {
             mImg.src = modalImages[0];
-            
             modalImages.forEach((src, idx) => {
                 const img = document.createElement('img');
                 img.src = src;
@@ -699,7 +817,6 @@
                 };
                 mThumbs.appendChild(img);
             });
-
             if (modalImages.length > 1) startModalRotation();
         }
 
@@ -713,7 +830,6 @@
         clearInterval(rotationInterval);
     }
 
-    // ===== MODAL IMAGE ROTATION =====
     function updateModalThumbs() {
         document.querySelectorAll('.modal-thumb').forEach((t, i) => 
             t.classList.toggle('active', i === currentImgIdx)
