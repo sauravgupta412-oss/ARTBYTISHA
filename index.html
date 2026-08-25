@@ -299,3 +299,613 @@
             padding: 20px;
             padding-bottom: 100px;
         }
+        .modal-img {
+            width: 100%;
+            height: 350px;
+            object-fit: contain;
+            background: #fff9fa;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        .thumb-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .modal-thumb {
+            width: 50px; height: 50px; object-fit: cover;
+            border: 2px solid #eee; border-radius: 8px;
+        }
+        .modal-thumb.active { border-color: #d88fa0; }
+        
+        .modal-cat { font-size: 12px; color: #d88fa0; font-weight: bold; text-transform: uppercase; margin: 0 0 5px 0; }
+        .modal-title { font-size: 22px; color: #333; margin: 0 0 5px 0; }
+        .modal-sku { font-size: 13px; color: #888; margin: 0 0 18px 0; }
+        
+        .modal-price-box {
+            background: #fff9fa;
+            border: 1px solid #ecd3d8;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+        }
+        .modal-mrp-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        .modal-mrp-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .modal-mrp {
+            font-size: 16px;
+            color: #999;
+            text-decoration: line-through;
+        }
+        .modal-discount-pill {
+            background: #e8f8ef;
+            color: #27ae60;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        .modal-price {
+            font-size: 28px;
+            color: #c97a8d;
+            font-weight: 900;
+            margin: 0;
+        }
+        .modal-price-note {
+            font-size: 12px;
+            color: #888;
+            margin: 4px 0 0 0;
+        }
+        
+        .whatsapp-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+            text-decoration: none;
+            z-index: 1001;
+        }
+
+        #installBtn {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            background: linear-gradient(135deg, #d88fa0 0%, #c97a8d 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: bold;
+            box-shadow: 0 6px 20px rgba(216,143,160,0.45);
+            cursor: pointer;
+            display: none;
+            animation: slideUp 0.5s ease;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="logo.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
+        <h1 class="header-title">Art By Tisha</h1>
+        <div class="header-tagline">Official Collection</div>
+    </header>
+
+    <div class="controls-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search Collection..." oninput="applyFiltersAndSort()">
+        
+        <div class="filter-row">
+            <select id="categoryFilter" class="filter-select" onchange="applyFiltersAndSort()">
+                <option value="ALL">All Categories</option>
+                <option value="TOP_SELLING">🔥 Top Selling</option>
+                <option value="NO_CATEGORY">📂 Uncategorized</option>
+            </select>
+            
+            <select id="sortFilter" class="filter-select" onchange="applyFiltersAndSort()">
+                <option value="DEFAULT">Default Order</option>
+                <option value="PRICE_ASC">Price: Low → High</option>
+                <option value="PRICE_DESC">Price: High → Low</option>
+                <option value="NAME_ASC">Name: A → Z</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="status" class="status-msg">✨ Loading Collection...</div>
+
+    <!-- TOP SELLING SLIDER - always fixed at top when All Categories -->
+    <div id="carouselSection" style="display: none;">
+        <div class="section-header">🏆 Featured Top Sellers <span class="line"></span></div>
+        <div id="carouselTrack" class="carousel-track"></div>
+    </div>
+
+    <div id="productGrid"></div>
+
+    <div id="productModal" class="modal">
+        <div class="modal-header">
+            <button class="back-btn" onclick="closeModal()">✕</button>
+            <h3 style="margin:0; font-size:16px; color:#333;">Details</h3>
+            <div style="width:24px;"></div>
+        </div>
+        <div class="modal-content">
+            <img id="mImg" class="modal-img" src="" alt="Product">
+            <div id="mThumbs" class="thumb-row"></div>
+            <p id="mCat" class="modal-cat"></p>
+            <h2 id="mTitle" class="modal-title"></h2>
+            <p id="mSku" class="modal-sku"></p>
+
+            <div class="modal-price-box">
+                <div class="modal-mrp-row">
+                    <span class="modal-mrp-label">MRP</span>
+                    <span id="mMrp" class="modal-mrp"></span>
+                    <span id="mDiscount" class="modal-discount-pill"></span>
+                </div>
+                <p id="mPrice" class="modal-price"></p>
+                <p class="modal-price-note">Inclusive of all taxes</p>
+            </div>
+        </div>
+        <a id="mWhatsapp" href="#" class="whatsapp-btn" target="_blank">
+            💬 Inquire on WhatsApp
+        </a>
+    </div>
+
+    <button id="installBtn" onclick="triggerInstall()">📲 Install Store App</button>
+
+<script>
+    const WHATSAPP_NUMBER = "918287567099";
+    const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
+    const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
+
+    let products = [];
+    
+    const ROTATION_SPEED = 1500;
+    const CAROUSEL_SPEED = 2000;
+    let rotationInterval = null;
+    let carouselInterval = null;
+    let modalImages = [];
+    let currentImgIdx = 0;
+
+    // ===== PWA =====
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block';
+    });
+
+    window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        installBtn.style.display = 'none';
+    });
+
+    function triggerInstall() {
+        if (!deferredPrompt) {
+            alert("To install: Tap browser menu (⋮) → 'Add to Home Screen'");
+            return;
+        }
+        installBtn.style.display = 'none';
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+    }
+
+    // ===== PRICING =====
+    function calcPricing(sellingRaw) {
+        const selling = parseFloat(sellingRaw) || 0;
+        const mrp = Math.round(selling * 1.6);
+        const discount = mrp > 0 ? Math.round(((mrp - selling) / mrp) * 100) : 0;
+        return {
+            selling, mrp, discount,
+            sellingText: "₹" + selling,
+            mrpText: "₹" + mrp,
+            discountText: discount + "% OFF"
+        };
+    }
+
+    function cleanImageUrl(url) {
+        if (!url) return '';
+        url = url.trim();
+        if (url.includes('drive.google.com')) {
+            let fileId = '';
+            const regD = /\/d\/([a-zA-Z0-9_-]+)/;
+            const regId = /[?&]id=([a-zA-Z0-9_-]+)/;
+            const mD = url.match(regD);
+            const mId = url.match(regId);
+            if (mD && mD[1]) fileId = mD[1];
+            else if (mId && mId[1]) fileId = mId[1];
+            if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`;
+        }
+        return url;
+    }
+
+    function hasValidImages(product) {
+        for (let i = 1; i <= 5; i++) {
+            const url = product[`Image ${i}`];
+            if (url && String(url).trim().length > 5) return true;
+        }
+        return false;
+    }
+
+    function hasCategory(product) {
+        return (product["Category"] || "").trim().length > 0;
+    }
+
+    function isTopSelling(product) {
+        return (product["Category"] || "").trim().toUpperCase() === "TOP SELLING";
+    }
+
+    // Grid priorities only (Top Selling is slider-only on All view)
+    function getPriority(product) {
+        if (isTopSelling(product)) return 1;
+        if (hasCategory(product)) return 2;
+        if (hasValidImages(product)) return 3;
+        return 4;
+    }
+
+    function getPriorityLabel(priority) {
+        switch (priority) {
+            case 2: return { icon: "📂", title: "Other Categories", emoji: "✨" };
+            case 3: return { icon: "🖼️", title: "Available Designs", emoji: "💎" };
+            case 4: return { icon: "📋", title: "More Coming Soon", emoji: "🕐" };
+        }
+    }
+
+    // Sort helper — used only on grid items below slider
+    function sortList(list, sortFilter) {
+        const arr = [...list];
+        if (sortFilter === "PRICE_ASC") {
+            arr.sort((a, b) => (parseFloat(a["Selling"]) || 0) - (parseFloat(b["Selling"]) || 0));
+        } else if (sortFilter === "PRICE_DESC") {
+            arr.sort((a, b) => (parseFloat(b["Selling"]) || 0) - (parseFloat(a["Selling"]) || 0));
+        } else if (sortFilter === "NAME_ASC") {
+            arr.sort((a, b) => (a["Product Name"] || "").localeCompare(b["Product Name"] || ""));
+        }
+        return arr;
+    }
+
+    window.onload = async function() {
+        const statusEl = document.getElementById('status');
+        try {
+            const res = await fetch(CSV_URL);
+            if (!res.ok) throw new Error();
+            const text = await res.text();
+            
+            const lines = text.split('\n');
+            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+                const obj = {};
+                headers.forEach((h, idx) => obj[h] = values[idx] !== undefined ? values[idx] : '');
+                
+                const isActive = String(obj["Active"]).toUpperCase().trim();
+                if (isActive !== "FALSE" && isActive !== "0" && isActive !== "NO") {
+                    obj._priority = getPriority(obj);
+                    products.push(obj);
+                }
+            }
+
+            statusEl.style.display = 'none';
+            applyFiltersAndSort();
+
+        } catch (err) {
+            statusEl.innerText = "❌ Could not load collection. Please try again later.";
+        }
+    };
+
+    // ===== TOP SELLING SLIDER =====
+    // Always shows Top Selling products (not affected by sort dropdown)
+    function renderCarousel() {
+        const topSellingItems = products.filter(p => isTopSelling(p));
+        const section = document.getElementById('carouselSection');
+        const track = document.getElementById('carouselTrack');
+
+        clearInterval(carouselInterval);
+        track.innerHTML = "";
+
+        if (topSellingItems.length === 0) {
+            section.style.display = 'none';
+            return;
+        }
+
+        section.style.display = 'block';
+        topSellingItems.forEach(item => track.appendChild(createCard(item, "⭐")));
+
+        if (topSellingItems.length > 2) {
+            let slideIndex = 0;
+            carouselInterval = setInterval(() => {
+                slideIndex++;
+                if (slideIndex > topSellingItems.length - 2) slideIndex = 0;
+                const card = track.children[slideIndex];
+                if (card) {
+                    track.scrollTo({ left: card.offsetLeft - 15, behavior: 'smooth' });
+                }
+            }, CAROUSEL_SPEED);
+        }
+    }
+
+    function hideCarousel() {
+        document.getElementById('carouselSection').style.display = 'none';
+        clearInterval(carouselInterval);
+    }
+
+    // ===== MAIN ENGINE =====
+    function applyFiltersAndSort() {
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        const catFilter = document.getElementById('categoryFilter').value;
+        const sortFilter = document.getElementById('sortFilter').value;
+
+        // --- TOP SLIDER RULE ---
+        // Keep slider at top when viewing ALL categories (even if sort changes!)
+        // Hide only when user picks a specific category, Top Selling filter, or is searching
+        if (catFilter === "ALL" && query === "") {
+            renderCarousel(); // sort does NOT affect slider
+        } else {
+            hideCarousel();
+        }
+
+        // --- FILTER for grid ---
+        let filtered = products.filter(p => {
+            const name = (p["Product Name"] || "").toLowerCase();
+            const sku = (p["SKU Code"] || "").toLowerCase();
+            const cat = (p["Category"] || "").trim().toUpperCase();
+
+            const matchesSearch = !query || name.includes(query) || sku.includes(query);
+            let matchesCat = true;
+
+            switch (catFilter) {
+                case "ALL": matchesCat = true; break;
+                case "TOP_SELLING": matchesCat = cat === "TOP SELLING"; break;
+                case "NO_CATEGORY": matchesCat = cat.length === 0; break;
+                default: matchesCat = cat === catFilter;
+            }
+            return matchesSearch && matchesCat;
+        });
+
+        filtered.forEach(p => p._priority = getPriority(p));
+
+        if (catFilter === "ALL") {
+            // Exclude Top Selling from grid (already in slider)
+            // Sort ONLY applies from Other Categories onwards
+            let gridItems = filtered.filter(p => !isTopSelling(p));
+            gridItems = sortList(gridItems, sortFilter);
+            renderGroupedSections(gridItems);
+        } else if (catFilter === "TOP_SELLING") {
+            // User chose Top Selling filter only — flat sorted list
+            renderFlatGrid(sortList(filtered, sortFilter), "🔥 Top Selling");
+        } else if (catFilter === "NO_CATEGORY") {
+            renderFlatGrid(sortList(filtered, sortFilter), "📂 Uncategorized");
+        } else {
+            renderFlatGrid(sortList(filtered, sortFilter), catFilter);
+        }
+    }
+
+    // Grouped sections: Other Categories → With images → Without images
+    // Sort is already applied within each group order by sorting the full list first,
+    // then grouping (relative order within each priority is preserved)
+    function renderGroupedSections(data) {
+        const grid = document.getElementById('productGrid');
+        grid.innerHTML = "";
+
+        if (data.length === 0) {
+            grid.innerHTML = "<div class='no-results'>No items found matching your search.</div>";
+            return;
+        }
+
+        // Split by priority, keeping sort order within each group
+        const groups = { 2: [], 3: [], 4: [] };
+        data.forEach(p => {
+            const pr = p._priority || 4;
+            if (groups[pr]) groups[pr].push(p);
+        });
+
+        [2, 3, 4].forEach(priority => {
+            const items = groups[priority];
+            if (items.length === 0) return;
+
+            const label = getPriorityLabel(priority);
+            const header = document.createElement('div');
+            header.className = "section-header";
+            header.innerHTML = `${label.icon} ${label.title} <span class="count">(${items.length})</span> <span class="line"></span>`;
+            grid.appendChild(header);
+
+            const gridEl = document.createElement('div');
+            gridEl.className = "grid";
+            items.forEach(item => gridEl.appendChild(createCard(item, label.emoji)));
+            grid.appendChild(gridEl);
+        });
+    }
+
+    function renderFlatGrid(data, title) {
+        const grid = document.getElementById('productGrid');
+        grid.innerHTML = "";
+
+        if (data.length === 0) {
+            grid.innerHTML = "<div class='no-results'>No items found matching your search.</div>";
+            return;
+        }
+
+        const header = document.createElement('div');
+        header.className = "section-header";
+        header.innerHTML = `${title} <span class="count">(${data.length})</span> <span class="line"></span>`;
+        grid.appendChild(header);
+
+        const gridEl = document.createElement('div');
+        gridEl.className = "grid";
+        data.forEach(item => gridEl.appendChild(createCard(item, "✨")));
+        grid.appendChild(gridEl);
+    }
+
+    function createCard(item, badgeEmoji) {
+        const pricing = calcPricing(item["Selling"]);
+        const name = item["Product Name"] || "Jewelry";
+        const sku = item["SKU Code"] || "";
+        const cat = (item["Category"] || "").trim();
+        const isTop = isTopSelling(item);
+
+        const card = document.createElement('div');
+        card.className = "product-card";
+        card.onclick = () => openModal(sku);
+
+        let imgSection = '';
+        if (hasValidImages(item)) {
+            const imgSrc = cleanImageUrl(item["Image 1"]) || '';
+            imgSection = imgSrc
+                ? `<img src="${imgSrc}" class="card-img" loading="lazy">`
+                : `<div class="card-img-placeholder"><div class="icon">📷</div><span>Image Loading...</span></div>`;
+        } else {
+            imgSection = `<div class="card-img-placeholder"><div class="icon">💍</div><span>Coming Soon</span></div>`;
+        }
+
+        const topBadge = isTop ? `<div class="card-badge">${badgeEmoji} Top Selling</div>` : "";
+        const discBadge = pricing.discount > 0
+            ? `<div class="discount-badge">${pricing.discountText}</div>`
+            : "";
+        const catHtml = cat ? `<p class="card-category">${cat}</p>` : "";
+
+        card.innerHTML = `
+            <div class="card-img-wrapper">
+                ${topBadge}
+                ${discBadge}
+                ${imgSection}
+            </div>
+            <div class="card-info">
+                ${catHtml}
+                <p class="card-title">${name}</p>
+                <p class="card-sku">SKU: ${sku}</p>
+                <div class="card-price-row">
+                    <p class="card-mrp">${pricing.mrpText}</p>
+                    <p class="card-price">${pricing.sellingText}</p>
+                    <p class="card-off">${pricing.discountText}</p>
+                </div>
+            </div>
+        `;
+        return card;
+    }
+
+    function openModal(sku) {
+        const product = products.find(p => p["SKU Code"] === sku);
+        if (!product) return;
+
+        const pricing = calcPricing(product["Selling"]);
+
+        document.getElementById('mTitle').innerText = product["Product Name"] || "Jewelry";
+        document.getElementById('mSku').innerText = "SKU: " + sku;
+        document.getElementById('mCat').innerText = product["Category"] || "";
+        document.getElementById('mMrp').innerText = pricing.mrpText;
+        document.getElementById('mDiscount').innerText = pricing.discountText;
+        document.getElementById('mPrice').innerText = pricing.sellingText;
+
+        const message = encodeURIComponent(
+            `Hi, I am interested in this item:\n\n` +
+            `*${product["Product Name"]}*\n` +
+            `*SKU:* ${sku}\n` +
+            `*MRP:* ${pricing.mrpText}\n` +
+            `*Offer Price:* ${pricing.sellingText} (${pricing.discountText})\n\n` +
+            `Can you share more details?`
+        );
+        document.getElementById('mWhatsapp').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+
+        const mImg = document.getElementById('mImg');
+        const mThumbs = document.getElementById('mThumbs');
+        mThumbs.innerHTML = "";
+        clearInterval(rotationInterval);
+        modalImages = [];
+        currentImgIdx = 0;
+
+        let rawImages = [
+            product["Image 1"], product["Image 2"],
+            product["Image 3"], product["Image 4"], product["Image 5"]
+        ];
+        rawImages.forEach(url => {
+            if (url && String(url).trim().length > 5) {
+                modalImages.push(cleanImageUrl(String(url).trim()));
+            }
+        });
+        modalImages = [...new Set(modalImages)];
+
+        if (modalImages.length === 0) {
+            mImg.src = 'https://via.placeholder.com/400x400?text=Image+Not+Available';
+            mThumbs.innerHTML = '<p style="color:#999; font-size:13px;">No images available for this product.</p>';
+        } else {
+            mImg.src = modalImages[0];
+            modalImages.forEach((src, idx) => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.className = 'modal-thumb' + (idx === 0 ? ' active' : '');
+                img.onclick = () => {
+                    currentImgIdx = idx;
+                    mImg.src = src;
+                    updateModalThumbs();
+                    startModalRotation();
+                };
+                mThumbs.appendChild(img);
+            });
+            if (modalImages.length > 1) startModalRotation();
+        }
+
+        document.body.style.overflow = 'hidden'; 
+        document.getElementById('productModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('productModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        clearInterval(rotationInterval);
+    }
+
+    function updateModalThumbs() {
+        document.querySelectorAll('.modal-thumb').forEach((t, i) => 
+            t.classList.toggle('active', i === currentImgIdx)
+        );
+    }
+    
+    function startModalRotation() {
+        clearInterval(rotationInterval);
+        rotationInterval = setInterval(() => {
+            currentImgIdx = (currentImgIdx + 1) % modalImages.length;
+            document.getElementById('mImg').src = modalImages[currentImgIdx];
+            updateModalThumbs();
+        }, ROTATION_SPEED);
+    }
+</script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
+    }
+</script>
+
+</body>
+</html>
