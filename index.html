@@ -21,7 +21,6 @@
             padding-bottom: 30px;
         }
 
-        /* HEADER */
         header {
             background: white;
             padding: 15px 20px;
@@ -56,7 +55,6 @@
             text-transform: uppercase;
         }
 
-        /* SEARCH & FILTERS */
         .controls-container {
             padding: 15px;
             background: #fdf5f6;
@@ -101,7 +99,6 @@
             background-size: 10px auto;
         }
 
-        /* SECTION HEADERS */
         .section-header {
             padding: 15px 15px 8px 15px;
             font-size: 13px;
@@ -140,7 +137,6 @@
             scroll-snap-align: start;
         }
 
-        /* GRID */
         .grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -274,7 +270,6 @@
             font-size: 14px;
         }
 
-        /* MODAL */
         .modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -450,7 +445,6 @@
             <h2 id="mTitle" class="modal-title"></h2>
             <p id="mSku" class="modal-sku"></p>
 
-            <!-- PRICE BOX WITH MRP + DISCOUNT -->
             <div class="modal-price-box">
                 <div class="modal-mrp-row">
                     <span class="modal-mrp-label">MRP</span>
@@ -480,14 +474,11 @@
     let modalImages = [];
     let currentImgIdx = 0;
 
-    // ===== MRP / DISCOUNT HELPERS =====
-    // Formula: MRP = Selling × 1.6  |  Discount% = ((MRP - Selling) / MRP) × 100
+    // MRP Formula: MRP = Selling × 1.6 (160%)
     function calcPricing(sellingRaw) {
         const selling = parseFloat(sellingRaw) || 0;
-        const mrp = Math.round(selling * 1.6);           // 160% of selling
-        const discount = mrp > 0
-            ? Math.round(((mrp - selling) / mrp) * 100)  // % off
-            : 0;
+        const mrp = Math.round(selling * 1.6);
+        const discount = mrp > 0 ? Math.round(((mrp - selling) / mrp) * 100) : 0;
         return {
             selling: selling,
             mrp: mrp,
@@ -530,8 +521,12 @@
         return (product["Category"] || "").trim().toUpperCase() === "TOP SELLING";
     }
 
+    // Priority Logic (Top Selling REMOVED from grid)
+    // Priority 2 = Other Categories (has category, not Top Selling)
+    // Priority 3 = No Category, has images
+    // Priority 4 = No Category, no images
     function getPriority(product) {
-        if (isTopSelling(product)) return 1;
+        if (isTopSelling(product)) return 1; // Only used for carousel filtering
         if (hasCategory(product)) return 2;
         if (hasValidImages(product)) return 3;
         return 4;
@@ -539,14 +534,12 @@
 
     function getPriorityLabel(priority) {
         switch (priority) {
-            case 1: return { icon: "🔥", title: "Top Selling", emoji: "⭐" };
             case 2: return { icon: "📂", title: "Other Categories", emoji: "✨" };
             case 3: return { icon: "🖼️", title: "Available Designs", emoji: "💎" };
             case 4: return { icon: "📋", title: "More Coming Soon", emoji: "🕐" };
         }
     }
 
-    // ===== INIT =====
     window.onload = async function() {
         const statusEl = document.getElementById('status');
         try {
@@ -578,7 +571,6 @@
         }
     };
 
-    // ===== CAROUSEL =====
     function renderCarousel(data) {
         const topSellingItems = data.filter(p => isTopSelling(p));
         const section = document.getElementById('carouselSection');
@@ -608,7 +600,6 @@
         }
     }
 
-    // ===== FILTER + SORT =====
     function applyFiltersAndSort() {
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
         const catFilter = document.getElementById('categoryFilter').value;
@@ -650,7 +641,9 @@
         filtered.forEach(p => p._priority = getPriority(p));
 
         if (catFilter === "ALL") {
-            renderGroupedSections(filtered);
+            // REMOVE Top Selling items from the grid since they're in the slider
+            const gridItems = filtered.filter(p => !isTopSelling(p));
+            renderGroupedSections(gridItems);
         } else if (catFilter === "TOP_SELLING") {
             renderFlatGrid(filtered, "🔥 Top Selling");
         } else if (catFilter === "NO_CATEGORY") {
@@ -669,10 +662,14 @@
             return;
         }
 
-        const groups = { 1: [], 2: [], 3: [], 4: [] };
-        data.forEach(p => groups[p._priority || 4].push(p));
+        // Only priorities 2, 3, 4 (Top Selling excluded from grid)
+        const groups = { 2: [], 3: [], 4: [] };
+        data.forEach(p => {
+            const pr = p._priority || 4;
+            if (groups[pr]) groups[pr].push(p);
+        });
 
-        [1, 2, 3, 4].forEach(priority => {
+        [2, 3, 4].forEach(priority => {
             const items = groups[priority];
             if (items.length === 0) return;
 
@@ -709,13 +706,12 @@
         grid.appendChild(gridEl);
     }
 
-    // ===== PRODUCT CARD (with MRP + Discount) =====
     function createCard(item, badgeEmoji) {
         const pricing = calcPricing(item["Selling"]);
         const name = item["Product Name"] || "Jewelry";
         const sku = item["SKU Code"] || "";
         const cat = (item["Category"] || "").trim();
-        const priority = item._priority || 4;
+        const isTop = isTopSelling(item);
 
         const card = document.createElement('div');
         card.className = "product-card";
@@ -731,7 +727,8 @@
             imgSection = `<div class="card-img-placeholder"><div class="icon">💍</div><span>Coming Soon</span></div>`;
         }
 
-        const topBadge = (priority === 1) ? `<div class="card-badge">${badgeEmoji} Top Selling</div>` : "";
+        // Only show "Top Selling" badge on carousel cards
+        const topBadge = isTop ? `<div class="card-badge">${badgeEmoji} Top Selling</div>` : "";
         const discBadge = pricing.discount > 0
             ? `<div class="discount-badge">${pricing.discountText}</div>`
             : "";
@@ -757,7 +754,6 @@
         return card;
     }
 
-    // ===== MODAL =====
     function openModal(sku) {
         const product = products.find(p => p["SKU Code"] === sku);
         if (!product) return;
