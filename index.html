@@ -56,12 +56,14 @@
             top: 0;
             z-index: 102;
             letter-spacing: 0.5px;
+            gap: 8px;
         }
         body.dark-mode #topBanner {
             background: #1e1e1e;
             border-bottom: 1px solid var(--border-color);
             color: var(--text-main);
         }
+        #topBanner span { flex: 1; min-width: 0; }
         #themeToggleBtn {
             background: rgba(255,255,255,0.25);
             border: 1px solid rgba(255,255,255,0.4);
@@ -71,6 +73,7 @@
             font-size: 11px;
             font-weight: 800;
             cursor: pointer;
+            flex-shrink: 0;
         }
         body.dark-mode #themeToggleBtn {
             background: #2a2a2a;
@@ -90,17 +93,25 @@
             top: 36px;
             z-index: 101;
             transition: 0.3s;
+            cursor: pointer;
+            user-select: none;
         }
+        header:active { opacity: 0.85; }
         .header-logo {
             width: 70px; height: 70px; border-radius: 50%;
             object-fit: contain; border: 2px solid var(--border-color);
             background: white;
+            pointer-events: none;
         }
         .header-title {
             color: var(--primary-dark); margin: 8px 0 0 0;
             font-size: 18px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+            pointer-events: none;
         }
-        .header-tagline { color: var(--text-muted); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; }
+        .header-tagline {
+            color: var(--text-muted); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+            pointer-events: none;
+        }
 
         .controls-container { padding: 15px; background: var(--bg-color); display: flex; flex-direction: column; gap: 12px; }
         .search-input {
@@ -223,11 +234,12 @@
 <body>
 
     <div id="topBanner">
-        <span>👁️ Visitors: <span id="visitNumber">...</span> • ✨ Free Shipping Above ₹999</span>
+        <span>👁️ Visitors: <span id="visitNumber">...</span> • Free shipping above 499 only</span>
         <button id="themeToggleBtn" onclick="toggleTheme()">🌙 Dark</button>
     </div>
 
-    <header>
+    <!-- Click logo / brand name → reset to home defaults -->
+    <header id="brandHeader" onclick="goHome()" title="Back to Home">
         <img src="logo.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
         <h1 class="header-title">Art By Tisha</h1>
         <div class="header-tagline">Official Collection</div>
@@ -252,6 +264,7 @@
 
     <div id="status" class="status-msg">✨ Loading Collection...</div>
 
+    <!-- TOP SELLING: always fixed at top (except when user searches) -->
     <div id="carouselSection" style="display: none;">
         <div class="section-header">🏆 Featured Top Sellers <span class="line"></span></div>
         <div id="carouselTrack" class="carousel-track"></div>
@@ -289,12 +302,39 @@
     const WHATSAPP_NUMBER = "918287567099";
     const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
-    const CATEGORY_ORDER = ["BANGLES", "EARRINGS", "BRACELETS", "RINGS", "NECKLACES"];
+
+    const CATEGORY_ORDER = [
+        "NECKLACE", "NECKLACES",
+        "BANGLES", "BANGLE",
+        "EARRINGS", "EARRING",
+        "BRACELETS", "BRACELET",
+        "RINGS", "RING"
+    ];
 
     let products = [];
     const ROTATION_SPEED = 1500;
     const CAROUSEL_SPEED = 2000;
     let rotationInterval = null, carouselInterval = null, modalImages = [], currentImgIdx = 0;
+
+    // ===== GO HOME (logo / brand click) =====
+    function goHome() {
+        // Close product modal if open
+        const modal = document.getElementById('productModal');
+        if (modal && modal.style.display === 'flex') {
+            closeModal();
+        }
+
+        // Reset filters to default
+        document.getElementById('searchInput').value = '';
+        document.getElementById('categoryFilter').value = 'ALL';
+        document.getElementById('sortFilter').value = 'DEFAULT';
+
+        // Re-render default view
+        applyFiltersAndSort();
+
+        // Scroll to top smoothly
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
     // ===== THEME =====
     function initTheme() {
@@ -318,37 +358,69 @@
         document.getElementById('themeColorMeta').setAttribute('content', isDark ? '#121212' : '#ffffff');
     }
 
-    // ===== VISITOR COUNT =====
+    // ===== UNIVERSAL VISITOR COUNT =====
     async function loadVisitorCount() {
         const visitEl = document.getElementById('visitNumber');
-        try {
-            const res = await fetch('https://api.counterapi.dev/v1/artbytisha_public_store/visits/up');
-            if (!res.ok) throw new Error();
-            const data = await res.json();
-            const count = data.count ?? data.value ?? data.hits ?? 1;
-            visitEl.innerText = count;
-            localStorage.setItem('abt_visits', count);
-        } catch (e) {
-            let localCount = parseInt(localStorage.getItem('abt_visits') || '0') + 1;
-            localStorage.setItem('abt_visits', localCount);
-            visitEl.innerText = localCount;
+        function pickCount(data) {
+            if (data == null) return null;
+            if (typeof data === 'number') return data;
+            const n = data.count ?? data.value ?? data.hits ?? data.total;
+            return (n !== undefined && n !== null && !isNaN(Number(n))) ? Number(n) : null;
         }
+        try {
+            const res = await fetch('https://api.counterapi.dev/v1/artbytisha/store_visits_v2/up', { cache: 'no-store', mode: 'cors' });
+            if (res.ok) {
+                const count = pickCount(await res.json());
+                if (count !== null) {
+                    visitEl.innerText = count.toLocaleString('en-IN');
+                    localStorage.setItem('abt_global_visits', String(count));
+                    return;
+                }
+            }
+        } catch (e) {}
+        try {
+            const res = await fetch('https://api.countapi.xyz/hit/artbytisha-public-store/visits', { cache: 'no-store', mode: 'cors' });
+            if (res.ok) {
+                const count = pickCount(await res.json());
+                if (count !== null) {
+                    visitEl.innerText = count.toLocaleString('en-IN');
+                    localStorage.setItem('abt_global_visits', String(count));
+                    return;
+                }
+            }
+        } catch (e) {}
+        const lastGlobal = localStorage.getItem('abt_global_visits');
+        visitEl.innerText = lastGlobal ? Number(lastGlobal).toLocaleString('en-IN') : '—';
     }
 
     // ===== PWA =====
     let deferredPrompt = null;
     const installBtn = document.getElementById('installBtn');
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block'; });
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block';
+    });
     function triggerInstall() {
-        if (!deferredPrompt) { alert("Tap browser menu (⋮) → 'Add to Home Screen'"); return; }
-        installBtn.style.display = 'none'; deferredPrompt.prompt(); deferredPrompt = null;
+        if (!deferredPrompt) {
+            alert("Tap browser menu (⋮) → 'Add to Home Screen'");
+            return;
+        }
+        installBtn.style.display = 'none';
+        deferredPrompt.prompt();
+        deferredPrompt = null;
     }
 
     function calcPricing(s) {
         const selling = parseFloat(s) || 0;
         const mrp = Math.round(selling * 1.6);
         const discount = mrp > 0 ? Math.round(((mrp - selling) / mrp) * 100) : 0;
-        return { selling, mrp, discount, sellingText: "₹" + selling, mrpText: "₹" + mrp, discountText: discount + "% OFF" };
+        return {
+            selling, mrp, discount,
+            sellingText: "₹" + selling,
+            mrpText: "₹" + mrp,
+            discountText: discount + "% OFF"
+        };
     }
 
     function cleanImageUrl(url) {
@@ -356,8 +428,10 @@
         url = url.trim();
         if (url.includes('drive.google.com')) {
             let fileId = '';
-            const regD = /\/d\/([a-zA-Z0-9_-]+)/, regId = /[?&]id=([a-zA-Z0-9_-]+)/;
-            const mD = url.match(regD), mId = url.match(regId);
+            const regD = /\/d\/([a-zA-Z0-9_-]+)/;
+            const regId = /[?&]id=([a-zA-Z0-9_-]+)/;
+            const mD = url.match(regD);
+            const mId = url.match(regId);
             if (mD && mD[1]) fileId = mD[1];
             else if (mId && mId[1]) fileId = mId[1];
             if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`;
@@ -377,16 +451,14 @@
         return (p["Category"] || "").trim().toUpperCase() === "TOP SELLING";
     }
 
-    // Price / Name sort only
     function sortList(list, f) {
         const arr = [...list];
-        if (f === "PRICE_ASC") arr.sort((a,b)=>(parseFloat(a["Selling"])||0)-(parseFloat(b["Selling"])||0));
-        else if (f === "PRICE_DESC") arr.sort((a,b)=>(parseFloat(b["Selling"])||0)-(parseFloat(a["Selling"])||0));
-        else if (f === "NAME_ASC") arr.sort((a,b)=>(a["Product Name"]||"").localeCompare(b["Product Name"]||""));
+        if (f === "PRICE_ASC") arr.sort((a, b) => (parseFloat(a["Selling"]) || 0) - (parseFloat(b["Selling"]) || 0));
+        else if (f === "PRICE_DESC") arr.sort((a, b) => (parseFloat(b["Selling"]) || 0) - (parseFloat(a["Selling"]) || 0));
+        else if (f === "NAME_ASC") arr.sort((a, b) => (a["Product Name"] || "").localeCompare(b["Product Name"] || ""));
         return arr;
     }
 
-    // KEY FEATURE: Images first, then Coming Soon (within any list)
     function sortImagesFirst(list, sortFilter) {
         const withImg = [];
         const noImg = [];
@@ -394,14 +466,11 @@
             if (hasValidImages(p)) withImg.push(p);
             else noImg.push(p);
         });
-        return [
-            ...sortList(withImg, sortFilter),
-            ...sortList(noImg, sortFilter)
-        ];
+        return [...sortList(withImg, sortFilter), ...sortList(noImg, sortFilter)];
     }
 
     function sortCategories(arr) {
-        return arr.sort((a,b)=>{
+        return arr.sort((a, b) => {
             const iA = CATEGORY_ORDER.indexOf(a.toUpperCase());
             const iB = CATEGORY_ORDER.indexOf(b.toUpperCase());
             if (iA !== -1 && iB !== -1) return iA - iB;
@@ -459,7 +528,6 @@
         track.innerHTML = "";
         if (topItems.length === 0) { section.style.display = 'none'; return; }
         section.style.display = 'block';
-        // Top selling: also prefer images first inside slider
         sortImagesFirst(topItems, "DEFAULT").forEach(item => track.appendChild(createCard(item, "⭐")));
         if (topItems.length > 2) {
             let slideIndex = 0;
@@ -477,44 +545,68 @@
         clearInterval(carouselInterval);
     }
 
+    // ===== MAIN FILTER ENGINE =====
     function applyFiltersAndSort() {
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
         const catFilter = document.getElementById('categoryFilter').value;
         const sortFilter = document.getElementById('sortFilter').value;
 
-        if (catFilter === "ALL" && query === "") renderCarousel();
-        else hideCarousel();
+        // TOP SELLING SLIDER RULE:
+        // Always keep at top for ANY category filter (All / Necklace / Bangles / etc.)
+        // Only hide when user is actively searching by text
+        if (query === "") {
+            renderCarousel();
+        } else {
+            hideCarousel();
+        }
 
+        // Build grid list
         let filtered = products.filter(p => {
             const name = (p["Product Name"] || "").toLowerCase();
             const sku = (p["SKU Code"] || "").toLowerCase();
             const cat = (p["Category"] || "").trim().toUpperCase();
+
             const matchesSearch = !query || name.includes(query) || sku.includes(query);
             let matchesCat = true;
+
             switch (catFilter) {
-                case "ALL": matchesCat = true; break;
-                case "TOP_SELLING": matchesCat = cat === "TOP SELLING"; break;
-                case "NO_CATEGORY": matchesCat = cat.length === 0; break;
-                default: matchesCat = cat === catFilter;
+                case "ALL":
+                    matchesCat = true;
+                    break;
+                case "TOP_SELLING":
+                    matchesCat = cat === "TOP SELLING";
+                    break;
+                case "NO_CATEGORY":
+                    matchesCat = cat.length === 0;
+                    break;
+                default:
+                    matchesCat = cat === catFilter;
             }
             return matchesSearch && matchesCat;
         });
 
         if (catFilter === "ALL") {
-            // Exclude Top Selling from grid (already in slider)
+            // Don't duplicate Top Selling in grid (already in slider when not searching)
             let gridItems = filtered.filter(p => !isTopSelling(p));
+            // If searching, include top selling in grid results too
+            if (query !== "") gridItems = filtered;
             renderGroupedSections(gridItems, sortFilter);
-        } else {
-            let title = catFilter;
-            if (catFilter === "TOP_SELLING") title = "🔥 Top Selling";
-            if (catFilter === "NO_CATEGORY") title = "📂 Uncategorized";
-            // Single category view: images first, then coming soon
+        } else if (catFilter === "TOP_SELLING") {
+            // User chose Top Selling only in dropdown —
+            // Slider already shows them; grid can show same list sorted
             const ordered = sortImagesFirst(filtered, sortFilter);
-            renderSection(document.getElementById('productGrid'), "", title, ordered, "✨", true);
+            renderSection(document.getElementById('productGrid'), "🔥", "Top Selling", ordered, "⭐", true);
+        } else if (catFilter === "NO_CATEGORY") {
+            const ordered = sortImagesFirst(filtered, sortFilter);
+            renderSection(document.getElementById('productGrid'), "📂", "Uncategorized", ordered, "✨", true);
+        } else {
+            // Specific category (Necklace, Bangles, etc.)
+            // Top Selling slider stays above; grid shows only this category
+            const ordered = sortImagesFirst(filtered, sortFilter);
+            renderCategoryWithSubgroups(document.getElementById('productGrid'), catFilter, ordered, true);
         }
     }
 
-    // Group by category name, and within each category: images first → coming soon
     function renderGroupedSections(data, sortFilter) {
         const grid = document.getElementById('productGrid');
         grid.innerHTML = "";
@@ -528,40 +620,41 @@
 
         data.forEach(p => {
             const cat = (p["Category"] || "").trim();
-            if (cat) {
+            if (cat && cat.toUpperCase() !== "TOP SELLING") {
                 if (!catGroups[cat]) catGroups[cat] = [];
                 catGroups[cat].push(p);
-            } else {
+            } else if (!cat) {
                 uncategorized.push(p);
+            } else if (isTopSelling(p)) {
+                // only when searching — show under its own section if needed
+                if (!catGroups["Top Selling"]) catGroups["Top Selling"] = [];
+                catGroups["Top Selling"].push(p);
             }
         });
 
-        // 1. Named categories in your fixed order
-        //    Inside each: WITH IMAGES first, then COMING SOON
         sortCategories(Object.keys(catGroups)).forEach(catName => {
             const ordered = sortImagesFirst(catGroups[catName], sortFilter);
-            renderCategoryWithSubgroups(grid, catName, ordered);
+            renderCategoryWithSubgroups(grid, catName, ordered, false);
         });
 
-        // 2. Uncategorized with images
         const availDesigns = sortList(uncategorized.filter(p => hasValidImages(p)), sortFilter);
         if (availDesigns.length > 0) {
             renderSection(grid, "🖼️", "Available Designs", availDesigns, "💎", false);
         }
 
-        // 3. Uncategorized without images
         const comingSoon = sortList(uncategorized.filter(p => !hasValidImages(p)), sortFilter);
         if (comingSoon.length > 0) {
             renderSection(grid, "📋", "More Coming Soon", comingSoon, "🕐", false);
         }
     }
 
-    // Renders one category as:
-    // 📂 Bangles (12)
-    //    [image products grid]
-    //    Coming Soon
-    //    [no-image products grid]
-    function renderCategoryWithSubgroups(container, catName, orderedItems) {
+    function renderCategoryWithSubgroups(container, catName, orderedItems, clearFirst) {
+        if (clearFirst) container.innerHTML = "";
+        if (orderedItems.length === 0) {
+            if (clearFirst) container.innerHTML = "<div class='no-results'>No items found.</div>";
+            return;
+        }
+
         const withImg = orderedItems.filter(p => hasValidImages(p));
         const noImg = orderedItems.filter(p => !hasValidImages(p));
         const total = orderedItems.length;
@@ -579,7 +672,6 @@
         }
 
         if (noImg.length > 0) {
-            // Only show "Coming Soon" sub-label if there are ALSO image products above
             if (withImg.length > 0) {
                 const sub = document.createElement('div');
                 sub.className = "sub-section-label";
