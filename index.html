@@ -7,7 +7,7 @@
 
     <!-- PWA META -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#fdf5f6">
+    <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="launchericon-192x192.png">
@@ -57,16 +57,19 @@
             text-transform: uppercase;
         }
 
-        /* SEARCH BAR */
-        .search-container {
+        /* SEARCH & FILTERS */
+        .controls-container {
             padding: 15px;
             background: #fdf5f6;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
         .search-input {
             width: 100%;
             padding: 14px;
             border: 1px solid #ecd3d8;
-            border-radius: 25px;
+            border-radius: 12px;
             outline: none;
             font-size: 15px;
             text-align: center;
@@ -76,6 +79,27 @@
         .search-input:focus {
             border-color: #d88fa0;
             box-shadow: 0 4px 15px rgba(216, 143, 160, 0.2);
+        }
+        .filter-row {
+            display: flex;
+            gap: 10px;
+        }
+        .filter-select {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ecd3d8;
+            border-radius: 12px;
+            background: white;
+            color: #555;
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            box-shadow: 0 2px 8px rgba(216, 143, 160, 0.05);
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23d88fa0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px top 50%;
+            background-size: 10px auto;
         }
 
         /* GRID LAYOUT */
@@ -110,6 +134,14 @@
         .card-info {
             padding: 12px;
             text-align: center;
+        }
+        .card-category {
+            font-size: 10px;
+            color: #d88fa0;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin: 0 0 3px 0;
+            letter-spacing: 0.5px;
         }
         .card-title {
             font-size: 13px;
@@ -171,7 +203,7 @@
         
         .modal-content {
             padding: 20px;
-            padding-bottom: 100px; /* space for buy button */
+            padding-bottom: 100px;
         }
         .modal-img {
             width: 100%;
@@ -186,6 +218,7 @@
             justify-content: center;
             gap: 10px;
             margin-bottom: 25px;
+            flex-wrap: wrap;
         }
         .modal-thumb {
             width: 50px; height: 50px; object-fit: cover;
@@ -193,6 +226,7 @@
         }
         .modal-thumb.active { border-color: #d88fa0; }
         
+        .modal-cat { font-size: 12px; color: #d88fa0; font-weight: bold; text-transform: uppercase; margin: 0 0 5px 0; }
         .modal-title { font-size: 22px; color: #333; margin: 0 0 5px 0; }
         .modal-sku { font-size: 13px; color: #888; margin: 0 0 15px 0; }
         .modal-price { font-size: 26px; color: #c97a8d; font-weight: 900; margin: 0 0 20px 0; }
@@ -226,14 +260,27 @@
 
     <!-- HEADER -->
     <header>
-        <img src="logo.png" alt="Logo" class="header-logo">
+        <img src="logo.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
         <h1 class="header-title">Art By Tisha</h1>
         <div class="header-tagline">Official Collection</div>
     </header>
 
-    <!-- SEARCH -->
-    <div class="search-container">
-        <input type="text" id="searchInput" class="search-input" placeholder="Search by Name or SKU..." onkeyup="filterGrid()">
+    <!-- SEARCH & FILTERS -->
+    <div class="controls-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search Collection..." onkeyup="applyFiltersAndSort()">
+        
+        <div class="filter-row">
+            <select id="categoryFilter" class="filter-select" onchange="applyFiltersAndSort()">
+                <option value="ALL">All Categories</option>
+                <!-- Categories injected here automatically -->
+            </select>
+            
+            <select id="sortFilter" class="filter-select" onchange="applyFiltersAndSort()">
+                <option value="DEFAULT">Default Order</option>
+                <option value="PRICE_ASC">Price: Low to High</option>
+                <option value="PRICE_DESC">Price: High to Low</option>
+            </select>
+        </div>
     </div>
 
     <!-- STATUS -->
@@ -253,11 +300,13 @@
             <img id="mImg" class="modal-img" src="" alt="Product">
             <div id="mThumbs" class="thumb-row"></div>
             
+            <p id="mCat" class="modal-cat"></p>
             <h2 id="mTitle" class="modal-title"></h2>
             <p id="mSku" class="modal-sku"></p>
             <p id="mPrice" class="modal-price"></p>
         </div>
-        <!-- IMPORTANT: Change the number below to your WhatsApp Number (Include Country Code, no + or spaces) -->
+        
+        <!-- DIRECT WHATSAPP BUTTON (Number already hardcoded to 918287567099) -->
         <a id="mWhatsapp" href="#" class="whatsapp-btn" target="_blank">
             💬 Inquire on WhatsApp
         </a>
@@ -265,7 +314,7 @@
 
 <script>
     // --- APP CONFIGURATION ---
-    const WHATSAPP_NUMBER = "919876543210"; // <--- CHANGE THIS TO YOUR NUMBER!
+    const WHATSAPP_NUMBER = "918287567099"; // Added 91 for Indian Country Code
     const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
 
@@ -302,7 +351,6 @@
             if (!res.ok) throw new Error();
             const text = await res.text();
             
-            // Parse CSV
             const lines = text.split('\n');
             const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
             
@@ -320,40 +368,95 @@
             }
 
             statusEl.style.display = 'none';
-            renderGrid(products);
+            populateCategories(); // Generate Dropdown List
+            applyFiltersAndSort(); // Render initial list
 
         } catch (err) {
             statusEl.innerText = "❌ Could not load collection. Please try again later.";
         }
     };
 
-    // Render Grid
+    // Extract categories and populate dropdown
+    function populateCategories() {
+        const catSelect = document.getElementById('categoryFilter');
+        const uniqueCats = new Set();
+        
+        products.forEach(p => {
+            // Checks for a column named "Category"
+            const cat = (p["Category"] || "").trim().toUpperCase();
+            if (cat) uniqueCats.add(cat);
+        });
+
+        // Sort categories alphabetically
+        const sortedCats = Array.from(uniqueCats).sort();
+        sortedCats.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.innerText = c;
+            catSelect.appendChild(opt);
+        });
+    }
+
+    // Apply Search, Category, and Sorting logic
+    function applyFiltersAndSort() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const catFilter = document.getElementById('categoryFilter').value;
+        const sortFilter = document.getElementById('sortFilter').value;
+
+        // 1. FILTERING
+        let filtered = products.filter(p => {
+            const name = (p["Product Name"] || "").toLowerCase();
+            const sku = (p["SKU Code"] || "").toLowerCase();
+            const category = (p["Category"] || "").toUpperCase();
+            
+            const matchesSearch = name.includes(query) || sku.includes(query);
+            const matchesCat = (catFilter === "ALL") || (category === catFilter);
+
+            return matchesSearch && matchesCat;
+        });
+
+        // 2. SORTING
+        if (sortFilter === "PRICE_ASC") {
+            filtered.sort((a, b) => (parseFloat(a["Selling"]) || 0) - (parseFloat(b["Selling"]) || 0));
+        } else if (sortFilter === "PRICE_DESC") {
+            filtered.sort((a, b) => (parseFloat(b["Selling"]) || 0) - (parseFloat(a["Selling"]) || 0));
+        }
+
+        // 3. RENDER
+        renderGrid(filtered);
+    }
+
+    // Render Grid HTML
     function renderGrid(data) {
         const grid = document.getElementById('productGrid');
         grid.innerHTML = "";
 
         if (data.length === 0) {
-            grid.innerHTML = "<p style='text-align:center; grid-column:span 2;'>No items found.</p>";
+            grid.innerHTML = "<p style='text-align:center; grid-column:span 2; color:#999; margin-top:30px;'>No items found matching your filters.</p>";
             return;
         }
 
         data.forEach(item => {
-            // Get first image for thumbnail
             let imgUrl = cleanImageUrl(item["Image 1"]) || 'https://via.placeholder.com/200x200?text=No+Image';
             
             const price = item["Selling"] || "0";
             const name = item["Product Name"] || "Elegant Jewelry";
             const sku = item["SKU Code"] || "";
+            const cat = item["Category"] || "";
 
             const card = document.createElement('div');
             card.className = "product-card";
-            card.onclick = () => openModal(sku); // Opens detail view
+            card.onclick = () => openModal(sku); 
             
+            // If there's a category, show it. Otherwise, hide the category tag on the card.
+            const catHtml = cat ? `<p class="card-category">${cat}</p>` : "";
+
             card.innerHTML = `
                 <div class="card-img-wrapper">
                     <img src="${imgUrl}" class="card-img" loading="lazy">
                 </div>
                 <div class="card-info">
+                    ${catHtml}
                     <p class="card-title">${name}</p>
                     <p class="card-sku">SKU: ${sku}</p>
                     <p class="card-price">₹${price}</p>
@@ -361,17 +464,6 @@
             `;
             grid.appendChild(card);
         });
-    }
-
-    // Filter Search
-    function filterGrid() {
-        const query = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = products.filter(p => {
-            const name = (p["Product Name"] || "").toLowerCase();
-            const sku = (p["SKU Code"] || "").toLowerCase();
-            return name.includes(query) || sku.includes(query);
-        });
-        renderGrid(filtered);
     }
 
     // Open Product Modal
@@ -382,8 +474,9 @@
         document.getElementById('mTitle').innerText = product["Product Name"] || "Jewelry";
         document.getElementById('mSku').innerText = "SKU: " + sku;
         document.getElementById('mPrice').innerText = "₹" + (product["Selling"] || "0");
+        document.getElementById('mCat').innerText = product["Category"] || "";
 
-        // Set WhatsApp Link
+        // WhatsApp Link Generator
         const message = encodeURIComponent(`Hi, I am interested in ordering this item:\n\n*${product["Product Name"]}*\n*SKU:* ${sku}\n*Price:* ₹${product["Selling"]}\n\nCan you share more details?`);
         document.getElementById('mWhatsapp').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
 
@@ -399,6 +492,9 @@
         rawImages.forEach(url => {
             if (url && url.length > 5) modalImages.push(cleanImageUrl(url));
         });
+        
+        // Ensure uniqueness
+        modalImages = [...new Set(modalImages)];
 
         if (modalImages.length === 0) {
             mImg.src = 'https://via.placeholder.com/400x400?text=No+Image';
@@ -423,7 +519,7 @@
         }
 
         // Show Modal
-        document.body.style.overflow = 'hidden'; // Stop background scrolling
+        document.body.style.overflow = 'hidden'; 
         document.getElementById('productModal').style.display = 'flex';
     }
 
@@ -439,6 +535,7 @@
         const thumbs = document.querySelectorAll('.modal-thumb');
         thumbs.forEach((t, i) => t.classList.toggle('active', i === currentImgIdx));
     }
+    
     function startModalRotation() {
         clearInterval(rotationInterval);
         rotationInterval = setInterval(() => {
@@ -449,5 +546,13 @@
     }
 
 </script>
+
+<!-- Service Worker Registration for PWA -->
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
+    }
+</script>
+
 </body>
 </html>
