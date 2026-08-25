@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Art By Tisha - Premium Jewelry Collection</title>
     
-    <!-- PWA & SEO Optimizations -->
-    <meta name="description" content="Art By Tisha Official Store. Browse our premium top-selling jewelry, necklaces, earrings, and rings.">
+    <meta name="description" content="Art By Tisha Official Store. Browse our premium top-selling jewelry, necklaces, rings, bracelets, bangles, and earrings.">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#121212" id="themeColorMeta">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -52,14 +51,10 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Scroll Lock for maintaining history */
-        body.modal-open {
-            overflow: hidden;
-        }
+        /* Lock scroll on body when modal is open */
+        body.modal-open { overflow: hidden; }
 
-        .store-container {
-            width: 100%; max-width: 1400px; margin: 0 auto; min-height: 100vh;
-        }
+        .store-container { width: 100%; max-width: 1400px; margin: 0 auto; min-height: 100vh; }
 
         #topBanner {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
@@ -98,12 +93,26 @@
         .section-header .line { flex: 1; height: 1px; background: var(--border-color); }
         .section-header .count { font-size: 11px; color: var(--text-muted); font-weight: 600; }
 
+        /* Carousel Adjustments */
         .carousel-viewport { overflow: hidden; width: 100%; touch-action: pan-y; }
-        .carousel-track { display: flex; gap: 15px; padding: 0 15px 15px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; cursor: grab; }
+        .carousel-track {
+            display: flex;
+            gap: 15px;
+            /* 10px top, 15px right, 20px bottom, 15px left */
+            padding: 10px 15px 20px 15px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
         .carousel-track::-webkit-scrollbar { display: none; }
         
-        /* Mobile defaults to 2 items in carousel */
-        .carousel-track .product-card { flex: 0 0 calc(50% - 7.5px); min-width: calc(50% - 7.5px); scroll-snap-align: start; }
+        /* EXACTLY 2 ITEMS ON MOBILE (100% - 30px padding - 15px gap) / 2 */
+        .carousel-track .product-card {
+            flex: 0 0 calc((100% - 45px) / 2);
+            scroll-snap-align: start;
+        }
 
         .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; padding: 0 15px 10px; }
         .product-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 6px 15px var(--shadow); cursor: pointer; border: 1px solid var(--border-color); }
@@ -160,11 +169,20 @@
         @media (min-width: 768px) {
             .controls-container { max-width: 1200px; margin: 0 auto; flex-direction: row; align-items: center; }
             .search-input { flex: 2; } .filter-row { flex: 1; }
-            .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; padding: 0 20px 20px; }
-            .section-header, .carousel-track { padding-left: 20px; padding-right: 20px; }
             
-            /* Fits EXACTLY 4 items in the Carousel on Desktop */
-            .carousel-track .product-card { flex: 0 0 calc(25% - 11.25px); min-width: calc(25% - 11.25px); }
+            .section-header { padding-left: 20px; padding-right: 20px; }
+            .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; padding: 0 20px 20px; }
+            
+            .carousel-track {
+                gap: 20px;
+                /* 10px top, 20px right, 25px bottom, 20px left */
+                padding: 10px 20px 25px 20px;
+            }
+            
+            /* EXACTLY 4 ITEMS ON DESKTOP (100% - 40px padding - 60px gaps) / 4 */
+            .carousel-track .product-card {
+                flex: 0 0 calc((100% - 100px) / 4);
+            }
 
             .modal-content { display: grid; grid-template-columns: minmax(350px, 1fr) minmax(320px, 0.8fr); gap: 45px; max-width: 1200px; margin: 0 auto; padding: 40px; align-items: start; }
             .modal-gallery { position: sticky; top: 85px; }
@@ -208,6 +226,7 @@
 
         <div id="status" class="status-msg">✨ Loading Collection...</div>
 
+        <!-- Featured Top Sellers Section -->
         <div id="carouselSection" style="display:none;">
             <div class="section-header">🏆 Featured Top Sellers<span class="line"></span></div>
             <div class="carousel-viewport"><div id="carouselTrack" class="carousel-track"></div></div>
@@ -251,7 +270,16 @@
         const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
         const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
 
-        const CATEGORY_ORDER = ["NECKLACE", "NECKLACES", "BANGLES", "BANGLE", "EARRINGS", "EARRING", "BRACELETS", "BRACELET", "RINGS", "RING"];
+        // Request Category Order exactly as requested
+        const CATEGORY_ORDER = [
+            "TOP SELLING",
+            "NECKLACE", "NECKLACES",
+            "RINGS", "RING",
+            "BRACELETS", "BRACELET",
+            "BANGLES", "BANGLE",
+            "EARRINGS", "EARRING"
+        ];
+
         const VISIT_COUNT_CACHE = "abt_global_visits_v10";
         
         let products = [];
@@ -260,8 +288,6 @@
         let rotationInterval = null;
         let carouselInterval = null;
         let userTouchingCarousel = false;
-        
-        // Scroll History Variable
         let savedScrollPosition = 0;
 
         function parseCSV(text) {
@@ -345,17 +371,20 @@
                 const cat = (p["Category"] || "").trim();
                 if (cat && cat.toUpperCase() !== "TOP SELLING") categories.add(cat);
             });
+            
             [...categories].sort((a, b) => {
-                const aIdx = CATEGORY_ORDER.indexOf(a.toUpperCase()), bIdx = CATEGORY_ORDER.indexOf(b.toUpperCase());
+                const aIdx = CATEGORY_ORDER.indexOf(a.toUpperCase());
+                const bIdx = CATEGORY_ORDER.indexOf(b.toUpperCase());
                 if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
-                return aIdx !== -1 ? -1 : bIdx !== -1 ? 1 : a.localeCompare(b);
+                if (aIdx !== -1) return -1;
+                if (bIdx !== -1) return 1;
+                return a.localeCompare(b);
             }).forEach(cat => {
                 const opt = document.createElement("option");
                 opt.value = cat.toUpperCase(); opt.textContent = cat; select.appendChild(opt);
             });
         }
 
-        // Added eagerLoad parameter for first few images
         function createCard(item, badgeEmoji, eagerLoad = false) {
             const pricing = calcPricing(item["Selling"]);
             const sku = item["SKU Code"] || "";
@@ -394,7 +423,6 @@
             const grid = document.createElement("div");
             grid.className = "grid";
             
-            // First 4 items load eagerly to improve LCP score
             items.forEach((item, index) => grid.appendChild(createCard(item, badgeEmoji, index < 4)));
             
             container.appendChild(header);
@@ -410,14 +438,18 @@
             if (!topItems.length) { section.style.display = "none"; return; }
             section.style.display = "block";
 
-            // Add original items and duplicate them once for seamless infinite scrolling
+            // Add original items and duplicate them for seamless scrolling
             [...topItems, ...topItems].forEach(item => track.appendChild(createCard(item, "⭐", true)));
 
             if (topItems.length > 2) {
                 track.scrollLeft = 0;
                 carouselInterval = setInterval(() => {
                     if (userTouchingCarousel || track.children.length < 3) return;
-                    const step = track.children[0].offsetWidth + 15;
+                    
+                    const itemWidth = track.children[0].offsetWidth;
+                    const gap = parseInt(getComputedStyle(track).gap) || 0;
+                    const step = itemWidth + gap;
+                    
                     if (track.scrollLeft + step >= track.scrollWidth - track.clientWidth - 5) {
                         track.style.scrollBehavior = "auto"; track.scrollLeft = 0; track.style.scrollBehavior = "smooth";
                     }
@@ -449,11 +481,23 @@
             if (catFilter === "ALL") {
                 const groups = {};
                 filtered.forEach(p => {
+                    // Prevent Top Selling from showing up again in grid if we are already showing the carousel 
+                    if (!query && isTopSelling(p)) return;
+                    
                     const cat = p["Category"] || "Other";
                     if (!groups[cat]) groups[cat] = [];
                     groups[cat].push(p);
                 });
-                Object.keys(groups).sort().forEach(cat => renderSection(grid, "📂", cat, groups[cat], "✨"));
+                
+                // Sort exactly according to your requested category order
+                Object.keys(groups).sort((a, b) => {
+                    const aIdx = CATEGORY_ORDER.indexOf(a.toUpperCase());
+                    const bIdx = CATEGORY_ORDER.indexOf(b.toUpperCase());
+                    if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+                    if (aIdx !== -1) return -1;
+                    if (bIdx !== -1) return 1;
+                    return a.localeCompare(b);
+                }).forEach(cat => renderSection(grid, "📂", cat, groups[cat], "✨"));
             } else {
                 renderSection(grid, "📂", catFilter === "TOP_SELLING" ? "Top Selling" : catFilter, filtered, "✨");
             }
@@ -463,7 +507,7 @@
             const product = products.find(p => p["SKU Code"] === sku);
             if (!product) return;
 
-            // Save exactly where user scrolled
+            // Preserve scroll history exactly
             savedScrollPosition = window.scrollY;
 
             const pricing = calcPricing(product["Selling"]);
@@ -496,7 +540,6 @@
 
             if (modalImages.length > 1) rotationInterval = setInterval(() => thumbs.children[(currentImgIdx + 1) % modalImages.length].click(), 1800);
 
-            // Lock scroll and open Modal
             document.body.classList.add("modal-open");
             document.getElementById("productModal").style.display = "flex";
             history.pushState({ page: "product" }, "", "#product");
@@ -507,7 +550,7 @@
             document.body.classList.remove("modal-open");
             clearInterval(rotationInterval);
             
-            // Instantly restore the exact history position
+            // Instantly restore the exact user scroll position
             window.scrollTo({ top: savedScrollPosition, behavior: "instant" });
         }
 
@@ -548,7 +591,7 @@
                     headers.forEach((h, idx) => p[h] = rows[i][idx] || "");
                     const active = String(p["Active"] || "").trim().toUpperCase();
                     
-                    // ONLY push products that are Active AND have Images
+                    // ONLY push items with an image and active status
                     if (active !== "FALSE" && active !== "0" && active !== "NO" && hasValidImages(p)) {
                         products.push(p);
                     }
