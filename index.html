@@ -6,7 +6,7 @@
     <title>Art By Tisha - Official Store</title>
 
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ffffff" id="themeColorMeta">
+    <meta name="theme-color" content="#121212" id="themeColorMeta">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="launchericon-192x192.png">
 
@@ -145,21 +145,31 @@
             letter-spacing: 1px;
         }
 
-        /* HARDWARE ACCELERATED INFINITE CAROUSEL VIEWPORT */
+        /* TOP SELLING: manual swipe + auto loop */
         .carousel-viewport {
             overflow: hidden;
             width: 100%;
             position: relative;
+            touch-action: pan-y;
         }
         .carousel-track {
-            display: flex; 
-            gap: 15px; 
+            display: flex;
+            gap: 15px;
             padding: 0 15px 15px 15px;
-            will-change: transform;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            touch-action: pan-x;
+            cursor: grab;
         }
-        .carousel-track .product-card { 
-            flex: 0 0 calc(50% - 7.5px); 
+        .carousel-track:active { cursor: grabbing; }
+        .carousel-track::-webkit-scrollbar { display: none; }
+        .carousel-track .product-card {
+            flex: 0 0 calc(50% - 7.5px);
             min-width: calc(50% - 7.5px);
+            scroll-snap-align: start;
         }
 
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 0 15px 5px 15px; }
@@ -219,7 +229,7 @@
         .modal-sku { font-size: 13px; color: var(--text-muted); margin: 0 0 12px 0; }
 
         .watching-badge {
-            display: none; /* Shown ONLY for Top Selling SKUs */
+            display: none;
             align-items: center;
             gap: 6px;
             background: #fff3f5;
@@ -239,11 +249,7 @@
             color: #e8a0b0;
         }
         .watching-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #e74c3c;
-            flex-shrink: 0;
+            width: 8px; height: 8px; border-radius: 50%; background: #e74c3c; flex-shrink: 0;
             animation: pulseDot 1.2s ease-in-out infinite;
         }
         @keyframes pulseDot {
@@ -274,11 +280,11 @@
         }
     </style>
 </head>
-<body>
+<body class="dark-mode">
 
     <div id="topBanner">
         <span>👁️ Visitors: <span id="visitNumber">1,482</span> • Free shipping above 499 only</span>
-        <button id="themeToggleBtn" onclick="toggleTheme()">🌙 Dark</button>
+        <button id="themeToggleBtn" onclick="toggleTheme()">☀️ Light</button>
     </div>
 
     <header id="brandHeader" onclick="goHome()" title="Back to Home">
@@ -317,7 +323,7 @@
 
     <div id="productModal" class="modal">
         <div class="modal-header">
-            <button class="back-btn" onclick="closeModal()">✕</button>
+            <button class="back-btn" onclick="closeModalToHome()">✕</button>
             <h3 style="margin:0; font-size:16px;">Details</h3>
             <div style="width:24px;"></div>
         </div>
@@ -361,16 +367,92 @@
     ];
 
     const VISIT_COUNT_CACHE = 'abt_global_visits_v10';
-    const WATCH_TTL_MS = 10 * 60 * 1000; // 10 minutes
+    const WATCH_TTL_MS = 10 * 60 * 1000;
     const BASE_START_COUNT = 1482;
 
     let products = [];
     const ROTATION_SPEED = 1500;
-    const CAROUSEL_SPEED = 2000; // 2 Seconds
+    const CAROUSEL_SPEED = 2500;
     let rotationInterval = null, carouselInterval = null, modalImages = [], currentImgIdx = 0;
-    let isCarouselSliding = false;
+    let modalOpen = false;
+    let userTouchingCarousel = false;
 
-    // ===== INSTANT VISITOR COUNTER =====
+    // ===== BACK BUTTON: close popup → home (do not exit app) =====
+    function isModalOpen() {
+        const modal = document.getElementById('productModal');
+        return modal && modal.style.display === 'flex';
+    }
+
+    function closeModalToHome() {
+        closeModal();
+        // Reset to default home view
+        document.getElementById('searchInput').value = '';
+        document.getElementById('categoryFilter').value = 'ALL';
+        document.getElementById('sortFilter').value = 'DEFAULT';
+        applyFiltersAndSort();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // If we pushed a history state for the modal, go back without leaving site
+        if (modalOpen) {
+            modalOpen = false;
+            // Replace current state so back doesn't reopen modal
+            history.replaceState({ page: 'home' }, '', location.pathname + location.search);
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('productModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        clearInterval(rotationInterval);
+        modalOpen = false;
+    }
+
+    // Android / browser hardware back button
+    window.addEventListener('popstate', function (e) {
+        if (isModalOpen()) {
+            // User pressed back while product popup is open
+            e.preventDefault?.();
+            closeModalToHome();
+            // Keep user on the app: push home state again so another back can exit later if they want
+            history.pushState({ page: 'home' }, '', location.pathname + location.search);
+        }
+    });
+
+    // ===== GO HOME (logo click) =====
+    function goHome() {
+        if (isModalOpen()) {
+            closeModalToHome();
+            return;
+        }
+        document.getElementById('searchInput').value = '';
+        document.getElementById('categoryFilter').value = 'ALL';
+        document.getElementById('sortFilter').value = 'DEFAULT';
+        applyFiltersAndSort();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ===== THEME: DEFAULT = DARK =====
+    function initTheme() {
+        const saved = localStorage.getItem('tisha_theme');
+        const btn = document.getElementById('themeToggleBtn');
+        // Default dark unless user explicitly chose light
+        const useDark = saved !== 'light';
+        document.body.classList.toggle('dark-mode', useDark);
+        btn.innerText = useDark ? "☀️ Light" : "🌙 Dark";
+        document.getElementById('themeColorMeta').setAttribute('content', useDark ? '#121212' : '#ffffff');
+        if (!saved) localStorage.setItem('tisha_theme', 'dark');
+    }
+
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.getElementById('themeToggleBtn');
+        body.classList.toggle('dark-mode');
+        const isDark = body.classList.contains('dark-mode');
+        localStorage.setItem('tisha_theme', isDark ? 'dark' : 'light');
+        btn.innerText = isDark ? "☀️ Light" : "🌙 Dark";
+        document.getElementById('themeColorMeta').setAttribute('content', isDark ? '#121212' : '#ffffff');
+    }
+
+    // ===== VISITOR COUNTER =====
     function initVisitorCounter() {
         const visitEl = document.getElementById('visitNumber');
         let cached = parseInt(localStorage.getItem(VISIT_COUNT_CACHE) || '0', 10);
@@ -379,11 +461,7 @@
 
         const isSessionActive = sessionStorage.getItem('abt_active_session');
         const shouldIncrement = !isSessionActive;
-
-        if (shouldIncrement) {
-            sessionStorage.setItem('abt_active_session', 'true');
-        }
-
+        if (shouldIncrement) sessionStorage.setItem('abt_active_session', 'true');
         syncGlobalCounter(shouldIncrement, cached);
     }
 
@@ -391,7 +469,6 @@
         const visitEl = document.getElementById('visitNumber');
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 1800);
-
         const apiKey = 'artbytisha_store_catalog_v10';
         const url = shouldIncrement
             ? `https://api.counterapi.dev/v1/${apiKey}/visits/up`
@@ -403,7 +480,6 @@
             if (!res.ok) throw new Error();
             const data = await res.json();
             let count = data.count ?? data.value ?? data.hits;
-
             if (count && !isNaN(count)) {
                 if (count < BASE_START_COUNT) count += BASE_START_COUNT;
                 visitEl.innerText = count.toLocaleString('en-IN');
@@ -419,7 +495,7 @@
         }
     }
 
-    // ===== WATCHING NOW =====
+    // ===== WATCHING NOW (Top Selling only) =====
     function getWatchingCount(sku) {
         const storageKey = 'abt_watch_top_' + String(sku || 'unknown');
         const now = Date.now();
@@ -427,12 +503,9 @@
             const raw = localStorage.getItem(storageKey);
             if (raw) {
                 const saved = JSON.parse(raw);
-                if (saved && saved.n && saved.t && (now - saved.t) < WATCH_TTL_MS) {
-                    return saved.n;
-                }
+                if (saved && saved.n && saved.t && (now - saved.t) < WATCH_TTL_MS) return saved.n;
             }
         } catch (e) {}
-
         const n = Math.floor(Math.random() * 4) + 2;
         localStorage.setItem(storageKey, JSON.stringify({ n: n, t: now }));
         return n;
@@ -441,50 +514,13 @@
     function updateWatchingBadge(product) {
         const badge = document.getElementById('watchingBadge');
         const textEl = document.getElementById('watchingText');
-
         if (!product || !isTopSelling(product)) {
             badge.classList.remove('show');
             return;
         }
-
-        const sku = product["SKU Code"] || '';
-        const n = getWatchingCount(sku);
-        const word = n === 1 ? 'customer is' : 'customers are';
-        textEl.innerText = `${n} ${word} watching this design currently`;
+        const n = getWatchingCount(product["SKU Code"] || '');
+        textEl.innerText = `${n} customers are watching this design currently`;
         badge.classList.add('show');
-    }
-
-    // ===== GO HOME =====
-    function goHome() {
-        const modal = document.getElementById('productModal');
-        if (modal && modal.style.display === 'flex') closeModal();
-        document.getElementById('searchInput').value = '';
-        document.getElementById('categoryFilter').value = 'ALL';
-        document.getElementById('sortFilter').value = 'DEFAULT';
-        applyFiltersAndSort();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // ===== THEME =====
-    function initTheme() {
-        const saved = localStorage.getItem('tisha_theme');
-        const btn = document.getElementById('themeToggleBtn');
-        if (saved === 'dark') {
-            document.body.classList.add('dark-mode');
-            btn.innerText = "☀️ Light";
-            document.getElementById('themeColorMeta').setAttribute('content', '#121212');
-        } else {
-            btn.innerText = "🌙 Dark";
-        }
-    }
-    function toggleTheme() {
-        const body = document.body;
-        const btn = document.getElementById('themeToggleBtn');
-        body.classList.toggle('dark-mode');
-        const isDark = body.classList.contains('dark-mode');
-        localStorage.setItem('tisha_theme', isDark ? 'dark' : 'light');
-        btn.innerText = isDark ? "☀️ Light" : "🌙 Dark";
-        document.getElementById('themeColorMeta').setAttribute('content', isDark ? '#121212' : '#ffffff');
     }
 
     // ===== PWA =====
@@ -571,6 +607,9 @@
     }
 
     window.onload = async function() {
+        // Establish a history entry so first "back" from modal stays in app
+        history.replaceState({ page: 'home' }, '', location.pathname + location.search);
+
         initTheme();
         initVisitorCounter();
         const statusEl = document.getElementById('status');
@@ -610,60 +649,54 @@
         });
     }
 
-    // ===== SEAMLESS CONTINUOUS INFINITE CAROUSEL ENGINE (1 -> 2 -> 3 -> 4 -> 1 -> 2 -> 3...) =====
+    // ===== TOP SELLING: manual finger scroll + continuous auto loop =====
     function renderCarousel() {
         const topItems = products.filter(p => isTopSelling(p));
         const section = document.getElementById('carouselSection');
         const track = document.getElementById('carouselTrack');
-        
+
         clearInterval(carouselInterval);
-        isCarouselSliding = false;
-        track.style.transition = 'none';
-        track.style.transform = 'translateX(0px)';
         track.innerHTML = "";
 
-        if (topItems.length === 0) { 
-            section.style.display = 'none'; 
-            return; 
+        if (topItems.length === 0) {
+            section.style.display = 'none';
+            return;
         }
 
         section.style.display = 'block';
-        sortImagesFirst(topItems, "DEFAULT").forEach(item => track.appendChild(createCard(item, "⭐")));
+        // Put all top selling in track (for manual swipe of full list)
+        const ordered = sortImagesFirst(topItems, "DEFAULT");
+        ordered.forEach(item => track.appendChild(createCard(item, "⭐")));
 
-        if (topItems.length > 2) {
+        // Duplicate list once for smoother infinite feel when auto-scrolling
+        if (ordered.length > 2) {
+            ordered.forEach(item => track.appendChild(createCard(item, "⭐")));
+            track.scrollLeft = 0;
             startInfiniteCarousel();
         }
     }
 
-    function slideNextTopSelling() {
-        const track = document.getElementById('carouselTrack');
-        if (!track || track.children.length <= 2 || isCarouselSliding) return;
-
-        const firstCard = track.firstElementChild;
-        if (!firstCard) return;
-
-        isCarouselSliding = true;
-        const cardWidth = firstCard.offsetWidth + 15; // Width + 15px Gap
-
-        // 1. Smoothly slide 1 card left using GPU transform
-        track.style.transition = 'transform 0.5s ease-in-out';
-        track.style.transform = `translateX(-${cardWidth}px)`;
-
-        // 2. When animation completes (500ms), silently move first card to back and reset transform
-        setTimeout(() => {
-            track.style.transition = 'none';
-            track.appendChild(firstCard); // Append first card to end of DOM
-            track.style.transform = 'translateX(0px)';
-            
-            // Force DOM reflow
-            void track.offsetWidth;
-            isCarouselSliding = false;
-        }, 500);
-    }
-
     function startInfiniteCarousel() {
+        const track = document.getElementById('carouselTrack');
         clearInterval(carouselInterval);
-        carouselInterval = setInterval(slideNextTopSelling, CAROUSEL_SPEED);
+
+        carouselInterval = setInterval(() => {
+            if (userTouchingCarousel || !track || track.children.length < 3) return;
+
+            const firstCard = track.children[0];
+            if (!firstCard) return;
+            const step = firstCard.offsetWidth + 15;
+
+            // If near end of duplicated list, jump back without user noticing much
+            const maxScroll = track.scrollWidth - track.clientWidth;
+            if (track.scrollLeft + step >= maxScroll - 5) {
+                track.style.scrollBehavior = 'auto';
+                track.scrollLeft = 0;
+                track.style.scrollBehavior = 'smooth';
+            }
+
+            track.scrollBy({ left: step, behavior: 'smooth' });
+        }, CAROUSEL_SPEED);
     }
 
     function hideCarousel() {
@@ -671,14 +704,31 @@
         clearInterval(carouselInterval);
     }
 
-    // Pause Carousel on User Touch/Hover
+    // Allow finger swipe; pause auto while user is dragging
     const carouselTrack = document.getElementById('carouselTrack');
-    carouselTrack.addEventListener('mouseenter', () => clearInterval(carouselInterval));
-    carouselTrack.addEventListener('touchstart', () => clearInterval(carouselInterval), { passive: true });
-    carouselTrack.addEventListener('mouseleave', () => {
+    carouselTrack.addEventListener('touchstart', () => {
+        userTouchingCarousel = true;
+        clearInterval(carouselInterval);
+    }, { passive: true });
+
+    carouselTrack.addEventListener('touchend', () => {
+        userTouchingCarousel = false;
         const topItems = products.filter(p => isTopSelling(p));
         if (topItems.length > 2 && document.getElementById('searchInput').value === "") {
-            startInfiniteCarousel();
+            setTimeout(startInfiniteCarousel, 800);
+        }
+    }, { passive: true });
+
+    carouselTrack.addEventListener('mousedown', () => {
+        userTouchingCarousel = true;
+        clearInterval(carouselInterval);
+    });
+    window.addEventListener('mouseup', () => {
+        if (!userTouchingCarousel) return;
+        userTouchingCarousel = false;
+        const topItems = products.filter(p => isTopSelling(p));
+        if (topItems.length > 2 && document.getElementById('searchInput').value === "") {
+            setTimeout(startInfiniteCarousel, 500);
         }
     });
 
@@ -896,12 +946,10 @@
 
         document.body.style.overflow = 'hidden';
         document.getElementById('productModal').style.display = 'flex';
-    }
+        modalOpen = true;
 
-    function closeModal() {
-        document.getElementById('productModal').style.display = 'none';
-        document.body.style.overflow = 'auto';
-        clearInterval(rotationInterval);
+        // Push history so Android/browser BACK closes modal instead of exiting app
+        history.pushState({ page: 'product', sku: sku }, '', location.pathname + location.search + '#product');
     }
 
     function updateModalThumbs() {
