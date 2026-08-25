@@ -102,12 +102,30 @@
             background-size: 10px auto;
         }
 
+        /* SECTION HEADERS */
+        .section-header {
+            padding: 15px 15px 8px 15px;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #c97a8d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-header .line {
+            flex: 1;
+            height: 1px;
+            background: #ecd3d8;
+        }
+
         /* GRID LAYOUT */
         .grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
-            padding: 0 15px;
+            padding: 0 15px 5px 15px;
         }
         .product-card {
             background: white;
@@ -130,6 +148,20 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+        .card-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: linear-gradient(135deg, #f7a8b8, #c97a8d);
+            color: white;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(201, 122, 141, 0.4);
         }
         .card-info {
             padding: 12px;
@@ -165,7 +197,7 @@
             margin: 0;
         }
 
-        /* LOADING & ERROR */
+        /* LOADING */
         .status-msg {
             text-align: center;
             color: #d88fa0;
@@ -173,7 +205,7 @@
             font-weight: 600;
         }
 
-        /* FULL SCREEN MODAL (Product Details) */
+        /* FULL SCREEN MODAL */
         .modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -272,13 +304,14 @@
         <div class="filter-row">
             <select id="categoryFilter" class="filter-select" onchange="applyFiltersAndSort()">
                 <option value="ALL">All Categories</option>
-                <!-- Categories injected here automatically -->
+                <option value="TOP_SELLING">🔥 Top Selling</option>
             </select>
             
             <select id="sortFilter" class="filter-select" onchange="applyFiltersAndSort()">
                 <option value="DEFAULT">Default Order</option>
                 <option value="PRICE_ASC">Price: Low to High</option>
                 <option value="PRICE_DESC">Price: High to Low</option>
+                <option value="NAME_ASC">Name: A to Z</option>
             </select>
         </div>
     </div>
@@ -286,15 +319,15 @@
     <!-- STATUS -->
     <div id="status" class="status-msg">✨ Loading Collection...</div>
 
-    <!-- GRID -->
-    <div id="productGrid" class="grid"></div>
+    <!-- GRID (Dynamically rendered) -->
+    <div id="productGrid"></div>
 
     <!-- PRODUCT MODAL -->
     <div id="productModal" class="modal">
         <div class="modal-header">
             <button class="back-btn" onclick="closeModal()">✕</button>
             <h3 style="margin:0; font-size:16px; color:#333;">Details</h3>
-            <div style="width:24px;"></div> <!-- spacer -->
+            <div style="width:24px;"></div>
         </div>
         <div class="modal-content">
             <img id="mImg" class="modal-img" src="" alt="Product">
@@ -306,7 +339,6 @@
             <p id="mPrice" class="modal-price"></p>
         </div>
         
-        <!-- DIRECT WHATSAPP BUTTON (Number already hardcoded to 918287567099) -->
         <a id="mWhatsapp" href="#" class="whatsapp-btn" target="_blank">
             💬 Inquire on WhatsApp
         </a>
@@ -314,19 +346,18 @@
 
 <script>
     // --- APP CONFIGURATION ---
-    const WHATSAPP_NUMBER = "918287567099"; // Added 91 for Indian Country Code
+    const WHATSAPP_NUMBER = "918287567099";
     const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
 
     let products = [];
+    let allCategories = [];
     
-    // Auto-rotation variables
     const ROTATION_SPEED = 1500;
     let rotationInterval = null;
     let modalImages = [];
     let currentImgIdx = 0;
 
-    // Helper: Clean Image URL
     function cleanImageUrl(url) {
         if (!url) return '';
         url = url.trim();
@@ -360,7 +391,6 @@
                 const obj = {};
                 headers.forEach((h, idx) => obj[h] = values[idx] !== undefined ? values[idx] : '');
                 
-                // Only push active products!
                 const isActive = String(obj["Active"]).toUpperCase().trim();
                 if (isActive !== "FALSE" && isActive !== "0" && isActive !== "NO") {
                     products.push(obj);
@@ -368,8 +398,8 @@
             }
 
             statusEl.style.display = 'none';
-            populateCategories(); // Generate Dropdown List
-            applyFiltersAndSort(); // Render initial list
+            populateCategories();
+            applyFiltersAndSort();
 
         } catch (err) {
             statusEl.innerText = "❌ Could not load collection. Please try again later.";
@@ -382,22 +412,29 @@
         const uniqueCats = new Set();
         
         products.forEach(p => {
-            // Checks for a column named "Category"
-            const cat = (p["Category"] || "").trim().toUpperCase();
-            if (cat) uniqueCats.add(cat);
+            const cat = (p["Category"] || "").trim();
+            if (cat && cat.toUpperCase() !== "TOP SELLING") {
+                uniqueCats.add(cat);
+            }
         });
 
-        // Sort categories alphabetically
+        // Sort other categories alphabetically (Top Selling is already hardcoded above)
         const sortedCats = Array.from(uniqueCats).sort();
         sortedCats.forEach(c => {
             const opt = document.createElement('option');
-            opt.value = c;
+            opt.value = c.toUpperCase();
             opt.innerText = c;
             catSelect.appendChild(opt);
         });
     }
 
-    // Apply Search, Category, and Sorting logic
+    // Check if product is Top Selling
+    function isTopSelling(product) {
+        const cat = (product["Category"] || "").trim().toUpperCase();
+        return cat === "TOP SELLING";
+    }
+
+    // Apply Search, Category, and Sorting
     function applyFiltersAndSort() {
         const query = document.getElementById('searchInput').value.toLowerCase();
         const catFilter = document.getElementById('categoryFilter').value;
@@ -407,10 +444,18 @@
         let filtered = products.filter(p => {
             const name = (p["Product Name"] || "").toLowerCase();
             const sku = (p["SKU Code"] || "").toLowerCase();
-            const category = (p["Category"] || "").toUpperCase();
+            const category = (p["Category"] || "").trim().toUpperCase();
             
             const matchesSearch = name.includes(query) || sku.includes(query);
-            const matchesCat = (catFilter === "ALL") || (category === catFilter);
+            let matchesCat = true;
+
+            if (catFilter === "ALL") {
+                matchesCat = true;
+            } else if (catFilter === "TOP_SELLING") {
+                matchesCat = category === "TOP SELLING";
+            } else {
+                matchesCat = category === catFilter;
+            }
 
             return matchesSearch && matchesCat;
         });
@@ -420,50 +465,102 @@
             filtered.sort((a, b) => (parseFloat(a["Selling"]) || 0) - (parseFloat(b["Selling"]) || 0));
         } else if (sortFilter === "PRICE_DESC") {
             filtered.sort((a, b) => (parseFloat(b["Selling"]) || 0) - (parseFloat(a["Selling"]) || 0));
+        } else if (sortFilter === "NAME_ASC") {
+            filtered.sort((a, b) => (a["Product Name"] || "").localeCompare(b["Product Name"] || ""));
         }
 
-        // 3. RENDER
-        renderGrid(filtered);
+        // 3. PIN TOP SELLING TO THE FRONT (unless user selected "Top Selling" filter only)
+        if (catFilter !== "TOP_SELLING") {
+            const topSelling = filtered.filter(p => isTopSelling(p));
+            const others = filtered.filter(p => !isTopSelling(p));
+            filtered = [...topSelling, ...others];
+        }
+
+        // 4. RENDER with sections
+        renderGrid(filtered, catFilter);
     }
 
-    // Render Grid HTML
-    function renderGrid(data) {
+    // Render Grid with Section Headers
+    function renderGrid(data, catFilter) {
         const grid = document.getElementById('productGrid');
         grid.innerHTML = "";
 
         if (data.length === 0) {
-            grid.innerHTML = "<p style='text-align:center; grid-column:span 2; color:#999; margin-top:30px;'>No items found matching your filters.</p>";
+            grid.innerHTML = "<p style='text-align:center; padding:30px 15px; color:#999;'>No items found matching your filters.</p>";
             return;
         }
 
-        data.forEach(item => {
-            let imgUrl = cleanImageUrl(item["Image 1"]) || 'https://via.placeholder.com/200x200?text=No+Image';
-            
-            const price = item["Selling"] || "0";
-            const name = item["Product Name"] || "Elegant Jewelry";
-            const sku = item["SKU Code"] || "";
-            const cat = item["Category"] || "";
+        // If viewing ALL or a specific non-Top-Selling category, split into sections
+        if (catFilter === "ALL" || (catFilter !== "TOP_SELLING")) {
+            const topSellingItems = data.filter(p => isTopSelling(p));
+            const otherItems = data.filter(p => !isTopSelling(p));
 
-            const card = document.createElement('div');
-            card.className = "product-card";
-            card.onclick = () => openModal(sku); 
-            
-            // If there's a category, show it. Otherwise, hide the category tag on the card.
-            const catHtml = cat ? `<p class="card-category">${cat}</p>` : "";
+            // Render Top Selling section (only if not filtering by Top Selling specifically and there are items)
+            if (topSellingItems.length > 0 && catFilter !== "TOP_SELLING") {
+                const header1 = document.createElement('div');
+                header1.className = "section-header";
+                header1.innerHTML = "🔥 Top Selling <span class='line'></span>";
+                grid.appendChild(header1);
+                
+                const grid1 = document.createElement('div');
+                grid1.className = "grid";
+                topSellingItems.forEach(item => grid1.appendChild(createCard(item)));
+                grid.appendChild(grid1);
+            }
 
-            card.innerHTML = `
-                <div class="card-img-wrapper">
-                    <img src="${imgUrl}" class="card-img" loading="lazy">
-                </div>
-                <div class="card-info">
-                    ${catHtml}
-                    <p class="card-title">${name}</p>
-                    <p class="card-sku">SKU: ${sku}</p>
-                    <p class="card-price">₹${price}</p>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
+            // Render other items (only if there are other items)
+            if (otherItems.length > 0) {
+                if (topSellingItems.length > 0 && catFilter !== "TOP_SELLING") {
+                    const header2 = document.createElement('div');
+                    header2.className = "section-header";
+                    header2.innerHTML = "✨ All Collection <span class='line'></span>";
+                    grid.appendChild(header2);
+                }
+                
+                const grid2 = document.createElement('div');
+                grid2.className = "grid";
+                otherItems.forEach(item => grid2.appendChild(createCard(item)));
+                grid.appendChild(grid2);
+            }
+        } else {
+            // If user explicitly chose "Top Selling" filter, show flat grid
+            const gridEl = document.createElement('div');
+            gridEl.className = "grid";
+            data.forEach(item => gridEl.appendChild(createCard(item)));
+            grid.appendChild(gridEl);
+        }
+    }
+
+    // Create individual product card
+    function createCard(item) {
+        let imgUrl = cleanImageUrl(item["Image 1"]) || 'https://via.placeholder.com/200x200?text=No+Image';
+        
+        const price = item["Selling"] || "0";
+        const name = item["Product Name"] || "Elegant Jewelry";
+        const sku = item["SKU Code"] || "";
+        const cat = item["Category"] || "";
+        const isTop = isTopSelling(item);
+
+        const card = document.createElement('div');
+        card.className = "product-card";
+        card.onclick = () => openModal(sku); 
+        
+        const catHtml = cat ? `<p class="card-category">${cat}</p>` : "";
+        const badgeHtml = isTop ? `<div class="card-badge">⭐ Top Selling</div>` : "";
+
+        card.innerHTML = `
+            <div class="card-img-wrapper">
+                ${badgeHtml}
+                <img src="${imgUrl}" class="card-img" loading="lazy">
+            </div>
+            <div class="card-info">
+                ${catHtml}
+                <p class="card-title">${name}</p>
+                <p class="card-sku">SKU: ${sku}</p>
+                <p class="card-price">₹${price}</p>
+            </div>
+        `;
+        return card;
     }
 
     // Open Product Modal
@@ -476,11 +573,9 @@
         document.getElementById('mPrice').innerText = "₹" + (product["Selling"] || "0");
         document.getElementById('mCat').innerText = product["Category"] || "";
 
-        // WhatsApp Link Generator
         const message = encodeURIComponent(`Hi, I am interested in ordering this item:\n\n*${product["Product Name"]}*\n*SKU:* ${sku}\n*Price:* ₹${product["Selling"]}\n\nCan you share more details?`);
         document.getElementById('mWhatsapp').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
 
-        // Handle Images
         const mImg = document.getElementById('mImg');
         const mThumbs = document.getElementById('mThumbs');
         mThumbs.innerHTML = "";
@@ -492,8 +587,6 @@
         rawImages.forEach(url => {
             if (url && url.length > 5) modalImages.push(cleanImageUrl(url));
         });
-        
-        // Ensure uniqueness
         modalImages = [...new Set(modalImages)];
 
         if (modalImages.length === 0) {
@@ -501,7 +594,6 @@
         } else {
             mImg.src = modalImages[0];
             
-            // Create Thumbs
             modalImages.forEach((src, idx) => {
                 const img = document.createElement('img');
                 img.src = src;
@@ -518,22 +610,18 @@
             if (modalImages.length > 1) startModalRotation();
         }
 
-        // Show Modal
         document.body.style.overflow = 'hidden'; 
         document.getElementById('productModal').style.display = 'flex';
     }
 
-    // Close Modal
     function closeModal() {
         document.getElementById('productModal').style.display = 'none';
         document.body.style.overflow = 'auto';
         clearInterval(rotationInterval);
     }
 
-    // Modal Image Rotation logic
     function updateModalThumbs() {
-        const thumbs = document.querySelectorAll('.modal-thumb');
-        thumbs.forEach((t, i) => t.classList.toggle('active', i === currentImgIdx));
+        document.querySelectorAll('.modal-thumb').forEach((t, i) => t.classList.toggle('active', i === currentImgIdx));
     }
     
     function startModalRotation() {
@@ -544,10 +632,8 @@
             updateModalThumbs();
         }, ROTATION_SPEED);
     }
-
 </script>
 
-<!-- Service Worker Registration for PWA -->
 <script>
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
