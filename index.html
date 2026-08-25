@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Art By Tisha - Official Store</title>
 
-    <!-- PWA META -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -119,6 +118,11 @@
             height: 1px;
             background: #ecd3d8;
         }
+        .section-header .count {
+            font-size: 11px;
+            color: #b0a0a5;
+            font-weight: 600;
+        }
 
         /* GRID LAYOUT */
         .grid {
@@ -163,6 +167,23 @@
             letter-spacing: 0.5px;
             box-shadow: 0 2px 8px rgba(201, 122, 141, 0.4);
         }
+        .card-img-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f9f3f5;
+            color: #d88fa0;
+            font-size: 12px;
+            font-weight: 600;
+            gap: 6px;
+        }
+        .card-img-placeholder .icon {
+            font-size: 30px;
+            opacity: 0.5;
+        }
         .card-info {
             padding: 12px;
             text-align: center;
@@ -203,6 +224,14 @@
             color: #d88fa0;
             padding: 40px 20px;
             font-weight: 600;
+        }
+
+        /* NO RESULTS */
+        .no-results {
+            text-align: center;
+            padding: 30px 15px;
+            color: #999;
+            font-size: 14px;
         }
 
         /* FULL SCREEN MODAL */
@@ -299,19 +328,20 @@
 
     <!-- SEARCH & FILTERS -->
     <div class="controls-container">
-        <input type="text" id="searchInput" class="search-input" placeholder="Search Collection..." onkeyup="applyFiltersAndSort()">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search Collection..." oninput="applyFiltersAndSort()">
         
         <div class="filter-row">
             <select id="categoryFilter" class="filter-select" onchange="applyFiltersAndSort()">
                 <option value="ALL">All Categories</option>
                 <option value="TOP_SELLING">🔥 Top Selling</option>
+                <option value="NO_CATEGORY">📂 Uncategorized</option>
             </select>
             
             <select id="sortFilter" class="filter-select" onchange="applyFiltersAndSort()">
                 <option value="DEFAULT">Default Order</option>
-                <option value="PRICE_ASC">Price: Low to High</option>
-                <option value="PRICE_DESC">Price: High to Low</option>
-                <option value="NAME_ASC">Name: A to Z</option>
+                <option value="PRICE_ASC">Price: Low → High</option>
+                <option value="PRICE_DESC">Price: High → Low</option>
+                <option value="NAME_ASC">Name: A → Z</option>
             </select>
         </div>
     </div>
@@ -319,7 +349,7 @@
     <!-- STATUS -->
     <div id="status" class="status-msg">✨ Loading Collection...</div>
 
-    <!-- GRID (Dynamically rendered) -->
+    <!-- PRODUCT GRID (Dynamically rendered in sections) -->
     <div id="productGrid"></div>
 
     <!-- PRODUCT MODAL -->
@@ -332,32 +362,29 @@
         <div class="modal-content">
             <img id="mImg" class="modal-img" src="" alt="Product">
             <div id="mThumbs" class="thumb-row"></div>
-            
             <p id="mCat" class="modal-cat"></p>
             <h2 id="mTitle" class="modal-title"></h2>
             <p id="mSku" class="modal-sku"></p>
             <p id="mPrice" class="modal-price"></p>
         </div>
-        
         <a id="mWhatsapp" href="#" class="whatsapp-btn" target="_blank">
             💬 Inquire on WhatsApp
         </a>
     </div>
 
 <script>
-    // --- APP CONFIGURATION ---
+    // ===== APP CONFIG =====
     const WHATSAPP_NUMBER = "918287567099";
     const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
 
     let products = [];
-    let allCategories = [];
-    
     const ROTATION_SPEED = 1500;
     let rotationInterval = null;
     let modalImages = [];
     let currentImgIdx = 0;
 
+    // ===== HELPERS =====
     function cleanImageUrl(url) {
         if (!url) return '';
         url = url.trim();
@@ -374,7 +401,45 @@
         return url;
     }
 
-    // Initialize App
+    function hasValidImages(product) {
+        for (let i = 1; i <= 5; i++) {
+            const url = product[`Image ${i}`];
+            if (url && String(url).trim().length > 5) return true;
+        }
+        return false;
+    }
+
+    function hasCategory(product) {
+        const cat = (product["Category"] || "").trim();
+        return cat.length > 0;
+    }
+
+    function isTopSelling(product) {
+        return (product["Category"] || "").trim().toUpperCase() === "TOP SELLING";
+    }
+
+    // ===== PRIORITY CLASSIFICATION =====
+    // Priority 1 = Top Selling
+    // Priority 2 = Other Categories (not Top Selling, has category)
+    // Priority 3 = No Category but has images
+    // Priority 4 = No Category and no images
+    function getPriority(product) {
+        if (isTopSelling(product)) return 1;
+        if (hasCategory(product)) return 2;
+        if (hasValidImages(product)) return 3;
+        return 4;
+    }
+
+    function getPriorityLabel(priority) {
+        switch (priority) {
+            case 1: return { icon: "🔥", title: "Top Selling", emoji: "⭐" };
+            case 2: return { icon: "📂", title: "Other Categories", emoji: "✨" };
+            case 3: return { icon: "🖼️", title: "Available Designs", emoji: "💎" };
+            case 4: return { icon: "📋", title: "More Coming Soon", emoji: "🕐" };
+        }
+    }
+
+    // ===== INITIALIZE =====
     window.onload = async function() {
         const statusEl = document.getElementById('status');
         try {
@@ -391,14 +456,16 @@
                 const obj = {};
                 headers.forEach((h, idx) => obj[h] = values[idx] !== undefined ? values[idx] : '');
                 
+                // Only push active products
                 const isActive = String(obj["Active"]).toUpperCase().trim();
                 if (isActive !== "FALSE" && isActive !== "0" && isActive !== "NO") {
+                    // Assign a sort priority number to each product
+                    obj._priority = getPriority(obj);
                     products.push(obj);
                 }
             }
 
             statusEl.style.display = 'none';
-            populateCategories();
             applyFiltersAndSort();
 
         } catch (err) {
@@ -406,61 +473,39 @@
         }
     };
 
-    // Extract categories and populate dropdown
-    function populateCategories() {
-        const catSelect = document.getElementById('categoryFilter');
-        const uniqueCats = new Set();
-        
-        products.forEach(p => {
-            const cat = (p["Category"] || "").trim();
-            if (cat && cat.toUpperCase() !== "TOP SELLING") {
-                uniqueCats.add(cat);
-            }
-        });
-
-        // Sort other categories alphabetically (Top Selling is already hardcoded above)
-        const sortedCats = Array.from(uniqueCats).sort();
-        sortedCats.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c.toUpperCase();
-            opt.innerText = c;
-            catSelect.appendChild(opt);
-        });
-    }
-
-    // Check if product is Top Selling
-    function isTopSelling(product) {
-        const cat = (product["Category"] || "").trim().toUpperCase();
-        return cat === "TOP SELLING";
-    }
-
-    // Apply Search, Category, and Sorting
+    // ===== MAIN FILTER + SORT + GROUP ENGINE =====
     function applyFiltersAndSort() {
-        const query = document.getElementById('searchInput').value.toLowerCase();
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
         const catFilter = document.getElementById('categoryFilter').value;
         const sortFilter = document.getElementById('sortFilter').value;
 
-        // 1. FILTERING
+        // STEP 1: FILTER
         let filtered = products.filter(p => {
             const name = (p["Product Name"] || "").toLowerCase();
             const sku = (p["SKU Code"] || "").toLowerCase();
-            const category = (p["Category"] || "").trim().toUpperCase();
-            
-            const matchesSearch = name.includes(query) || sku.includes(query);
+            const cat = (p["Category"] || "").trim().toUpperCase();
+
+            const matchesSearch = !query || name.includes(query) || sku.includes(query);
             let matchesCat = true;
 
-            if (catFilter === "ALL") {
-                matchesCat = true;
-            } else if (catFilter === "TOP_SELLING") {
-                matchesCat = category === "TOP SELLING";
-            } else {
-                matchesCat = category === catFilter;
+            switch (catFilter) {
+                case "ALL":
+                    matchesCat = true;
+                    break;
+                case "TOP_SELLING":
+                    matchesCat = cat === "TOP SELLING";
+                    break;
+                case "NO_CATEGORY":
+                    matchesCat = cat.length === 0;
+                    break;
+                default:
+                    matchesCat = cat === catFilter;
             }
 
             return matchesSearch && matchesCat;
         });
 
-        // 2. SORTING
+        // STEP 2: APPLY USER SORT WITHIN the filtered set
         if (sortFilter === "PRICE_ASC") {
             filtered.sort((a, b) => (parseFloat(a["Selling"]) || 0) - (parseFloat(b["Selling"]) || 0));
         } else if (sortFilter === "PRICE_DESC") {
@@ -469,89 +514,124 @@
             filtered.sort((a, b) => (a["Product Name"] || "").localeCompare(b["Product Name"] || ""));
         }
 
-        // 3. PIN TOP SELLING TO THE FRONT (unless user selected "Top Selling" filter only)
-        if (catFilter !== "TOP_SELLING") {
-            const topSelling = filtered.filter(p => isTopSelling(p));
-            const others = filtered.filter(p => !isTopSelling(p));
-            filtered = [...topSelling, ...others];
-        }
+        // STEP 3: GROUP BY PRIORITY SECTIONS
+        // Re-assign priority after sorting
+        filtered.forEach(p => p._priority = getPriority(p));
 
-        // 4. RENDER with sections
-        renderGrid(filtered, catFilter);
+        if (catFilter === "ALL") {
+            // Show 4 distinct sections
+            renderGroupedSections(filtered);
+        } else if (catFilter === "TOP_SELLING") {
+            renderFlatGrid(filtered, "🔥 Top Selling");
+        } else if (catFilter === "NO_CATEGORY") {
+            renderFlatGrid(filtered, "📂 Uncategorized");
+        } else {
+            renderFlatGrid(filtered, catFilter);
+        }
     }
 
-    // Render Grid with Section Headers
-    function renderGrid(data, catFilter) {
+    // ===== RENDER: GROUPED BY PRIORITY SECTIONS =====
+    function renderGroupedSections(data) {
         const grid = document.getElementById('productGrid');
         grid.innerHTML = "";
 
         if (data.length === 0) {
-            grid.innerHTML = "<p style='text-align:center; padding:30px 15px; color:#999;'>No items found matching your filters.</p>";
+            grid.innerHTML = "<div class='no-results'>No items found matching your search.</div>";
             return;
         }
 
-        // If viewing ALL or a specific non-Top-Selling category, split into sections
-        if (catFilter === "ALL" || (catFilter !== "TOP_SELLING")) {
-            const topSellingItems = data.filter(p => isTopSelling(p));
-            const otherItems = data.filter(p => !isTopSelling(p));
+        // Group by priority
+        const groups = { 1: [], 2: [], 3: [], 4: [] };
+        data.forEach(p => {
+            const pr = p._priority || 4;
+            groups[pr].push(p);
+        });
 
-            // Render Top Selling section (only if not filtering by Top Selling specifically and there are items)
-            if (topSellingItems.length > 0 && catFilter !== "TOP_SELLING") {
-                const header1 = document.createElement('div');
-                header1.className = "section-header";
-                header1.innerHTML = "🔥 Top Selling <span class='line'></span>";
-                grid.appendChild(header1);
-                
-                const grid1 = document.createElement('div');
-                grid1.className = "grid";
-                topSellingItems.forEach(item => grid1.appendChild(createCard(item)));
-                grid.appendChild(grid1);
-            }
+        // Render each non-empty group
+        [1, 2, 3, 4].forEach(priority => {
+            const items = groups[priority];
+            if (items.length === 0) return;
 
-            // Render other items (only if there are other items)
-            if (otherItems.length > 0) {
-                if (topSellingItems.length > 0 && catFilter !== "TOP_SELLING") {
-                    const header2 = document.createElement('div');
-                    header2.className = "section-header";
-                    header2.innerHTML = "✨ All Collection <span class='line'></span>";
-                    grid.appendChild(header2);
-                }
-                
-                const grid2 = document.createElement('div');
-                grid2.className = "grid";
-                otherItems.forEach(item => grid2.appendChild(createCard(item)));
-                grid.appendChild(grid2);
-            }
-        } else {
-            // If user explicitly chose "Top Selling" filter, show flat grid
+            const label = getPriorityLabel(priority);
+
+            // Section Header
+            const header = document.createElement('div');
+            header.className = "section-header";
+            header.innerHTML = `${label.icon} ${label.title} <span class="count">(${items.length})</span> <span class="line"></span>`;
+            grid.appendChild(header);
+
+            // Grid of cards
             const gridEl = document.createElement('div');
             gridEl.className = "grid";
-            data.forEach(item => gridEl.appendChild(createCard(item)));
+            items.forEach(item => gridEl.appendChild(createCard(item, label.emoji)));
             grid.appendChild(gridEl);
-        }
+        });
     }
 
-    // Create individual product card
-    function createCard(item) {
-        let imgUrl = cleanImageUrl(item["Image 1"]) || 'https://via.placeholder.com/200x200?text=No+Image';
-        
+    // ===== RENDER: FLAT GRID (when filtering by specific category) =====
+    function renderFlatGrid(data, title) {
+        const grid = document.getElementById('productGrid');
+        grid.innerHTML = "";
+
+        if (data.length === 0) {
+            grid.innerHTML = "<div class='no-results'>No items found matching your search.</div>";
+            return;
+        }
+
+        const header = document.createElement('div');
+        header.className = "section-header";
+        header.innerHTML = `${title} <span class="count">(${data.length})</span> <span class="line"></span>`;
+        grid.appendChild(header);
+
+        const gridEl = document.createElement('div');
+        gridEl.className = "grid";
+        data.forEach(item => gridEl.appendChild(createCard(item, "✨")));
+        grid.appendChild(gridEl);
+    }
+
+    // ===== CREATE PRODUCT CARD =====
+    function createCard(item, badgeEmoji) {
         const price = item["Selling"] || "0";
-        const name = item["Product Name"] || "Elegant Jewelry";
+        const name = item["Product Name"] || "Jewelry";
         const sku = item["SKU Code"] || "";
-        const cat = item["Category"] || "";
-        const isTop = isTopSelling(item);
+        const cat = (item["Category"] || "").trim();
+        const priority = item._priority || 4;
 
         const card = document.createElement('div');
         card.className = "product-card";
-        card.onclick = () => openModal(sku); 
-        
+        card.onclick = () => openModal(sku);
+
+        let imgSection = '';
+        let imgSrc = '';
+
+        // Check if product has valid images
+        if (hasValidImages(item)) {
+            imgSrc = cleanImageUrl(item["Image 1"]) || '';
+            if (imgSrc) {
+                imgSection = `<img src="${imgSrc}" class="card-img" loading="lazy">`;
+            } else {
+                imgSection = `
+                    <div class="card-img-placeholder">
+                        <div class="icon">📷</div>
+                        <span>Image Loading...</span>
+                    </div>`;
+            }
+        } else {
+            // No image at all — show a nice placeholder
+            imgSection = `
+                <div class="card-img-placeholder">
+                    <div class="icon">💍</div>
+                    <span>Coming Soon</span>
+                </div>`;
+        }
+
+        const badgeHtml = (priority === 1) ? `<div class="card-badge">${badgeEmoji} Top Selling</div>` : "";
         const catHtml = cat ? `<p class="card-category">${cat}</p>` : "";
-        const badgeHtml = isTop ? `<div class="card-badge">⭐ Top Selling</div>` : "";
 
         card.innerHTML = `
             <div class="card-img-wrapper">
                 ${badgeHtml}
-                <img src="${imgUrl}" class="card-img" loading="lazy">
+                ${imgSection}
             </div>
             <div class="card-info">
                 ${catHtml}
@@ -563,7 +643,7 @@
         return card;
     }
 
-    // Open Product Modal
+    // ===== PRODUCT MODAL =====
     function openModal(sku) {
         const product = products.find(p => p["SKU Code"] === sku);
         if (!product) return;
@@ -573,9 +653,16 @@
         document.getElementById('mPrice').innerText = "₹" + (product["Selling"] || "0");
         document.getElementById('mCat').innerText = product["Category"] || "";
 
-        const message = encodeURIComponent(`Hi, I am interested in ordering this item:\n\n*${product["Product Name"]}*\n*SKU:* ${sku}\n*Price:* ₹${product["Selling"]}\n\nCan you share more details?`);
+        const message = encodeURIComponent(
+            `Hi, I am interested in this item:\n\n` +
+            `*${product["Product Name"]}*\n` +
+            `*SKU:* ${sku}\n` +
+            `*Price:* ₹${product["Selling"]}\n\n` +
+            `Can you share more details?`
+        );
         document.getElementById('mWhatsapp').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
 
+        // Handle Images
         const mImg = document.getElementById('mImg');
         const mThumbs = document.getElementById('mThumbs');
         mThumbs.innerHTML = "";
@@ -583,14 +670,20 @@
         modalImages = [];
         currentImgIdx = 0;
 
-        let rawImages = [product["Image 1"], product["Image 2"], product["Image 3"], product["Image 4"], product["Image 5"]];
+        let rawImages = [
+            product["Image 1"], product["Image 2"],
+            product["Image 3"], product["Image 4"], product["Image 5"]
+        ];
         rawImages.forEach(url => {
-            if (url && url.length > 5) modalImages.push(cleanImageUrl(url));
+            if (url && String(url).trim().length > 5) {
+                modalImages.push(cleanImageUrl(String(url).trim()));
+            }
         });
         modalImages = [...new Set(modalImages)];
 
         if (modalImages.length === 0) {
-            mImg.src = 'https://via.placeholder.com/400x400?text=No+Image';
+            mImg.src = 'https://via.placeholder.com/400x400?text=Image+Not+Available';
+            mThumbs.innerHTML = '<p style="color:#999; font-size:13px;">No images available for this product.</p>';
         } else {
             mImg.src = modalImages[0];
             
@@ -620,8 +713,11 @@
         clearInterval(rotationInterval);
     }
 
+    // ===== MODAL IMAGE ROTATION =====
     function updateModalThumbs() {
-        document.querySelectorAll('.modal-thumb').forEach((t, i) => t.classList.toggle('active', i === currentImgIdx));
+        document.querySelectorAll('.modal-thumb').forEach((t, i) => 
+            t.classList.toggle('active', i === currentImgIdx)
+        );
     }
     
     function startModalRotation() {
