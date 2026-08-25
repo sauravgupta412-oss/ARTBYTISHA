@@ -210,7 +210,7 @@
         .modal-sku { font-size: 13px; color: var(--text-muted); margin: 0 0 12px 0; }
 
         .watching-badge {
-            display: none; /* Shown only for Top Selling SKUs */
+            display: none; /* Shown ONLY for Top Selling SKUs */
             align-items: center;
             gap: 6px;
             background: #fff3f5;
@@ -268,7 +268,7 @@
 <body>
 
     <div id="topBanner">
-        <span>👁️ Visitors: <span id="visitNumber">...</span> • Free shipping above 499 only</span>
+        <span>👁️ Visitors: <span id="visitNumber">1,482</span> • Free shipping above 499 only</span>
         <button id="themeToggleBtn" onclick="toggleTheme()">🌙 Dark</button>
     </div>
 
@@ -350,13 +350,104 @@
         "RINGS", "RING"
     ];
 
-    const VISIT_COUNT_CACHE = 'abt_global_visits_v5';
+    const VISIT_COUNT_CACHE = 'abt_global_visits_v10';
     const WATCH_TTL_MS = 10 * 60 * 1000; // 10 minutes
+    const BASE_START_COUNT = 1482; // Established starting base
 
     let products = [];
     const ROTATION_SPEED = 1500;
     const CAROUSEL_SPEED = 2000;
     let rotationInterval = null, carouselInterval = null, modalImages = [], currentImgIdx = 0;
+
+    // ===== INSTANT VISITOR COUNTER ENGINE =====
+    function initVisitorCounter() {
+        const visitEl = document.getElementById('visitNumber');
+        
+        // 1. Instant 0ms render from Cache/Base
+        let cached = parseInt(localStorage.getItem(VISIT_COUNT_CACHE) || '0', 10);
+        if (cached < BASE_START_COUNT) cached = BASE_START_COUNT;
+        visitEl.innerText = cached.toLocaleString('en-IN');
+
+        // 2. Check if this is a NEW VISIT (session) or PAGE REFRESH
+        const isSessionActive = sessionStorage.getItem('abt_active_session');
+        const shouldIncrement = !isSessionActive;
+
+        if (shouldIncrement) {
+            sessionStorage.setItem('abt_active_session', 'true');
+        }
+
+        // 3. Background API Sync with 1.5s timeout
+        syncGlobalCounter(shouldIncrement, cached);
+    }
+
+    async function syncGlobalCounter(shouldIncrement, currentCached) {
+        const visitEl = document.getElementById('visitNumber');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1800); // 1.8s timeout
+
+        const apiKey = 'artbytisha_store_catalog_v10';
+        const url = shouldIncrement
+            ? `https://api.counterapi.dev/v1/${apiKey}/visits/up`
+            : `https://api.counterapi.dev/v1/${apiKey}/visits`;
+
+        try {
+            const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+            clearTimeout(timeoutId);
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            let count = data.count ?? data.value ?? data.hits;
+
+            if (count && !isNaN(count)) {
+                if (count < BASE_START_COUNT) count += BASE_START_COUNT;
+                visitEl.innerText = count.toLocaleString('en-IN');
+                localStorage.setItem(VISIT_COUNT_CACHE, String(count));
+                return;
+            }
+        } catch (e) {
+            // API Timeout or AdBlocker -> Fallback logic
+            if (shouldIncrement) {
+                currentCached += 1;
+                visitEl.innerText = currentCached.toLocaleString('en-IN');
+                localStorage.setItem(VISIT_COUNT_CACHE, String(currentCached));
+            }
+        }
+    }
+
+    // ===== WATCHING NOW (2–5, LOCKED 10 MIN PER SKU, TOP SELLING ONLY) =====
+    function getWatchingCount(sku) {
+        const storageKey = 'abt_watch_top_' + String(sku || 'unknown');
+        const now = Date.now();
+        try {
+            const raw = localStorage.getItem(storageKey);
+            if (raw) {
+                const saved = JSON.parse(raw);
+                if (saved && saved.n && saved.t && (now - saved.t) < WATCH_TTL_MS) {
+                    return saved.n;
+                }
+            }
+        } catch (e) {}
+
+        const n = Math.floor(Math.random() * 4) + 2; // 2, 3, 4 or 5
+        localStorage.setItem(storageKey, JSON.stringify({ n: n, t: now }));
+        return n;
+    }
+
+    function updateWatchingBadge(product) {
+        const badge = document.getElementById('watchingBadge');
+        const textEl = document.getElementById('watchingText');
+
+        // STRICTLY ONLY for Top Selling SKUs
+        if (!product || !isTopSelling(product)) {
+            badge.classList.remove('show');
+            return;
+        }
+
+        const sku = product["SKU Code"] || '';
+        const n = getWatchingCount(sku);
+        const word = n === 1 ? 'customer is' : 'customers are';
+        textEl.innerText = `${n} ${word} watching this design currently`;
+        badge.classList.add('show');
+    }
 
     // ===== GO HOME =====
     function goHome() {
@@ -389,124 +480,6 @@
         localStorage.setItem('tisha_theme', isDark ? 'dark' : 'light');
         btn.innerText = isDark ? "☀️ Light" : "🌙 Dark";
         document.getElementById('themeColorMeta').setAttribute('content', isDark ? '#121212' : '#ffffff');
-    }
-
-    // ===== VISITOR COUNT (Per VISIT, not per REFRESH) =====
-    function pickCount(data) {
-        if (data == null) return null;
-        if (typeof data === 'number') return data;
-        const n = data.count ?? data.value ?? data.hits ?? data.total;
-        return (n !== undefined && n !== null && !isNaN(Number(n))) ? Number(n) : null;
-    }
-
-    async function fetchCount(url) {
-        const res = await fetch(url, { cache: 'no-store', mode: 'cors' });
-        if (!res.ok) throw new Error('bad status');
-        return pickCount(await res.json());
-    }
-
-    async function loadVisitorCount() {
-        const visitEl = document.getElementById('visitNumber');
-        
-        // Use sessionStorage to detect whether this is a REFRESH or a NEW VISIT:
-        // - sessionStorage persists across refreshes in the same tab.
-        // - sessionStorage is CLEARED when tab/browser is closed (New Visit).
-        const isCurrentSessionActive = sessionStorage.getItem('abt_active_visit_session');
-
-        const namespace = 'artbytisha';
-        const key = 'store_unique_visits_v5';
-        const upUrl = `https://api.counterapi.dev/v1/${namespace}/${key}/up`;
-        const getUrl = `https://api.counterapi.dev/v1/${namespace}/${key}`;
-
-        if (!isCurrentSessionActive) {
-            // NEW VISIT (Tab/Browser newly opened) → INCREMENT +1
-            try {
-                const count = await fetchCount(upUrl);
-                if (count !== null) {
-                    sessionStorage.setItem('abt_active_visit_session', '1');
-                    localStorage.setItem(VISIT_COUNT_CACHE, String(count));
-                    visitEl.innerText = count.toLocaleString('en-IN');
-                    return;
-                }
-            } catch (e) {
-                console.log('CounterAPI up failed', e);
-            }
-
-            // Backup API (Increment)
-            try {
-                const count = await fetchCount('https://api.countapi.xyz/hit/artbytisha-store/visits_v5');
-                if (count !== null) {
-                    sessionStorage.setItem('abt_active_visit_session', '1');
-                    localStorage.setItem(VISIT_COUNT_CACHE, String(count));
-                    visitEl.innerText = count.toLocaleString('en-IN');
-                    return;
-                }
-            } catch (e) {}
-
-        } else {
-            // PAGE REFRESH in same session → READ ONLY (Do NOT increment)
-            try {
-                const count = await fetchCount(getUrl);
-                if (count !== null) {
-                    localStorage.setItem(VISIT_COUNT_CACHE, String(count));
-                    visitEl.innerText = count.toLocaleString('en-IN');
-                    return;
-                }
-            } catch (e) {
-                console.log('CounterAPI get failed', e);
-            }
-
-            // Backup API (Read Only)
-            try {
-                const count = await fetchCount('https://api.countapi.xyz/get/artbytisha-store/visits_v5');
-                if (count !== null) {
-                    localStorage.setItem(VISIT_COUNT_CACHE, String(count));
-                    visitEl.innerText = count.toLocaleString('en-IN');
-                    return;
-                }
-            } catch (e) {}
-        }
-
-        // Show last cached global number (or 1 if completely offline)
-        const cached = localStorage.getItem(VISIT_COUNT_CACHE);
-        visitEl.innerText = cached ? Number(cached).toLocaleString('en-IN') : '1';
-    }
-
-    // ===== WATCHING NOW: TOP SELLING SKUs ONLY, 2–5 for 10 min =====
-    function getWatchingCount(sku) {
-        const storageKey = 'abt_watch_top_' + String(sku || 'unknown');
-        const now = Date.now();
-        try {
-            const raw = localStorage.getItem(storageKey);
-            if (raw) {
-                const saved = JSON.parse(raw);
-                if (saved && saved.n && saved.t && (now - saved.t) < WATCH_TTL_MS) {
-                    return saved.n; // Return locked number within 10 minutes
-                }
-            }
-        } catch (e) {}
-
-        // Generate new random number 2, 3, 4 or 5
-        const n = Math.floor(Math.random() * 4) + 2;
-        localStorage.setItem(storageKey, JSON.stringify({ n: n, t: now }));
-        return n;
-    }
-
-    function updateWatchingBadge(product) {
-        const badge = document.getElementById('watchingBadge');
-        const textEl = document.getElementById('watchingText');
-
-        // STRICTLY FOR TOP SELLING SKUs ONLY
-        if (!product || !isTopSelling(product)) {
-            badge.classList.remove('show');
-            return;
-        }
-
-        const sku = product["SKU Code"] || '';
-        const n = getWatchingCount(sku);
-        const word = n === 1 ? 'customer is' : 'customers are';
-        textEl.innerText = `${n} ${word} watching this design currently`;
-        badge.classList.add('show');
     }
 
     // ===== PWA =====
@@ -594,7 +567,7 @@
 
     window.onload = async function() {
         initTheme();
-        loadVisitorCount(); // Loads visitor count (Session sensitive)
+        initVisitorCounter(); // Instant load + Background sync
         const statusEl = document.getElementById('status');
         try {
             const res = await fetch(CSV_URL);
