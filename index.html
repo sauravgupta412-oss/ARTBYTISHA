@@ -145,14 +145,19 @@
             letter-spacing: 1px;
         }
 
+        /* SEAMLESS CONTINUOUS CAROUSEL TRACK */
         .carousel-track {
-            display: flex; gap: 15px; padding: 0 15px 15px 15px;
+            display: flex; 
+            gap: 15px; 
+            padding: 0 15px 15px 15px;
             overflow-x: auto;
-            scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
         }
         .carousel-track::-webkit-scrollbar { display: none; }
-        .carousel-track .product-card { flex: 0 0 calc(50% - 7.5px); }
+        .carousel-track .product-card { 
+            flex: 0 0 calc(50% - 7.5px); 
+            min-width: calc(50% - 7.5px);
+        }
 
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 0 15px 5px 15px; }
         .product-card {
@@ -356,7 +361,7 @@
 
     let products = [];
     const ROTATION_SPEED = 1500;
-    const CAROUSEL_SPEED = 2000;
+    const CAROUSEL_SPEED = 2000; // 2 Seconds
     let rotationInterval = null, carouselInterval = null, modalImages = [], currentImgIdx = 0;
 
     // ===== INSTANT VISITOR COUNTER =====
@@ -599,7 +604,7 @@
         });
     }
 
-    // ===== INFINITE CONTINUOUS TOP SELLING CAROUSEL =====
+    // ===== INFINITE CONTINUOUS TOP SELLING CAROUSEL (1 -> 2 -> 3 -> 1 -> 2 -> 3...) =====
     function renderCarousel() {
         const topItems = products.filter(p => isTopSelling(p));
         const section = document.getElementById('carouselSection');
@@ -616,8 +621,9 @@
         section.style.display = 'block';
         sortImagesFirst(topItems, "DEFAULT").forEach(item => track.appendChild(createCard(item, "⭐")));
 
-        // Start Infinite Seamless Loop if more than 2 items
+        // Enable Seamless Continuous Loop if more than 2 items
         if (topItems.length > 2) {
+            track.style.scrollBehavior = 'auto';
             track.scrollLeft = 0;
             startInfiniteCarousel();
         }
@@ -628,22 +634,25 @@
         clearInterval(carouselInterval);
 
         carouselInterval = setInterval(() => {
+            if (!track || track.children.length <= 2) return;
+            
             const firstCard = track.firstElementChild;
             if (!firstCard) return;
 
             // Compute exact width of 1 card + gap (15px)
-            const cardWidth = firstCard.offsetWidth + 15;
+            const cardWidth = firstCard.getBoundingClientRect().width + 15;
 
             // 1. Smooth scroll right by 1 card
-            track.scrollBy({ left: cardWidth, behavior: 'smooth' });
+            track.style.scrollBehavior = 'smooth';
+            track.scrollLeft += cardWidth;
 
-            // 2. After smooth transition (550ms), shift the first card to the back seamlessly
+            // 2. When scroll completes (500ms), move first card to back and adjust scroll position instantly
             setTimeout(() => {
-                if (track.firstElementChild === firstCard) {
-                    track.appendChild(firstCard); // Move first card to end
-                    track.scrollLeft = Math.max(0, track.scrollLeft - cardWidth); // Zero out scroll jump!
-                }
-            }, 550);
+                if (!track.firstElementChild) return;
+                track.appendChild(firstCard); // Move first card to the back of DOM
+                track.style.scrollBehavior = 'auto'; // Instant shift
+                track.scrollLeft -= cardWidth; // Zero-out scroll position seamlessly
+            }, 500);
 
         }, CAROUSEL_SPEED);
     }
@@ -653,7 +662,7 @@
         clearInterval(carouselInterval);
     }
 
-    // Pause Carousel on User Touch/Hover for better UX
+    // Pause Carousel on User Touch/Hover
     const carouselTrack = document.getElementById('carouselTrack');
     carouselTrack.addEventListener('mouseenter', () => clearInterval(carouselInterval));
     carouselTrack.addEventListener('touchstart', () => clearInterval(carouselInterval), { passive: true });
