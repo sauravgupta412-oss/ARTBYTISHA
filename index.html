@@ -147,11 +147,12 @@
 
         .carousel-track {
             display: flex; gap: 15px; padding: 0 15px 15px 15px;
-            overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth;
+            overflow-x: auto;
+            scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
         }
         .carousel-track::-webkit-scrollbar { display: none; }
-        .carousel-track .product-card { flex: 0 0 calc(50% - 7.5px); scroll-snap-align: start; }
+        .carousel-track .product-card { flex: 0 0 calc(50% - 7.5px); }
 
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 0 15px 5px 15px; }
         .product-card {
@@ -317,7 +318,6 @@
             <h2 id="mTitle" class="modal-title"></h2>
             <p id="mSku" class="modal-sku"></p>
 
-            <!-- CUSTOMERS WATCHING BADGE (TOP SELLING SKUs ONLY) -->
             <div id="watchingBadge" class="watching-badge">
                 <span class="watching-dot"></span>
                 <span id="watchingText">customers are watching this design currently</span>
@@ -352,23 +352,20 @@
 
     const VISIT_COUNT_CACHE = 'abt_global_visits_v10';
     const WATCH_TTL_MS = 10 * 60 * 1000; // 10 minutes
-    const BASE_START_COUNT = 1482; // Established starting base
+    const BASE_START_COUNT = 1482;
 
     let products = [];
     const ROTATION_SPEED = 1500;
     const CAROUSEL_SPEED = 2000;
     let rotationInterval = null, carouselInterval = null, modalImages = [], currentImgIdx = 0;
 
-    // ===== INSTANT VISITOR COUNTER ENGINE =====
+    // ===== INSTANT VISITOR COUNTER =====
     function initVisitorCounter() {
         const visitEl = document.getElementById('visitNumber');
-        
-        // 1. Instant 0ms render from Cache/Base
         let cached = parseInt(localStorage.getItem(VISIT_COUNT_CACHE) || '0', 10);
         if (cached < BASE_START_COUNT) cached = BASE_START_COUNT;
         visitEl.innerText = cached.toLocaleString('en-IN');
 
-        // 2. Check if this is a NEW VISIT (session) or PAGE REFRESH
         const isSessionActive = sessionStorage.getItem('abt_active_session');
         const shouldIncrement = !isSessionActive;
 
@@ -376,14 +373,13 @@
             sessionStorage.setItem('abt_active_session', 'true');
         }
 
-        // 3. Background API Sync with 1.5s timeout
         syncGlobalCounter(shouldIncrement, cached);
     }
 
     async function syncGlobalCounter(shouldIncrement, currentCached) {
         const visitEl = document.getElementById('visitNumber');
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1800); // 1.8s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 1800);
 
         const apiKey = 'artbytisha_store_catalog_v10';
         const url = shouldIncrement
@@ -404,7 +400,6 @@
                 return;
             }
         } catch (e) {
-            // API Timeout or AdBlocker -> Fallback logic
             if (shouldIncrement) {
                 currentCached += 1;
                 visitEl.innerText = currentCached.toLocaleString('en-IN');
@@ -427,7 +422,7 @@
             }
         } catch (e) {}
 
-        const n = Math.floor(Math.random() * 4) + 2; // 2, 3, 4 or 5
+        const n = Math.floor(Math.random() * 4) + 2;
         localStorage.setItem(storageKey, JSON.stringify({ n: n, t: now }));
         return n;
     }
@@ -436,7 +431,6 @@
         const badge = document.getElementById('watchingBadge');
         const textEl = document.getElementById('watchingText');
 
-        // STRICTLY ONLY for Top Selling SKUs
         if (!product || !isTopSelling(product)) {
             badge.classList.remove('show');
             return;
@@ -567,7 +561,7 @@
 
     window.onload = async function() {
         initTheme();
-        initVisitorCounter(); // Instant load + Background sync
+        initVisitorCounter();
         const statusEl = document.getElementById('status');
         try {
             const res = await fetch(CSV_URL);
@@ -605,30 +599,70 @@
         });
     }
 
+    // ===== INFINITE CONTINUOUS TOP SELLING CAROUSEL =====
     function renderCarousel() {
         const topItems = products.filter(p => isTopSelling(p));
         const section = document.getElementById('carouselSection');
         const track = document.getElementById('carouselTrack');
+        
         clearInterval(carouselInterval);
         track.innerHTML = "";
-        if (topItems.length === 0) { section.style.display = 'none'; return; }
+
+        if (topItems.length === 0) { 
+            section.style.display = 'none'; 
+            return; 
+        }
+
         section.style.display = 'block';
         sortImagesFirst(topItems, "DEFAULT").forEach(item => track.appendChild(createCard(item, "⭐")));
+
+        // Start Infinite Seamless Loop if more than 2 items
         if (topItems.length > 2) {
-            let slideIndex = 0;
-            carouselInterval = setInterval(() => {
-                slideIndex++;
-                if (slideIndex > topItems.length - 2) slideIndex = 0;
-                const card = track.children[slideIndex];
-                if (card) track.scrollTo({ left: card.offsetLeft - 15, behavior: 'smooth' });
-            }, CAROUSEL_SPEED);
+            track.scrollLeft = 0;
+            startInfiniteCarousel();
         }
+    }
+
+    function startInfiniteCarousel() {
+        const track = document.getElementById('carouselTrack');
+        clearInterval(carouselInterval);
+
+        carouselInterval = setInterval(() => {
+            const firstCard = track.firstElementChild;
+            if (!firstCard) return;
+
+            // Compute exact width of 1 card + gap (15px)
+            const cardWidth = firstCard.offsetWidth + 15;
+
+            // 1. Smooth scroll right by 1 card
+            track.scrollBy({ left: cardWidth, behavior: 'smooth' });
+
+            // 2. After smooth transition (550ms), shift the first card to the back seamlessly
+            setTimeout(() => {
+                if (track.firstElementChild === firstCard) {
+                    track.appendChild(firstCard); // Move first card to end
+                    track.scrollLeft = Math.max(0, track.scrollLeft - cardWidth); // Zero out scroll jump!
+                }
+            }, 550);
+
+        }, CAROUSEL_SPEED);
     }
 
     function hideCarousel() {
         document.getElementById('carouselSection').style.display = 'none';
         clearInterval(carouselInterval);
     }
+
+    // Pause Carousel on User Touch/Hover for better UX
+    const carouselTrack = document.getElementById('carouselTrack');
+    carouselTrack.addEventListener('mouseenter', () => clearInterval(carouselInterval));
+    carouselTrack.addEventListener('touchstart', () => clearInterval(carouselInterval), { passive: true });
+    carouselTrack.addEventListener('mouseleave', () => {
+        const topItems = products.filter(p => isTopSelling(p));
+        if (topItems.length > 2 && document.getElementById('searchInput').value === "") {
+            startInfiniteCarousel();
+        }
+    });
 
     function applyFiltersAndSort() {
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -804,7 +838,6 @@
         document.getElementById('mDiscount').innerText = pricing.discountText;
         document.getElementById('mPrice').innerText = pricing.sellingText;
 
-        // Watching Badge -> STRICTLY ONLY for Top Selling items
         updateWatchingBadge(product);
 
         document.getElementById('mWhatsapp').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
