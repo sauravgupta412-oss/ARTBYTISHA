@@ -18,9 +18,10 @@
             background-color: #fdf5f6; 
             margin: 0;
             padding: 0; 
-            padding-bottom: 30px;
+            padding-bottom: 80px; /* Space for install button */
         }
 
+        /* HEADER */
         header {
             background: white;
             padding: 15px 20px;
@@ -55,6 +56,7 @@
             text-transform: uppercase;
         }
 
+        /* SEARCH & FILTERS */
         .controls-container {
             padding: 15px;
             background: #fdf5f6;
@@ -99,6 +101,7 @@
             background-size: 10px auto;
         }
 
+        /* SECTION HEADERS */
         .section-header {
             padding: 15px 15px 8px 15px;
             font-size: 13px;
@@ -137,6 +140,7 @@
             scroll-snap-align: start;
         }
 
+        /* GRID */
         .grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -270,6 +274,7 @@
             font-size: 14px;
         }
 
+        /* MODAL */
         .modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -392,6 +397,30 @@
             text-decoration: none;
             z-index: 1001;
         }
+
+        /* INSTALL APP BUTTON */
+        #installBtn {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            background: linear-gradient(135deg, #d88fa0 0%, #c97a8d 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: bold;
+            box-shadow: 0 6px 20px rgba(216,143,160,0.45);
+            cursor: pointer;
+            display: none;
+            animation: slideUp 0.5s ease;
+            white-space: nowrap;
+        }
+        #installBtn:hover {
+            background: linear-gradient(135deg, #c97a8d 0%, #b06f7c 100%);
+        }
     </style>
 </head>
 <body>
@@ -445,6 +474,7 @@
             <h2 id="mTitle" class="modal-title"></h2>
             <p id="mSku" class="modal-sku"></p>
 
+            <!-- PRICE BOX WITH MRP + DISCOUNT -->
             <div class="modal-price-box">
                 <div class="modal-mrp-row">
                     <span class="modal-mrp-label">MRP</span>
@@ -460,6 +490,9 @@
         </a>
     </div>
 
+    <!-- INSTALL APP BUTTON -->
+    <button id="installBtn" onclick="triggerInstall()">📲 Install Store App</button>
+
 <script>
     const WHATSAPP_NUMBER = "918287567099";
     const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
@@ -474,7 +507,35 @@
     let modalImages = [];
     let currentImgIdx = 0;
 
-    // MRP Formula: MRP = Selling × 1.6 (160%)
+    // ===== PWA INSTALL LOGIC =====
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block';
+    });
+
+    window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        installBtn.style.display = 'none';
+        console.log('PWA was installed');
+    });
+
+    function triggerInstall() {
+        if (!deferredPrompt) {
+            alert("To install: Tap browser menu (⋮) → 'Add to Home Screen'");
+            return;
+        }
+        installBtn.style.display = 'none';
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            deferredPrompt = null;
+        });
+    }
+
+    // ===== MRP / DISCOUNT HELPERS =====
     function calcPricing(sellingRaw) {
         const selling = parseFloat(sellingRaw) || 0;
         const mrp = Math.round(selling * 1.6);
@@ -521,12 +582,8 @@
         return (product["Category"] || "").trim().toUpperCase() === "TOP SELLING";
     }
 
-    // Priority Logic (Top Selling REMOVED from grid)
-    // Priority 2 = Other Categories (has category, not Top Selling)
-    // Priority 3 = No Category, has images
-    // Priority 4 = No Category, no images
     function getPriority(product) {
-        if (isTopSelling(product)) return 1; // Only used for carousel filtering
+        if (isTopSelling(product)) return 1; 
         if (hasCategory(product)) return 2;
         if (hasValidImages(product)) return 3;
         return 4;
@@ -641,7 +698,6 @@
         filtered.forEach(p => p._priority = getPriority(p));
 
         if (catFilter === "ALL") {
-            // REMOVE Top Selling items from the grid since they're in the slider
             const gridItems = filtered.filter(p => !isTopSelling(p));
             renderGroupedSections(gridItems);
         } else if (catFilter === "TOP_SELLING") {
@@ -662,7 +718,6 @@
             return;
         }
 
-        // Only priorities 2, 3, 4 (Top Selling excluded from grid)
         const groups = { 2: [], 3: [], 4: [] };
         data.forEach(p => {
             const pr = p._priority || 4;
@@ -727,7 +782,6 @@
             imgSection = `<div class="card-img-placeholder"><div class="icon">💍</div><span>Coming Soon</span></div>`;
         }
 
-        // Only show "Top Selling" badge on carousel cards
         const topBadge = isTop ? `<div class="card-badge">${badgeEmoji} Top Selling</div>` : "";
         const discBadge = pricing.discount > 0
             ? `<div class="discount-badge">${pricing.discountText}</div>`
