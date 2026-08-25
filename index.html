@@ -12,36 +12,129 @@
     <link rel="apple-touch-icon" href="launchericon-192x192.png">
 
     <style>
+        /* CSS VARIABLES FOR DARK/LIGHT MODE */
+        :root {
+            --bg-color: #fdf5f6;
+            --primary: #d88fa0;
+            --primary-dark: #c97a8d;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #999999;
+            --text-sub: #b0a0a5;
+            --border-color: #ecd3d8;
+            --header-bg: #ffffff;
+            --placeholder-bg: #f9f3f5;
+            --discount-bg: #27ae60;
+            --install-gradient-start: #d88fa0;
+            --install-gradient-end: #c97a8d;
+            --shadow-color: rgba(216, 143, 160, 0.15);
+        }
+
+        body.theme-dark {
+            --bg-color: #121212;
+            --primary: #e6b8c4;
+            --primary-dark: #ffc4d4;
+            --card-bg: #1e1e1e;
+            --text-main: #f5f5f5;
+            --text-muted: #aaaaaa;
+            --text-sub: #888888;
+            --border-color: #333333;
+            --header-bg: #1e1e1e;
+            --placeholder-bg: #2a2a2a;
+            --discount-bg: #4ade80;
+            --install-gradient-start: #e6b8c4;
+            --install-gradient-end: #ffc4d4;
+            --shadow-color: rgba(0, 0, 0, 0.6);
+        }
+
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #fdf5f6; 
+            background-color: var(--bg-color); 
+            color: var(--text-main);
             margin: 0;
             padding: 0; 
             padding-bottom: 80px;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
+        /* ===== TOP BANNER ===== */
+        .top-banner {
+            background: var(--header-bg);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: 0.3s;
+        }
+        .visitor-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            box-shadow: 0 4px 10px rgba(201, 122, 141, 0.3);
+        }
+        .live-dot {
+            width: 8px; height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+        }
+        .visitor-count {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .theme-toggle {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* ===== HEADER ===== */
         header {
-            background: white;
+            background: var(--header-bg);
             padding: 15px 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            box-shadow: 0 4px 15px rgba(216, 143, 160, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
         }
         .header-logo {
             width: 70px;
             height: 70px;
             border-radius: 50%;
             object-fit: contain;
-            border: 2px solid #ecd3d8;
+            border: 2px solid var(--border-color);
+            background: white;
         }
         .header-title {
-            color: #c97a8d;
+            color: var(--primary-dark);
             margin: 8px 0 0 0;
             font-size: 18px;
             font-weight: 800;
@@ -49,15 +142,16 @@
             text-transform: uppercase;
         }
         .header-tagline {
-            color: #b0a0a5;
+            color: var(--text-sub);
             font-size: 10px;
             letter-spacing: 1.5px;
             text-transform: uppercase;
         }
 
+        /* ===== CONTROLS ===== */
         .controls-container {
             padding: 15px;
-            background: #fdf5f6;
+            background: var(--bg-color);
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -65,17 +159,19 @@
         .search-input {
             width: 100%;
             padding: 14px;
-            border: 1px solid #ecd3d8;
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             outline: none;
             font-size: 15px;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(216, 143, 160, 0.08);
+            background: var(--card-bg);
+            color: var(--text-main);
+            box-shadow: 0 4px 10px var(--shadow-color);
             transition: 0.3s;
         }
         .search-input:focus {
-            border-color: #d88fa0;
-            box-shadow: 0 4px 15px rgba(216, 143, 160, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px var(--shadow-color);
         }
         .filter-row {
             display: flex;
@@ -84,14 +180,14 @@
         .filter-select {
             flex: 1;
             padding: 12px;
-            border: 1px solid #ecd3d8;
+            border: 1px solid var(--border-color);
             border-radius: 12px;
-            background: white;
-            color: #555;
+            background: var(--card-bg);
+            color: var(--text-main);
             font-size: 13px;
             font-weight: 600;
             outline: none;
-            box-shadow: 0 2px 8px rgba(216, 143, 160, 0.05);
+            box-shadow: 0 2px 8px var(--shadow-color);
             appearance: none;
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23d88fa0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
             background-repeat: no-repeat;
@@ -99,13 +195,14 @@
             background-size: 10px auto;
         }
 
+        /* ===== SECTIONS ===== */
         .section-header {
             padding: 15px 15px 8px 15px;
             font-size: 13px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            color: #c97a8d;
+            color: var(--primary-dark);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -113,14 +210,15 @@
         .section-header .line {
             flex: 1;
             height: 1px;
-            background: #ecd3d8;
+            background: var(--border-color);
         }
         .section-header .count {
             font-size: 11px;
-            color: #b0a0a5;
+            color: var(--text-sub);
             font-weight: 600;
         }
 
+        /* ===== CAROUSEL ===== */
         .carousel-track {
             display: flex;
             gap: 15px;
@@ -136,6 +234,7 @@
             scroll-snap-align: start;
         }
 
+        /* ===== GRID & CARD ===== */
         .grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -143,18 +242,19 @@
             padding: 0 15px 5px 15px;
         }
         .product-card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 6px 15px var(--shadow-color);
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s, background 0.3s;
+            border: 1px solid var(--border-color);
         }
         .product-card:active { transform: scale(0.97); }
         .card-img-wrapper {
             width: 100%;
             aspect-ratio: 1 / 1;
-            background: #fff9fa;
+            background: var(--placeholder-bg);
             position: relative;
         }
         .card-img {
@@ -166,7 +266,7 @@
             position: absolute;
             top: 8px;
             left: 8px;
-            background: linear-gradient(135deg, #f7a8b8, #c97a8d);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             font-size: 9px;
             font-weight: 800;
@@ -174,21 +274,19 @@
             border-radius: 20px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            box-shadow: 0 2px 8px rgba(201, 122, 141, 0.4);
             z-index: 2;
         }
         .discount-badge {
             position: absolute;
             top: 8px;
             right: 8px;
-            background: #27ae60;
+            background: var(--discount-bg);
             color: white;
             font-size: 10px;
             font-weight: 800;
             padding: 4px 7px;
             border-radius: 6px;
             z-index: 2;
-            box-shadow: 0 2px 6px rgba(39, 174, 96, 0.35);
         }
         .card-img-placeholder {
             width: 100%;
@@ -197,8 +295,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: #f9f3f5;
-            color: #d88fa0;
+            background: var(--placeholder-bg);
+            color: var(--primary);
             font-size: 12px;
             font-weight: 600;
             gap: 6px;
@@ -210,7 +308,7 @@
         }
         .card-category {
             font-size: 10px;
-            color: #d88fa0;
+            color: var(--primary);
             font-weight: 800;
             text-transform: uppercase;
             margin: 0 0 3px 0;
@@ -218,7 +316,7 @@
         }
         .card-title {
             font-size: 13px;
-            color: #333;
+            color: var(--text-main);
             margin: 0 0 5px 0;
             font-weight: 600;
             white-space: nowrap;
@@ -227,7 +325,7 @@
         }
         .card-sku {
             font-size: 11px;
-            color: #999;
+            color: var(--text-muted);
             margin: 0 0 6px 0;
             text-transform: uppercase;
         }
@@ -239,40 +337,42 @@
         }
         .card-mrp {
             font-size: 12px;
-            color: #999;
+            color: var(--text-muted);
             text-decoration: line-through;
             margin: 0;
         }
         .card-price {
             font-size: 16px;
-            color: #c97a8d;
+            color: var(--primary-dark);
             font-weight: 800;
             margin: 0;
         }
         .card-off {
             font-size: 11px;
-            color: #27ae60;
+            color: var(--discount-bg);
             font-weight: 700;
             margin: 2px 0 0 0;
         }
 
+        /* ===== STATUS & MISC ===== */
         .status-msg {
             text-align: center;
-            color: #d88fa0;
+            color: var(--primary);
             padding: 40px 20px;
             font-weight: 600;
         }
         .no-results {
             text-align: center;
             padding: 30px 15px;
-            color: #999;
+            color: var(--text-muted);
             font-size: 14px;
         }
 
+        /* ===== MODAL ===== */
         .modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: white;
+            background: var(--card-bg);
             z-index: 1000;
             display: none;
             flex-direction: column;
@@ -286,14 +386,14 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px 20px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
-            background: white;
+            background: var(--card-bg);
             z-index: 10;
         }
         .back-btn {
-            background: none; border: none; font-size: 24px; color: #333; cursor: pointer;
+            background: none; border: none; font-size: 24px; color: var(--text-main); cursor: pointer;
         }
         .modal-content {
             padding: 20px;
@@ -303,7 +403,7 @@
             width: 100%;
             height: 350px;
             object-fit: contain;
-            background: #fff9fa;
+            background: var(--placeholder-bg);
             border-radius: 12px;
             margin-bottom: 15px;
         }
@@ -316,17 +416,17 @@
         }
         .modal-thumb {
             width: 50px; height: 50px; object-fit: cover;
-            border: 2px solid #eee; border-radius: 8px;
+            border: 2px solid var(--border-color); border-radius: 8px;
         }
-        .modal-thumb.active { border-color: #d88fa0; }
+        .modal-thumb.active { border-color: var(--primary); }
         
-        .modal-cat { font-size: 12px; color: #d88fa0; font-weight: bold; text-transform: uppercase; margin: 0 0 5px 0; }
-        .modal-title { font-size: 22px; color: #333; margin: 0 0 5px 0; }
-        .modal-sku { font-size: 13px; color: #888; margin: 0 0 18px 0; }
+        .modal-cat { font-size: 12px; color: var(--primary); font-weight: bold; text-transform: uppercase; margin: 0 0 5px 0; }
+        .modal-title { font-size: 22px; color: var(--text-main); margin: 0 0 5px 0; }
+        .modal-sku { font-size: 13px; color: var(--text-muted); margin: 0 0 18px 0; }
         
         .modal-price-box {
-            background: #fff9fa;
-            border: 1px solid #ecd3d8;
+            background: var(--placeholder-bg);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 10px;
@@ -340,18 +440,18 @@
         }
         .modal-mrp-label {
             font-size: 12px;
-            color: #999;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .modal-mrp {
             font-size: 16px;
-            color: #999;
+            color: var(--text-muted);
             text-decoration: line-through;
         }
         .modal-discount-pill {
-            background: #e8f8ef;
-            color: #27ae60;
+            background: var(--discount-bg);
+            color: white;
             font-size: 12px;
             font-weight: 800;
             padding: 4px 10px;
@@ -359,13 +459,13 @@
         }
         .modal-price {
             font-size: 28px;
-            color: #c97a8d;
+            color: var(--primary-dark);
             font-weight: 900;
             margin: 0;
         }
         .modal-price-note {
             font-size: 12px;
-            color: #888;
+            color: var(--text-muted);
             margin: 4px 0 0 0;
         }
         
@@ -398,14 +498,14 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 999;
-            background: linear-gradient(135deg, #d88fa0 0%, #c97a8d 100%);
+            background: linear-gradient(135deg, var(--install-gradient-start) 0%, var(--install-gradient-end) 100%);
             color: white;
             border: none;
             padding: 14px 28px;
             border-radius: 50px;
             font-size: 15px;
             font-weight: bold;
-            box-shadow: 0 6px 20px rgba(216,143,160,0.45);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
             cursor: pointer;
             display: none;
             animation: slideUp 0.5s ease;
@@ -414,6 +514,15 @@
     </style>
 </head>
 <body>
+
+    <!-- TOP BANNER: Visitor Counter + Theme Toggle -->
+    <div class="top-banner">
+        <div class="visitor-pill">
+            <span class="live-dot"></span>
+            <span>👁️ Visitors: <span class="visitor-count" id="visitNumber">...</span></span>
+        </div>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">🌙</button>
+    </div>
 
     <header>
         <img src="logo.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
@@ -448,14 +557,12 @@
         <div id="carouselTrack" class="carousel-track"></div>
     </div>
 
-    <!-- MAIN GRID CONTAINER -->
     <div id="productGrid"></div>
 
-    <!-- PRODUCT MODAL -->
     <div id="productModal" class="modal">
         <div class="modal-header">
             <button class="back-btn" onclick="closeModal()">✕</button>
-            <h3 style="margin:0; font-size:16px; color:#333;">Details</h3>
+            <h3 style="margin:0; font-size:16px; color: var(--text-main);">Details</h3>
             <div style="width:24px;"></div>
         </div>
         <div class="modal-content">
@@ -483,7 +590,6 @@
     <button id="installBtn" onclick="triggerInstall()">📲 Install Store App</button>
 
 <script>
-    // ===== APP SETTINGS =====
     const WHATSAPP_NUMBER = "918287567099";
     const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
@@ -500,7 +606,7 @@
     let modalImages = [];
     let currentImgIdx = 0;
 
-    // ===== PWA =====
+    // ===== PWA INSTALL =====
     let deferredPrompt = null;
     const installBtn = document.getElementById('installBtn');
 
@@ -523,6 +629,48 @@
         deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
     }
 
+    // ===== DARK / LIGHT MODE TOGGLE =====
+    const themeToggleBtn = document.getElementById('themeToggle');
+    
+    function applyTheme(theme) {
+        if (theme === 'dark') {
+            document.body.classList.add('theme-dark');
+            themeToggleBtn.innerText = '☀️';
+        } else {
+            document.body.classList.remove('theme-dark');
+            themeToggleBtn.innerText = '🌙';
+        }
+    }
+
+    function toggleTheme() {
+        const isDark = document.body.classList.contains('theme-dark');
+        if (isDark) {
+            localStorage.setItem('abt_theme', 'light');
+            applyTheme('light');
+        } else {
+            localStorage.setItem('abt_theme', 'dark');
+            applyTheme('dark');
+        }
+    }
+
+    // ===== VISITOR COUNT =====
+    async function loadVisitorCount() {
+        const visitEl = document.getElementById('visitNumber');
+        try {
+            const res = await fetch('https://api.counterapi.dev/v1/artbytisha_public/visits/up');
+            if (!res.ok) throw new Error('API offline');
+            const data = await res.json();
+            const count = data.count ?? data.value ?? data.hits ?? 1;
+            visitEl.innerText = count;
+            localStorage.setItem('abt_public_visits', count);
+        } catch (err) {
+            // Local fallback if API blocked
+            let localCount = parseInt(localStorage.getItem('abt_public_visits') || '0') + 1;
+            localStorage.setItem('abt_public_visits', localCount);
+            visitEl.innerText = localCount;
+        }
+    }
+
     // ===== PRICING =====
     function calcPricing(sellingRaw) {
         const selling = parseFloat(sellingRaw) || 0;
@@ -536,7 +684,6 @@
         };
     }
 
-    // ===== HELPERS =====
     function cleanImageUrl(url) {
         if (!url) return '';
         url = url.trim();
@@ -577,21 +724,27 @@
         return arr;
     }
 
-    // Custom Sorter for Category Names
     function sortCategories(catArray) {
         return catArray.sort((a, b) => {
             const indexA = CATEGORY_ORDER.indexOf(a.toUpperCase());
             const indexB = CATEGORY_ORDER.indexOf(b.toUpperCase());
-
-            if (indexA !== -1 && indexB !== -1) return indexA - indexB; // Both in custom list
-            if (indexA !== -1) return -1; // Only A is in list (A goes first)
-            if (indexB !== -1) return 1;  // Only B is in list (B goes first)
-            return a.localeCompare(b);    // Neither in list? Sort alphabetically
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+            return a.localeCompare(b);
         });
     }
 
     // ===== INIT =====
     window.onload = async function() {
+        // 1. Restore saved theme immediately (no flash)
+        const savedTheme = localStorage.getItem('abt_theme') || 'light';
+        applyTheme(savedTheme);
+
+        // 2. Trigger visitor count
+        loadVisitorCount();
+
+        // 3. Load products
         const statusEl = document.getElementById('status');
         try {
             const res = await fetch(CSV_URL);
@@ -629,13 +782,11 @@
         products.forEach(p => {
             const cat = (p["Category"] || "").trim();
             if (cat && cat.toUpperCase() !== "TOP SELLING") {
-                uniqueCats.add(cat); // keep original casing
+                uniqueCats.add(cat);
             }
         });
 
-        // Apply Custom Category Sort to Dropdown Options
         const sortedCats = sortCategories(Array.from(uniqueCats));
-        
         sortedCats.forEach(c => {
             const opt = document.createElement('option');
             opt.value = c.toUpperCase();
@@ -678,20 +829,17 @@
         clearInterval(carouselInterval);
     }
 
-    // ===== MAIN LOGIC =====
     function applyFiltersAndSort() {
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
         const catFilter = document.getElementById('categoryFilter').value;
         const sortFilter = document.getElementById('sortFilter').value;
 
-        // TOP SLIDER RULE
         if (catFilter === "ALL" && query === "") {
             renderCarousel();
         } else {
             hideCarousel();
         }
 
-        // FILTER GRID
         let filtered = products.filter(p => {
             const name = (p["Product Name"] || "").toLowerCase();
             const sku = (p["SKU Code"] || "").toLowerCase();
@@ -709,7 +857,6 @@
             return matchesSearch && matchesCat;
         });
 
-        // RENDER GRID
         if (catFilter === "ALL") {
             let gridItems = filtered.filter(p => !isTopSelling(p));
             gridItems = sortList(gridItems, sortFilter);
@@ -723,7 +870,6 @@
         }
     }
 
-    // Dynamic Category Grouping + Custom Sort Logic
     function renderGroupedSections(data) {
         const grid = document.getElementById('productGrid');
         grid.innerHTML = "";
@@ -737,7 +883,6 @@
         const availDesigns = [];
         const comingSoon = [];
 
-        // Split data
         data.forEach(p => {
             const cat = (p["Category"] || "").trim();
             if (cat) {
@@ -749,18 +894,14 @@
             }
         });
 
-        // 1. Render actual named Categories first (using Custom Sort Order)
         const sortedCats = sortCategories(Object.keys(catGroups));
         sortedCats.forEach(catName => {
             renderSection(grid, "📂", catName, catGroups[catName], "✨", false);
         });
 
-        // 2. Render Available Designs (Uncategorized, With Images)
         if (availDesigns.length > 0) {
             renderSection(grid, "🖼️", "Available Designs", availDesigns, "💎", false);
         }
-
-        // 3. Render Coming Soon (Uncategorized, No Images)
         if (comingSoon.length > 0) {
             renderSection(grid, "📋", "More Coming Soon", comingSoon, "🕐", false);
         }
