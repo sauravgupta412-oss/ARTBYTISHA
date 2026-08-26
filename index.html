@@ -16,16 +16,10 @@
     <link rel="preconnect" href="https://lh3.googleusercontent.com">
     <link rel="preconnect" href="https://cdn.onesignal.com">
 
-    <!-- =========================
-         ONESIGNAL (optional push)
-         1) Create free app at https://onesignal.com
-         2) Paste your App ID below
-         3) In OneSignal: Settings → Platforms → Web
-            Site URL: https://www.artbytisha.in
-         ========================= -->
+    <!-- ONESIGNAL SETUP (optional for push notifications) -->
     <script>
-        // Leave empty "" to use local notifications only.
-        // Example: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        // Leave empty "" to use local browser notifications only.
+        // Add App ID when ready for real push campaigns.
         const ONESIGNAL_APP_ID = "";
     </script>
 
@@ -203,6 +197,7 @@
             box-shadow: 0 2px 8px var(--shadow);
         }
 
+        /* Notifications UI */
         .notify-bar {
             margin: 0 15px 8px;
             padding: 12px 14px;
@@ -244,14 +239,8 @@
             white-space: nowrap;
         }
 
-        #notifyBtn:disabled {
-            opacity: 0.7;
-            cursor: default;
-        }
-
-        #notifyBtn.enabled {
-            background: #1f8f4e;
-        }
+        #notifyBtn:disabled { opacity: 0.7; cursor: default; }
+        #notifyBtn.enabled { background: #1f8f4e; }
 
         .section-header {
             padding: 15px 15px 8px;
@@ -277,6 +266,7 @@
             font-weight: 600;
         }
 
+        /* Carousel - Scroll Fix Included */
         .carousel-viewport {
             width: 100%;
             overflow-x: auto;
@@ -284,7 +274,11 @@
             scroll-snap-type: x mandatory;
             scroll-padding-inline: var(--carousel-pad);
             -webkit-overflow-scrolling: touch;
-            touch-action: pan-x;
+            
+            /* CRUCIAL: Allow vertical page scrolling on carousel */
+            touch-action: pan-x pan-y;
+            overscroll-behavior-x: contain;
+
             cursor: grab;
             scrollbar-width: none;
         }
@@ -307,6 +301,8 @@
             max-width: var(--carousel-item-width);
             scroll-snap-align: start;
             scroll-snap-stop: always;
+            /* CRUCIAL: allow normal scroll behaviors */
+            touch-action: manipulation;
         }
 
         .grid {
@@ -938,7 +934,6 @@
                 return;
             }
 
-            // OneSignal path (when App ID is configured)
             if (ONESIGNAL_APP_ID && window.OneSignalDeferred) {
                 window.OneSignalDeferred.push(async function(OneSignal) {
                     try {
@@ -956,7 +951,6 @@
                         }
                     } catch (err) {
                         console.log("OneSignal permission error:", err);
-                        // fallback to native
                         await nativeNotifyFlow();
                     }
                 });
@@ -969,7 +963,6 @@
         async function nativeNotifyFlow() {
             try {
                 const permission = await Notification.requestPermission();
-
                 if (permission === "granted") {
                     updateNotifyUI("granted");
                     await showLocalNotification(
@@ -1384,6 +1377,7 @@
             }
         });
 
+        // Touch event handlers for pausing/resuming carousel
         const carouselViewport = document.getElementById("carouselViewport");
 
         ["touchstart", "mousedown"].forEach(evt => {
@@ -1393,7 +1387,8 @@
             }, { passive: true });
         });
 
-        ["touchend", "mouseup", "mouseleave"].forEach(evt => {
+        // Added touchcancel to ensure scroll resume if user scrolls vertically out of bounds
+        ["touchend", "mouseup", "mouseleave", "touchcancel"].forEach(evt => {
             carouselViewport.addEventListener(evt, () => {
                 userTouchingCarousel = false;
                 const visible = document.getElementById("carouselSection").style.display !== "none";
@@ -1421,6 +1416,7 @@
 
         window.addEventListener("load", async () => {
             initTheme();
+            // No visitor counter code here!
             initNotifyUI();
             loadOneSignal();
             updateCarouselMetrics();
