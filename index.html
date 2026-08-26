@@ -384,6 +384,12 @@ let activeCategory = "ALL";
 let searchTimer = null;
 let lastFocusedBeforeModal = null;
 
+// Helper to reliably retrieve Amazon ASIN code from sheet headers
+function getASIN(p) {
+    if (!p) return "";
+    return p["Amazon ASIN code"] || p["ASIN Code"] || p["ASIN"] || p["SKU Code"] || p["SKU"] || "";
+}
+
 function parseCSV(text) {
     const rows = []; let row = []; let value = ""; let insideQuotes = false;
     for (let i = 0; i < text.length; i++) {
@@ -464,7 +470,6 @@ async function enableOfferNotifications() {
     }
 }
 
-/* REAL pricing only — no invented MRP */
 function calcPricing(sellingValue, mrpValue) {
     const selling = parseFloat(String(sellingValue).replace(/[^\d.]/g, "")) || 0;
     let mrp = parseFloat(String(mrpValue || "").replace(/[^\d.]/g, "")) || 0;
@@ -568,16 +573,16 @@ function updateCarouselMetrics() {
 
 function createCard(item, badgeEmoji, eagerLoad) {
     const pricing = calcPricing(item["Selling"], item["MRP"]);
-    const sku = item["SKU Code"] || "";
+    const asin = getASIN(item);
     const url = cleanImageUrl(item["Image 1"], 600);
     const card = document.createElement("article");
     card.className = "product-card";
     card.setAttribute("role", "button");
     card.tabIndex = 0;
     card.setAttribute("aria-label", `${item["Product Name"] || "Product"}, ${pricing.sellingText}`);
-    card.onclick = () => openModal(sku);
+    card.onclick = () => openModal(asin);
     card.onkeydown = (e) => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openModal(sku); }
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openModal(asin); }
     };
     card.innerHTML = `
         <div class="card-img-wrapper">
@@ -587,7 +592,7 @@ function createCard(item, badgeEmoji, eagerLoad) {
         <div class="card-info">
             <p class="card-category">${item["Category"] || ""}</p>
             <p class="card-title">${item["Product Name"] || ""}</p>
-            <p class="card-sku">SKU: ${sku}</p>
+            <p class="card-sku">${asin ? 'ASIN: ' + asin : ''}</p>
             <div class="card-price-row">
                 <p class="card-price">${pricing.sellingText}</p>
                 ${pricing.discount > 0 ? `<p class="card-mrp">${pricing.mrpText}</p><p class="card-off">${pricing.discountText}</p>` : ""}
@@ -666,9 +671,9 @@ function applyFilters() {
 
     const filtered = products.filter(p => {
         const name = (p["Product Name"] || "").toLowerCase();
-        const sku = (p["SKU Code"] || "").toLowerCase();
+        const asin = getASIN(p).toLowerCase();
         const cat = (p["Category"] || "").trim().toUpperCase();
-        const sMatch = !query || name.includes(query) || sku.includes(query);
+        const sMatch = !query || name.includes(query) || asin.includes(query);
         let cMatch = true;
         if (activeCategory === "TOP_SELLING") cMatch = cat === "TOP SELLING";
         else if (activeCategory !== "ALL") cMatch = cat === activeCategory;
@@ -702,15 +707,15 @@ function applyFilters() {
     }
 }
 
-function openModal(sku) {
-    const p = products.find(i => i["SKU Code"] === sku);
+function openModal(asin) {
+    const p = products.find(i => getASIN(i) === asin);
     if (!p) return;
     lastFocusedBeforeModal = document.activeElement;
     savedScrollPosition = window.scrollY;
     const price = calcPricing(p["Selling"], p["MRP"]);
 
     document.getElementById("mTitle").innerText = p["Product Name"] || "";
-    document.getElementById("mSku").innerText = "SKU: " + sku;
+    document.getElementById("mSku").innerText = asin ? "ASIN: " + asin : "";
     document.getElementById("mCat").innerText = p["Category"] || "";
     document.getElementById("mPrice").innerText = price.sellingText;
     document.getElementById("mImg").alt = p["Product Name"] || "Product image";
@@ -727,7 +732,7 @@ function openModal(sku) {
         mDisc.hidden = true;
     }
 
-    const msg = `Hi! I'm interested in the ${p["Product Name"]} (${price.sellingText})\n\nSKU: ${sku}\nLink: ${location.origin}${location.pathname}`;
+    const msg = `Hi! I'm interested in the ${p["Product Name"]} (${price.sellingText})\n\nASIN: ${asin}\nLink: ${location.origin}${location.pathname}`;
     document.getElementById("mWhatsapp").href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
 
     modalImages = [1,2,3,4,5].map(i => cleanImageUrl(p[`Image ${i}`], 1200)).filter(u => u && u.length > 5);
