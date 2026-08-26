@@ -1,5 +1,5 @@
 /* Art By Tisha service worker */
-const CACHE_NAME = "abt-store-v12";
+const CACHE_NAME = "abt-store-v13";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -26,13 +26,27 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
 
+  // 1. DO NOT cache Google Sheets API in Service Worker (index.html handles this via localStorage)
+  if (req.url.includes("docs.google.com/spreadsheets")) {
+    return;
+  }
+
+  // 2. Bypass SW for audio files (Fixes Safari/Chrome MP3 streaming & range request bugs)
+  if (req.url.endsWith(".mp3") || req.headers.get('range')) {
+    return;
+  }
+
+  // 3. Cache product images and website assets normally (Stale-While-Revalidate)
   event.respondWith(
     caches.match(req).then((cached) => {
       const network = fetch(req).then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
+        // Cache valid responses and opaque responses (Google Drive images)
+        if (res && (res.status === 200 || res.status === 0)) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
+        }
         return res;
-      }).catch(() => cached);
+      }).catch(() => cached); // If offline, fallback to cache
 
       return cached || network;
     })
