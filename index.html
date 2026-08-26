@@ -424,7 +424,9 @@ const NOTIFY_PREF_KEY = "abt_notify_enabled_v1";
 const CAROUSEL_SPEED = 2500;
 const CATEGORY_ORDER = ["TOP SELLING","NECKLACE","NECKLACES","RINGS","RING","BRACELETS","BRACELET","BANGLES","BANGLE","EARRINGS","EARRING"];
 
-const MUSIC_URL = "./krishna-flute.mp3";   
+/* Automatic fallback support for duplicate .mp3 extension */
+const MUSIC_SOURCES = ["./krishna-flute.mp3", "./krishna-flute.mp3.mp3"];
+let currentSourceIdx = 0;
 const MUSIC_VOLUME = 0.20;               
 const MUSIC_PREF_KEY = "abt_music_pref_v1";
 
@@ -445,7 +447,6 @@ let lastFocusedBeforeModal = null;
 let musicEl = null;
 let musicOn = false;
 let musicFadeTimer = null;
-let userHasInteracted = false;
 
 function getASIN(p) {
     if (!p) return "";
@@ -490,22 +491,24 @@ function toggleTheme() {
     document.getElementById("themeColorMeta").setAttribute("content", isDark ? "#121212" : "#ffffff");
 }
 
-/* ============== ROBUST AUDIO ENGINE ============== */
+/* ============== DUAL FALLBACK AUDIO ENGINE ============== */
 function initMusic() {
     musicEl = document.getElementById("bgMusic");
     if (!musicEl) return;
     musicEl.loop = true;
     musicEl.volume = 0;
-    musicEl.src = MUSIC_URL;
+    musicEl.src = MUSIC_SOURCES[currentSourceIdx];
 
-    // Unblock browser autoplay restrictions on first tap anywhere
-    const unlockFn = () => {
-        userHasInteracted = true;
-        document.removeEventListener("touchstart", unlockFn);
-        document.removeEventListener("click", unlockFn);
-    };
-    document.addEventListener("touchstart", unlockFn, { passive: true });
-    document.addEventListener("click", unlockFn, { passive: true });
+    // Automatically try duplicate file extension if primary fails
+    musicEl.addEventListener("error", () => {
+        if (currentSourceIdx < MUSIC_SOURCES.length - 1) {
+            currentSourceIdx++;
+            musicEl.src = MUSIC_SOURCES[currentSourceIdx];
+        } else {
+            musicOn = false;
+            updateMusicUI();
+        }
+    });
 
     updateMusicUI();
 }
@@ -541,14 +544,16 @@ async function playMusic(userInitiated) {
         updateMusicUI();
         return true;
     } catch (e) {
+        // Fallback check
+        if (currentSourceIdx < MUSIC_SOURCES.length - 1) {
+            currentSourceIdx++;
+            musicEl.src = MUSIC_SOURCES[currentSourceIdx];
+            return playMusic(userInitiated);
+        }
         musicOn = false;
         updateMusicUI();
         if (userInitiated) {
-            if (e.name === "NotAllowedError") {
-                alert("Please tap anywhere on the screen first to allow music playback.");
-            } else {
-                alert(`Music file "krishna-flute.mp3" was not found on your server.\n\nTroubleshooting:\n1. Ensure "krishna-flute.mp3" is uploaded to your GitHub main folder.\n2. Check filename spelling (it must be all lowercase).`);
-            }
+            alert("Music file could not be played. Please check your browser audio permissions.");
         }
         return false;
     }
