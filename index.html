@@ -90,16 +90,26 @@
         #musicToggleBtn.playing { background: rgba(255,255,255,.45); }
         body.dark-mode #musicToggleBtn.playing { background: var(--primary-dark); color: #121212; border-color: var(--primary-dark); }
 
-        header {
-            background: var(--card-bg); padding: 15px 20px; display: flex; align-items: center; justify-content: center;
-            flex-direction: column; box-shadow: 0 4px 15px var(--shadow); position: sticky; top: 36px; z-index: 101;
+        /* --- Header & Search Redesign --- */
+        .main-nav-wrapper {
+            background: var(--card-bg);
+            box-shadow: 0 4px 15px var(--shadow);
+            position: sticky; top: 35px; z-index: 101;
+        }
+        .nav-inner {
+            padding: 15px 20px;
+            display: flex; flex-direction: column; gap: 14px;
+            max-width: 1400px; margin: 0 auto;
+        }
+        #brandHeader {
+            display: flex; flex-direction: column; align-items: center; text-align: center;
             cursor: pointer; user-select: none;
         }
-        .header-logo { width: 70px; height: 70px; border-radius: 50%; object-fit: contain; border: 2px solid var(--border-color); background: #fff; }
-        .header-title { font-family: 'Fraunces', serif; color: var(--primary-dark); margin: 8px 0 0; font-size: 20px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
-        .header-tagline { color: var(--text-muted); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; }
-
-        .controls-container { padding: 15px; background: var(--bg-color); display: flex; flex-direction: column; gap: 12px; }
+        .brand-text { display: flex; flex-direction: column; align-items: center; }
+        .header-logo { width: 65px; height: 65px; border-radius: 50%; object-fit: contain; border: 2px solid var(--border-color); background: #fff; margin-bottom: 8px; }
+        .header-title { font-family: 'Fraunces', serif; color: var(--primary-dark); margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+        .header-tagline { color: var(--text-muted); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; margin-top: 2px; }
+        
         .search-wrapper { position: relative; width: 100%; }
         .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); fill: none; stroke: var(--text-muted); stroke-width: 2; width: 18px; height: 18px; pointer-events: none; }
         .search-input {
@@ -107,6 +117,9 @@
             outline: none; font-size: 15px; background: var(--input-bg); color: var(--text-main); box-shadow: inset 0 2px 5px var(--shadow);
         }
         .search-input:focus { border-color: var(--primary); }
+
+        .controls-container { padding: 12px 15px 5px; background: var(--bg-color); max-width: 1400px; margin: 0 auto; }
+        /* -------------------------------- */
 
         .chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .chip-row::-webkit-scrollbar { display: none; }
@@ -119,7 +132,7 @@
         body.dark-mode .chip.active { background: var(--primary-dark); color: #121212; border-color: var(--primary-dark); }
 
         .notify-bar {
-            margin: 0 15px 8px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border-color);
+            margin: 10px 15px 8px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border-color);
             background: var(--card-bg); display: flex; align-items: center; justify-content: space-between; gap: 10px; box-shadow: 0 4px 12px var(--shadow);
         }
         .notify-bar p { margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.35; flex: 1; }
@@ -264,9 +277,21 @@
         .zoom-img-container img.zoomed-in { max-width: none; max-height: none; width: 220%; cursor: zoom-out; }
         .zoom-tip { color: rgba(255,255,255,.7); font-size: 12px; margin-top: 15px; text-align: center; padding: 0 15px; }
 
+        /* ======== DESKTOP SPECIFIC RULES ======== */
         @media (min-width: 768px) {
             :root { --carousel-pad: 20px; --carousel-gap: 20px; --carousel-cols: 4; }
-            .controls-container, .notify-bar, .cache-note { max-width: 1200px; margin-left: auto; margin-right: auto; }
+            .notify-bar, .cache-note { max-width: 1200px; margin-left: auto; margin-right: auto; }
+            
+            /* Magic Desktop Header Restructure */
+            .nav-inner { flex-direction: row; justify-content: space-between; align-items: center; padding: 15px 40px; }
+            #brandHeader { flex-direction: row; text-align: left; gap: 15px; }
+            .brand-text { align-items: flex-start; }
+            .header-logo { margin-bottom: 0; width: 75px; height: 75px; }
+            .header-title { font-size: 24px; }
+            .search-wrapper { max-width: 450px; flex-shrink: 0; }
+            .controls-container { padding: 10px 40px 10px; }
+            /* --------------------------------- */
+
             .section-header { padding-left: 20px; padding-right: 20px; }
             .grid, .skeleton-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; padding: 0 20px 20px; }
             .modal-content {
@@ -290,20 +315,29 @@
         </div>
     </div>
 
-    <header id="brandHeader" onclick="goHome()" title="Back to Home" role="button" tabindex="0" aria-label="Art By Tisha home"
-            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goHome();}">
-        <img src="logo.png" alt="Art By Tisha" class="header-logo" onerror="this.style.display='none'">
-        <h1 class="header-title">Art By Tisha</h1>
-        <div class="header-tagline">Official Collection</div>
-    </header>
+    <!-- Redesigned Navigation Wrapper -->
+    <div class="main-nav-wrapper">
+        <div class="nav-inner">
+            <header id="brandHeader" onclick="goHome()" title="Back to Home" role="button" tabindex="0" aria-label="Art By Tisha home"
+                    onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goHome();}">
+                <img src="logo.png" alt="Art By Tisha" class="header-logo" onerror="this.style.display='none'">
+                <div class="brand-text">
+                    <h1 class="header-title">Art By Tisha</h1>
+                    <div class="header-tagline">Official Collection</div>
+                </div>
+            </header>
+
+            <div class="search-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" id="searchInput" class="search-input" placeholder="Search necklaces, rings, earrings..." aria-label="Search products" autocomplete="off">
+            </div>
+        </div>
+    </div>
 
     <div class="controls-container">
-        <div class="search-wrapper">
-            <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="search" id="searchInput" class="search-input" placeholder="Search necklaces, rings, earrings..." aria-label="Search products" autocomplete="off">
-        </div>
         <div class="chip-row" id="chipContainer" role="toolbar" aria-label="Product categories"></div>
     </div>
+    <!-- End Redesign -->
 
     <div class="notify-bar" id="notifyBar">
         <p><strong>🔔 Offer alerts</strong>Get notified about new designs &amp; deals</p>
@@ -378,23 +412,20 @@
 
 <button id="installBtn" type="button" onclick="triggerInstall()">📲 Install App</button>
 
-<!-- Soft Krishna flute background music (place the mp3 beside this file, or change MUSIC_URL below) -->
 <audio id="bgMusic" loop preload="none"></audio>
 
 <script>
 const WHATSAPP_NUMBER = "918287567099";
 const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
-const PRODUCT_CACHE_KEY = "abt_products_cache_v3"; // bumped: now stores Amazon Price
+const PRODUCT_CACHE_KEY = "abt_products_cache_v3";
 const NOTIFY_PREF_KEY = "abt_notify_enabled_v1";
 const CAROUSEL_SPEED = 2500;
 const CATEGORY_ORDER = ["TOP SELLING","NECKLACE","NECKLACES","RINGS","RING","BRACELETS","BRACELET","BANGLES","BANGLE","EARRINGS","EARRING"];
 
-/* ---------------- BACKGROUND MUSIC SETTINGS ---------------- */
-const MUSIC_URL = "krishna-flute.mp3";   // <-- put your soft flute mp3 here (local file or full https URL)
-const MUSIC_VOLUME = 0.20;               // 20 out of 100
+const MUSIC_URL = "krishna-flute.mp3";   
+const MUSIC_VOLUME = 0.20;               
 const MUSIC_PREF_KEY = "abt_music_pref_v1";
-/* ----------------------------------------------------------- */
 
 let products = [];
 let modalImages = [];
@@ -415,13 +446,11 @@ let musicOn = false;
 let musicFadeTimer = null;
 let musicBlocked = false;
 
-/* ============== SHEET FIELD HELPERS ============== */
-// Amazon ASIN Code (Column A) — exact header from the sheet, plus safe fallbacks
+
 function getASIN(p) {
     if (!p) return "";
     return String(p["Amazon ASIN Code"] || p["Amazon ASIN code"] || p["ASIN Code"] || p["ASIN"] || p["SKU Code"] || p["SKU"] || "").trim();
 }
-// Amazon Price (Column M) — used as the comparison price
 function getAmazonPrice(p) {
     if (!p) return "";
     return p["Amazon Price"] || p["Amazon price"] || p["AmazonPrice"] || p["Amazon MRP"] || p["MRP"] || "";
@@ -445,7 +474,6 @@ function parseCSV(text) {
     return rows;
 }
 
-/* ============== THEME ============== */
 function initTheme() {
     const saved = localStorage.getItem("tisha_theme");
     const useDark = saved !== "light";
@@ -462,7 +490,6 @@ function toggleTheme() {
     document.getElementById("themeColorMeta").setAttribute("content", isDark ? "#121212" : "#ffffff");
 }
 
-/* ============== BACKGROUND MUSIC ============== */
 function initMusic() {
     musicEl = document.getElementById("bgMusic");
     if (!musicEl) return;
@@ -533,14 +560,12 @@ function toggleMusic() {
         playMusic(true);
     }
 }
-// Called when a customer opens any product — counts as a user gesture, so autoplay is allowed
 function maybeStartMusicOnProductOpen() {
     if (!musicEl || musicOn || musicBlocked) return;
-    if (localStorage.getItem(MUSIC_PREF_KEY) === "off") return; // customer chose silence
+    if (localStorage.getItem(MUSIC_PREF_KEY) === "off") return; 
     playMusic(false);
 }
 
-/* ============== NOTIFICATIONS ============== */
 function hideNotifyBar() {
     const bar = document.getElementById("notifyBar");
     if (bar) bar.style.display = "none";
@@ -587,7 +612,6 @@ async function enableOfferNotifications() {
     }
 }
 
-/* ============== PRICING (Our price vs Amazon price) ============== */
 function toNumber(v) {
     return parseFloat(String(v == null ? "" : v).replace(/[^\d.]/g, "")) || 0;
 }
@@ -598,30 +622,22 @@ function calcPricing(sellingValue, amazonValue) {
     const selling = toNumber(sellingValue);
     const amazon = toNumber(amazonValue);
     const base = {
-        selling,
-        amazon,
-        discount: 0,
-        savings: 0,
-        sellingText: inr(selling),
-        amazonText: amazon > 0 ? inr(amazon) : "",
-        discountText: "",
-        savingsText: "",
-        hasCompare: false
+        selling, amazon, discount: 0, savings: 0,
+        sellingText: inr(selling), amazonText: amazon > 0 ? inr(amazon) : "",
+        discountText: "", savingsText: "", hasCompare: false
     };
-    if (!amazon || amazon <= selling) return base;   // no fake discounts
+    if (!amazon || amazon <= selling) return base;   
     const savings = amazon - selling;
     const discount = Math.round((savings / amazon) * 100);
     return {
-        ...base,
-        discount,
-        savings,
+        ...base, discount, savings,
         discountText: discount + "% OFF",
         savingsText: "You save " + inr(savings) + " vs Amazon",
         hasCompare: true
     };
 }
 
-/* ============== IMAGES / CATEGORIES ============== */
+
 function cleanImageUrl(url, size) {
     url = String(url || "").trim();
     const m = url.match(/\/(?:d\/|id=)([a-zA-Z0-9_-]+)/);
@@ -699,7 +715,6 @@ function updateCarouselMetrics() {
     });
 }
 
-/* ============== CARDS ============== */
 function createCard(item, badgeEmoji, eagerLoad) {
     const pricing = calcPricing(item["Selling"], getAmazonPrice(item));
     const asin = getASIN(item);
@@ -744,7 +759,6 @@ function renderSection(container, icon, title, items, badgeEmoji) {
     container.appendChild(grid);
 }
 
-/* ============== CAROUSEL ============== */
 function startInfiniteCarousel() {
     const vp = document.getElementById("carouselViewport");
     const tr = document.getElementById("carouselTrack");
@@ -790,7 +804,6 @@ function renderCarousel() {
     });
 }
 
-/* ============== FILTERS ============== */
 function applyFilters() {
     const query = document.getElementById("searchInput").value.toLowerCase().trim();
     const grid = document.getElementById("productGrid");
@@ -840,7 +853,6 @@ function applyFilters() {
     }
 }
 
-/* ============== PRODUCT MODAL ============== */
 function isModalOpen() { return document.getElementById("productModal").style.display === "flex"; }
 function isZoomOpen() { return document.getElementById("zoomModal").style.display === "flex"; }
 
@@ -924,11 +936,9 @@ function openModal(id) {
     history.pushState({ page: "product" }, "", "#product");
     modal.querySelector(".back-btn")?.focus();
 
-    // Start the soft flute music on first product view (optional / pausable from the banner)
     maybeStartMusicOnProductOpen();
 }
 
-/* ============== ZOOM ============== */
 function triggerZoom() {
     const currentSrc = document.getElementById("mImg").src;
     if (!currentSrc || currentSrc.includes("base64")) return;
@@ -949,9 +959,8 @@ function closeZoomModal() {
     zm.hidden = true;
     document.body.classList.remove("zoom-open");
 }
-// Keeps browser history in sync when the zoom viewer is dismissed (X, backdrop or ESC)
 function dismissZoom() {
-    if (location.hash === "#zoom") history.back();  // popstate closes it
+    if (location.hash === "#zoom") history.back(); 
     else closeZoomModal();
 }
 function closeModal() {
@@ -980,7 +989,6 @@ function goHome() {
     }
 }
 
-/* ============== ESC KEY TO CLOSE POPUPS ============== */
 document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape" && e.key !== "Esc") return;
     if (isZoomOpen()) { e.preventDefault(); dismissZoom(); return; }
@@ -1025,7 +1033,6 @@ window.addEventListener("resize", () => {
     updateCarouselMetrics();
 });
 
-/* ============== DATA LOADING ============== */
 function saveProductCache(list) {
     try {
         localStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify({ ts: Date.now(), products: list }));
@@ -1080,7 +1087,7 @@ async function loadCatalog(isRetry) {
             headers.forEach((h, idx) => p[h] = rows[i][idx] || "");
             const active = String(p["Active"] || "").trim().toUpperCase();
             if (active !== "FALSE" && active !== "0" && active !== "NO" && hasValidImages(p)) {
-                p._id = "prod_" + i;   // unique internal id (fixes duplicate-modal bug)
+                p._id = "prod_" + i;   
                 next.push(p);
             }
         }
