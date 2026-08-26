@@ -90,7 +90,7 @@
         #musicToggleBtn.playing { background: rgba(255,255,255,.45); }
         body.dark-mode #musicToggleBtn.playing { background: var(--primary-dark); color: #121212; border-color: var(--primary-dark); }
 
-        /* --- Header & Search Redesign (Mobile & Desktop) --- */
+        /* --- Header & Search Redesign --- */
         .main-nav-wrapper {
             background: var(--card-bg);
             box-shadow: 0 4px 15px var(--shadow);
@@ -119,7 +119,7 @@
         .search-input:focus { border-color: var(--primary); }
 
         .controls-container { padding: 12px 15px 5px; background: var(--bg-color); max-width: 1400px; margin: 0 auto; }
-        /* --------------------------------------------------- */
+        /* ---------------------------------- */
 
         .chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .chip-row::-webkit-scrollbar { display: none; }
@@ -413,7 +413,12 @@
 
 <button id="installBtn" type="button" onclick="triggerInstall()">📲 Install App</button>
 
-<audio id="bgMusic" loop preload="auto"></audio>
+<!-- Multi-source audio element with online fallback -->
+<audio id="bgMusic" loop preload="none">
+    <source src="krishna-flute.mp3" type="audio/mpeg">
+    <source src="krishna-flute.mp3.mp3" type="audio/mpeg">
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=krishna-flute-112281.mp3" type="audio/mpeg">
+</audio>
 
 <script>
 const WHATSAPP_NUMBER = "918287567099";
@@ -424,9 +429,6 @@ const NOTIFY_PREF_KEY = "abt_notify_enabled_v1";
 const CAROUSEL_SPEED = 2500;
 const CATEGORY_ORDER = ["TOP SELLING","NECKLACE","NECKLACES","RINGS","RING","BRACELETS","BRACELET","BANGLES","BANGLE","EARRINGS","EARRING"];
 
-/* Automatic fallback support for duplicate .mp3 extension */
-const MUSIC_SOURCES = ["./krishna-flute.mp3", "./krishna-flute.mp3.mp3"];
-let currentSourceIdx = 0;
 const MUSIC_VOLUME = 0.20;               
 const MUSIC_PREF_KEY = "abt_music_pref_v1";
 
@@ -491,25 +493,11 @@ function toggleTheme() {
     document.getElementById("themeColorMeta").setAttribute("content", isDark ? "#121212" : "#ffffff");
 }
 
-/* ============== DUAL FALLBACK AUDIO ENGINE ============== */
+/* ============== CLEAN AUDIO ENGINE ============== */
 function initMusic() {
     musicEl = document.getElementById("bgMusic");
     if (!musicEl) return;
-    musicEl.loop = true;
     musicEl.volume = 0;
-    musicEl.src = MUSIC_SOURCES[currentSourceIdx];
-
-    // Automatically try duplicate file extension if primary fails
-    musicEl.addEventListener("error", () => {
-        if (currentSourceIdx < MUSIC_SOURCES.length - 1) {
-            currentSourceIdx++;
-            musicEl.src = MUSIC_SOURCES[currentSourceIdx];
-        } else {
-            musicOn = false;
-            updateMusicUI();
-        }
-    });
-
     updateMusicUI();
 }
 function updateMusicUI() {
@@ -538,23 +526,18 @@ async function playMusic(userInitiated) {
     if (!musicEl) return false;
     try {
         musicEl.volume = 0;
-        await musicEl.play();
+        const p = musicEl.play();
+        if (p !== undefined) {
+            await p;
+        }
         musicOn = true;
         fadeMusicTo(MUSIC_VOLUME);
         updateMusicUI();
         return true;
     } catch (e) {
-        // Fallback check
-        if (currentSourceIdx < MUSIC_SOURCES.length - 1) {
-            currentSourceIdx++;
-            musicEl.src = MUSIC_SOURCES[currentSourceIdx];
-            return playMusic(userInitiated);
-        }
         musicOn = false;
         updateMusicUI();
-        if (userInitiated) {
-            alert("Music file could not be played. Please check your browser audio permissions.");
-        }
+        console.log("Audio play postponed until user interaction");
         return false;
     }
 }
@@ -899,7 +882,6 @@ function activateModalImage(idx) {
     });
     clearInterval(rotationInterval);
 }
-/* ----------------------------------- */
 
 function openModal(id) {
     const p = products.find(i => i._id === id);
