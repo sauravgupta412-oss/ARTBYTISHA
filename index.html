@@ -226,14 +226,13 @@
         .esc-hint { font-size: 10px; color: var(--text-muted); font-weight: 600; letter-spacing: .5px; }
         .modal-content { padding: 20px; padding-bottom: 100px; }
         
-        .modal-img-wrapper { position: relative; margin-bottom: 15px; touch-action: pan-y; } /* Enable swiping */
+        .modal-img-wrapper { position: relative; margin-bottom: 15px; touch-action: pan-y; }
         .modal-img { display: block; width: 100%; height: min(55vh, 430px); object-fit: contain; background: var(--bg-color); border-radius: 12px; cursor: zoom-in; }
         .zoom-badge {
             position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,.65); color: #fff;
             font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 20px; pointer-events: none;
         }
         
-        /* Thumbnails scrollable horizontally */
         .thumb-row { 
             display: flex; justify-content: flex-start; gap: 10px; margin-bottom: 25px; 
             overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
@@ -286,18 +285,15 @@
         .zoom-img-container img.zoomed-in { max-width: none; max-height: none; width: 220%; cursor: zoom-out; }
         .zoom-tip { color: rgba(255,255,255,.7); font-size: 12px; margin-top: 15px; text-align: center; padding: 0 15px; }
 
-        /* ======== DESKTOP SPECIFIC RULES ======== */
         @media (min-width: 768px) {
             :root { --carousel-pad: 20px; --carousel-gap: 20px; --carousel-cols: 4; }
             .notify-bar, .cache-note { max-width: 1200px; margin-left: auto; margin-right: auto; }
             
-            /* Enhanced Desktop Header */
             .nav-inner { flex-direction: row; justify-content: space-between; align-items: center; padding: 15px 40px; }
             .header-logo { width: 65px; height: 65px; }
             .header-title { font-size: 24px; }
             .search-wrapper { max-width: 450px; flex-shrink: 0; }
             .controls-container { padding: 10px 40px 10px; }
-            /* ----------------------- */
 
             .section-header { padding-left: 20px; padding-right: 20px; }
             .grid, .skeleton-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; padding: 0 20px 20px; }
@@ -323,7 +319,6 @@
         </div>
     </div>
 
-    <!-- Responsive Navigation -->
     <div class="main-nav-wrapper">
         <div class="nav-inner">
             <header id="brandHeader" onclick="goHome()" title="Back to Home" role="button" tabindex="0" aria-label="Art By Tisha home"
@@ -345,7 +340,6 @@
     <div class="controls-container">
         <div class="chip-row" id="chipContainer" role="toolbar" aria-label="Product categories"></div>
     </div>
-    <!-- End Navigation -->
 
     <div class="notify-bar" id="notifyBar">
         <p><strong>🔔 Offer alerts</strong>Get notified about new designs &amp; deals</p>
@@ -419,7 +413,7 @@
 
 <button id="installBtn" type="button" onclick="triggerInstall()">📲 Install App</button>
 
-<audio id="bgMusic" loop preload="none"></audio>
+<audio id="bgMusic" loop preload="auto"></audio>
 
 <script>
 const WHATSAPP_NUMBER = "918287567099";
@@ -430,7 +424,7 @@ const NOTIFY_PREF_KEY = "abt_notify_enabled_v1";
 const CAROUSEL_SPEED = 2500;
 const CATEGORY_ORDER = ["TOP SELLING","NECKLACE","NECKLACES","RINGS","RING","BRACELETS","BRACELET","BANGLES","BANGLE","EARRINGS","EARRING"];
 
-const MUSIC_URL = "krishna-flute.mp3";   
+const MUSIC_URL = "./krishna-flute.mp3";   
 const MUSIC_VOLUME = 0.20;               
 const MUSIC_PREF_KEY = "abt_music_pref_v1";
 
@@ -451,8 +445,7 @@ let lastFocusedBeforeModal = null;
 let musicEl = null;
 let musicOn = false;
 let musicFadeTimer = null;
-let musicBlocked = false;
-
+let userHasInteracted = false;
 
 function getASIN(p) {
     if (!p) return "";
@@ -497,17 +490,23 @@ function toggleTheme() {
     document.getElementById("themeColorMeta").setAttribute("content", isDark ? "#121212" : "#ffffff");
 }
 
+/* ============== ROBUST AUDIO ENGINE ============== */
 function initMusic() {
     musicEl = document.getElementById("bgMusic");
     if (!musicEl) return;
     musicEl.loop = true;
     musicEl.volume = 0;
     musicEl.src = MUSIC_URL;
-    musicEl.addEventListener("error", () => {
-        musicBlocked = true;
-        musicOn = false;
-        updateMusicUI();
-    });
+
+    // Unblock browser autoplay restrictions on first tap anywhere
+    const unlockFn = () => {
+        userHasInteracted = true;
+        document.removeEventListener("touchstart", unlockFn);
+        document.removeEventListener("click", unlockFn);
+    };
+    document.addEventListener("touchstart", unlockFn, { passive: true });
+    document.addEventListener("click", unlockFn, { passive: true });
+
     updateMusicUI();
 }
 function updateMusicUI() {
@@ -516,7 +515,6 @@ function updateMusicUI() {
     btn.textContent = musicOn ? "⏸️ Music" : "🎵 Music";
     btn.classList.toggle("playing", musicOn);
     btn.setAttribute("aria-pressed", musicOn ? "true" : "false");
-    btn.title = musicOn ? "Pause background music" : "Play soft flute music";
 }
 function fadeMusicTo(target, onDone) {
     if (!musicEl) return;
@@ -539,7 +537,6 @@ async function playMusic(userInitiated) {
         musicEl.volume = 0;
         await musicEl.play();
         musicOn = true;
-        musicBlocked = false;
         fadeMusicTo(MUSIC_VOLUME);
         updateMusicUI();
         return true;
@@ -547,7 +544,11 @@ async function playMusic(userInitiated) {
         musicOn = false;
         updateMusicUI();
         if (userInitiated) {
-            alert("Music could not start.\nPlease make sure the file \"" + MUSIC_URL + "\" exists, or allow sound for this site.");
+            if (e.name === "NotAllowedError") {
+                alert("Please tap anywhere on the screen first to allow music playback.");
+            } else {
+                alert(`Music file "krishna-flute.mp3" was not found on your server.\n\nTroubleshooting:\n1. Ensure "krishna-flute.mp3" is uploaded to your GitHub main folder.\n2. Check filename spelling (it must be all lowercase).`);
+            }
         }
         return false;
     }
@@ -568,7 +569,7 @@ function toggleMusic() {
     }
 }
 function maybeStartMusicOnProductOpen() {
-    if (!musicEl || musicOn || musicBlocked) return;
+    if (!musicEl || musicOn) return;
     if (localStorage.getItem(MUSIC_PREF_KEY) === "off") return; 
     playMusic(false);
 }
@@ -643,7 +644,6 @@ function calcPricing(sellingValue, amazonValue) {
         hasCompare: true
     };
 }
-
 
 function cleanImageUrl(url, size) {
     url = String(url || "").trim();
@@ -877,9 +877,9 @@ document.addEventListener("DOMContentLoaded", () => {
 function handleSwipe() {
     if (!modalImages || modalImages.length <= 1) return;
     const diff = touchStartX - touchEndX;
-    if (diff > 50) { // Swiped left (Next image)
+    if (diff > 50) { // Swiped left
         activateModalImage((currentImgIdx + 1) % modalImages.length);
-    } else if (diff < -50) { // Swiped right (Prev image)
+    } else if (diff < -50) { // Swiped right
         activateModalImage((currentImgIdx - 1 + modalImages.length) % modalImages.length);
     }
 }
@@ -892,7 +892,7 @@ function activateModalImage(idx) {
             el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
     });
-    clearInterval(rotationInterval); // Stop auto-rotate once user interacts
+    clearInterval(rotationInterval);
 }
 /* ----------------------------------- */
 
