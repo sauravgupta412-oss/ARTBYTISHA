@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Art By Tisha - Premium Jewelry Collection</title>
-
-    <meta name="description" content="Art By Tisha Official Store. Browse premium top-selling jewelry, necklaces, rings, bracelets, bangles, and earrings.">
+    <meta name="description" content="Art By Tisha Official Store. Browse premium jewelry: necklaces, rings, bracelets, bangles, and earrings.">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#121212" id="themeColorMeta">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,13 +16,10 @@
     <link rel="preconnect" href="https://cdn.onesignal.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
-    <!-- Premium Fonts for Jewelry Aesthetic -->
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <!-- ONESIGNAL SETUP -->
     <script>
-        const ONESIGNAL_APP_ID = ""; // Add your OneSignal App ID here later
+        const ONESIGNAL_APP_ID = ""; // optional
     </script>
 
     <style>
@@ -37,13 +33,12 @@
             --primary-dark: #c97a8d;
             --input-bg: #ffffff;
             --shadow: rgba(0,0,0,0.06);
-
+            --focus: #c97a8d;
             --carousel-pad: 15px;
             --carousel-gap: 15px;
             --carousel-cols: 2;
             --carousel-item-width: calc((100% - (var(--carousel-pad) * 2) - (var(--carousel-gap) * (var(--carousel-cols) - 1))) / var(--carousel-cols));
         }
-
         body.dark-mode {
             --bg-color: #121212;
             --card-bg: #1a1a1a;
@@ -54,87 +49,69 @@
             --primary-dark: #d88fa0;
             --input-bg: #222;
             --shadow: rgba(0,0,0,0.4);
+            --focus: #e8a0b0;
         }
-
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html { background: var(--bg-color); }
-
         body {
             font-family: 'Inter', Tahoma, sans-serif;
-            background-color: var(--bg-color);
+            background: var(--bg-color);
             color: var(--text-main);
             margin: 0;
             padding: 0 0 90px;
-            transition: background-color 0.3s, color 0.3s;
+            transition: background-color .3s, color .3s;
         }
-
         body.modal-open, body.zoom-open { overflow: hidden; }
 
-        .store-container {
-            width: 100%; max-width: 1400px; margin: 0 auto; min-height: 100vh;
+        :focus-visible {
+            outline: 2px solid var(--focus);
+            outline-offset: 2px;
         }
+        button:focus:not(:focus-visible),
+        a:focus:not(:focus-visible),
+        .chip:focus:not(:focus-visible) { outline: none; }
+
+        .store-container { width: 100%; max-width: 1400px; margin: 0 auto; min-height: 100vh; }
 
         #topBanner {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white; padding: 8px 15px; display: flex; justify-content: space-between;
+            color: #fff; padding: 8px 15px; display: flex; justify-content: space-between;
             align-items: center; font-size: 12px; font-weight: 600; position: sticky; top: 0; z-index: 102; gap: 8px;
         }
-
-        body.dark-mode #topBanner {
-            background: #1a1a1a; border-bottom: 1px solid var(--border-color); color: var(--text-main);
-        }
-
-        #topBanner .banner-text {
-            flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-
+        body.dark-mode #topBanner { background: #1a1a1a; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
+        #topBanner .banner-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         #themeToggleBtn {
-            background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.4);
-            color: white; padding: 5px 12px; border-radius: 20px; font-size: 11px;
-            font-weight: 800; cursor: pointer; flex-shrink: 0;
+            background: rgba(255,255,255,.25); border: 1px solid rgba(255,255,255,.4); color: #fff;
+            padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; cursor: pointer; flex-shrink: 0;
         }
-
         body.dark-mode #themeToggleBtn { background: #2a2a2a; border-color: #444; color: var(--text-main); }
 
         header {
-            background: var(--card-bg); padding: 15px 20px; display: flex; align-items: center;
-            justify-content: center; flex-direction: column; box-shadow: 0 4px 15px var(--shadow);
-            position: sticky; top: 36px; z-index: 101; cursor: pointer; user-select: none;
+            background: var(--card-bg); padding: 15px 20px; display: flex; align-items: center; justify-content: center;
+            flex-direction: column; box-shadow: 0 4px 15px var(--shadow); position: sticky; top: 36px; z-index: 101;
+            cursor: pointer; user-select: none;
         }
-
-        .header-logo { width: 70px; height: 70px; border-radius: 50%; object-fit: contain; border: 2px solid var(--border-color); background: white; }
-        
-        .header-title {
-            font-family: 'Fraunces', serif; color: var(--primary-dark); margin: 8px 0 0;
-            font-size: 20px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
-        }
-
-        .header-tagline { color: var(--text-muted); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500;}
+        .header-logo { width: 70px; height: 70px; border-radius: 50%; object-fit: contain; border: 2px solid var(--border-color); background: #fff; }
+        .header-title { font-family: 'Fraunces', serif; color: var(--primary-dark); margin: 8px 0 0; font-size: 20px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+        .header-tagline { color: var(--text-muted); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; }
 
         .controls-container { padding: 15px; background: var(--bg-color); display: flex; flex-direction: column; gap: 12px; }
-
         .search-wrapper { position: relative; width: 100%; }
-        .search-icon {
-            position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
-            fill: none; stroke: var(--text-muted); stroke-width: 2; width: 18px; height: 18px; pointer-events: none;
-        }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); fill: none; stroke: var(--text-muted); stroke-width: 2; width: 18px; height: 18px; pointer-events: none; }
         .search-input {
-            width: 100%; padding: 12px 14px 12px 42px; border: 1px solid var(--border-color);
-            border-radius: 12px; outline: none; font-size: 15px; background: var(--input-bg);
-            color: var(--text-main); box-shadow: inset 0 2px 5px var(--shadow); transition: all 0.3s ease;
+            width: 100%; padding: 12px 14px 12px 42px; border: 1px solid var(--border-color); border-radius: 12px;
+            outline: none; font-size: 15px; background: var(--input-bg); color: var(--text-main); box-shadow: inset 0 2px 5px var(--shadow);
         }
         .search-input:focus { border-color: var(--primary); }
-        
-        .chip-row {
-            display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
-        }
+
+        .chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .chip-row::-webkit-scrollbar { display: none; }
         .chip {
             padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 20px; background: var(--input-bg);
-            color: var(--text-main); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: 0.2s ease;
-            box-shadow: 0 2px 6px var(--shadow);
+            color: var(--text-main); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap;
+            transition: .2s ease; box-shadow: 0 2px 6px var(--shadow); font-family: inherit;
         }
-        .chip.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: 600; }
+        .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); font-weight: 600; }
         body.dark-mode .chip.active { background: var(--primary-dark); color: #121212; border-color: var(--primary-dark); }
 
         .notify-bar {
@@ -145,8 +122,14 @@
         .notify-bar strong { color: var(--text-main); display: block; font-size: 13px; margin-bottom: 2px; }
         #notifyBtn {
             flex-shrink: 0; border: none; border-radius: 20px; padding: 8px 12px; font-size: 11px; font-weight: 800;
-            cursor: pointer; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; white-space: nowrap;
+            cursor: pointer; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff;
         }
+
+        .cache-note {
+            display: none; margin: 0 15px 10px; padding: 8px 12px; border-radius: 10px; font-size: 12px;
+            background: #fff8e6; color: #8a6d1d; border: 1px solid #f0e0a8;
+        }
+        body.dark-mode .cache-note { background: #2a2618; color: #e6d89a; border-color: #4a4220; }
 
         .section-header {
             padding: 15px 15px 8px; font-size: 13px; font-weight: 800; text-transform: uppercase;
@@ -162,664 +145,808 @@
         }
         .carousel-viewport:active { cursor: grabbing; }
         .carousel-viewport::-webkit-scrollbar { display: none; }
-
-        .carousel-track {
-            display: flex; gap: var(--carousel-gap); padding: 10px var(--carousel-pad) 20px; width: max-content; min-width: 100%; box-sizing: border-box;
-        }
+        .carousel-track { display: flex; gap: var(--carousel-gap); padding: 10px var(--carousel-pad) 20px; width: max-content; min-width: 100%; }
         .carousel-track .product-card {
-            flex: 0 0 var(--carousel-item-width); width: var(--carousel-item-width);
-            max-width: var(--carousel-item-width); scroll-snap-align: start; scroll-snap-stop: always; touch-action: manipulation;
+            flex: 0 0 var(--carousel-item-width); width: var(--carousel-item-width); max-width: var(--carousel-item-width);
+            scroll-snap-align: start; scroll-snap-stop: always; touch-action: manipulation;
         }
 
         .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; padding: 0 15px 10px; }
-
         .product-card {
             background: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 6px 15px var(--shadow);
             cursor: pointer; border: 1px solid var(--border-color); display: flex; flex-direction: column;
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            transition: transform .25s ease, box-shadow .25s ease;
         }
-        .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); }
-        
-        .card-img-wrapper { width: 100%; aspect-ratio: 1 / 1; background: var(--bg-color); position: relative; overflow: hidden; }
-        
-        .card-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 25px rgba(0,0,0,.1); }
+        .card-img-wrapper { width: 100%; aspect-ratio: 1/1; background: var(--bg-color); position: relative; overflow: hidden; }
+        .card-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
         .product-card:hover .card-img { transform: scale(1.05); }
-        
-        .card-badge, .discount-badge { position: absolute; color: white; font-weight: 800; z-index: 2; }
-        .card-badge { top: 8px; left: 8px; background: linear-gradient(135deg, #f7a8b8, #c97a8d); font-size: 9px; padding: 4px 8px; border-radius: 20px; }
-        .discount-badge { top: 8px; right: 8px; background: #27ae60; font-size: 10px; padding: 4px 7px; border-radius: 6px; }
-
-        .card-info { padding: 12px 10px; text-align: center; display: flex; flex-direction: column; flex: 1; justify-content: space-between;}
+        .card-badge { position: absolute; top: 8px; left: 8px; background: linear-gradient(135deg, #f7a8b8, #c97a8d); color: #fff; font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 20px; z-index: 2; }
+        .card-info { padding: 12px 10px; text-align: center; display: flex; flex-direction: column; flex: 1; }
         .card-category { font-size: 10px; color: var(--primary); font-weight: 800; text-transform: uppercase; margin: 0 0 3px; }
-        
-        .card-title { font-family: 'Fraunces', serif; font-size: 14px; color: var(--text-main); margin: 0 0 5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
+        .card-title {
+            font-family: 'Fraunces', serif; font-size: 14px; color: var(--text-main); margin: 0 0 5px; font-weight: 600;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.5em; line-height: 1.25;
+        }
         .card-sku { font-size: 11px; color: var(--text-muted); margin: 0 0 8px; text-transform: uppercase; }
-
         .card-price-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 6px; margin-top: auto; }
         .card-price { font-size: 16px; color: var(--text-main); font-weight: 700; margin: 0; }
         .card-mrp { font-size: 12px; color: var(--text-muted); text-decoration: line-through; margin: 0; }
         .card-off { font-size: 10px; color: #27ae60; font-weight: 700; margin: 0; }
 
         .skeleton-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; padding: 15px; }
-        .skeleton-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; display: flex; flex-direction: column; gap: 10px; padding-bottom: 15px; }
+        .skeleton-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; padding-bottom: 15px; }
         .skeleton-img { width: 100%; aspect-ratio: 1/1; background: #e0e0e0; animation: shimmer 1.5s infinite linear; }
-        .skeleton-text { height: 12px; background: #e0e0e0; margin: 0 15px; border-radius: 4px; animation: shimmer 1.5s infinite linear; }
-        .skeleton-text.title { width: 70%; height: 16px; margin-top: 10px; margin-left: auto; margin-right: auto;}
-        .skeleton-text.price { width: 40%; height: 18px; margin-left: auto; margin-right: auto;}
+        .skeleton-text { height: 12px; background: #e0e0e0; margin: 10px 15px 0; border-radius: 4px; animation: shimmer 1.5s infinite linear; }
+        .skeleton-text.title { width: 70%; height: 16px; margin-left: auto; margin-right: auto; }
+        .skeleton-text.price { width: 40%; height: 18px; margin-left: auto; margin-right: auto; }
         body.dark-mode .skeleton-img, body.dark-mode .skeleton-text { background: #2a2a2a; }
-        @keyframes shimmer { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        
-        .no-results { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 14px; font-weight: 600;}
+        @keyframes shimmer { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
 
-        /* Modal */
+        .error-box { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .error-box p { margin: 0 0 14px; font-weight: 600; }
+        .retry-btn {
+            border: none; border-radius: 24px; padding: 12px 22px; font-weight: 700; cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; font-size: 14px;
+        }
+        .no-results { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 14px; font-weight: 600; }
+
         .modal {
             position: fixed; inset: 0; background: var(--card-bg); z-index: 1000;
-            display: none; flex-direction: column; animation: slideUp 0.3s ease-out; overflow-y: auto;
+            display: none; flex-direction: column; animation: slideUp .3s ease-out; overflow-y: auto;
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
         .modal-header {
             display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;
             border-bottom: 1px solid var(--border-color); position: sticky; top: 0; background: var(--card-bg); z-index: 10;
         }
-        .back-btn { background: none; border: none; font-size: 24px; color: var(--text-main); cursor: pointer; }
+        .back-btn { background: none; border: none; font-size: 24px; color: var(--text-main); cursor: pointer; line-height: 1; }
         .modal-content { padding: 20px; padding-bottom: 100px; }
-        
-        /* Modal Image Container with Zoom Badge */
-        .modal-img-wrapper {
-            position: relative;
-            cursor: zoom-in;
-            margin-bottom: 15px;
-        }
-        .modal-img {
-            display: block; width: 100%; height: min(55vh, 430px); object-fit: contain;
-            background: var(--bg-color); border-radius: 12px;
-        }
+        .modal-img-wrapper { position: relative; cursor: zoom-in; margin-bottom: 15px; }
+        .modal-img { display: block; width: 100%; height: min(55vh, 430px); object-fit: contain; background: var(--bg-color); border-radius: 12px; }
         .zoom-badge {
-            position: absolute; bottom: 12px; right: 12px;
-            background: rgba(0, 0, 0, 0.65); color: white;
-            font-size: 11px; font-weight: 600; padding: 6px 12px;
-            border-radius: 20px; backdrop-filter: blur(4px);
-            display: flex; align-items: center; gap: 5px; pointer-events: none;
+            position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,.65); color: #fff;
+            font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 20px; pointer-events: none;
         }
-
         .thumb-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
         .modal-thumb { width: 50px; height: 50px; object-fit: cover; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; }
         .modal-thumb.active { border-color: var(--primary); }
-
         .modal-cat { font-size: 12px; color: var(--primary); font-weight: bold; text-transform: uppercase; margin: 0 0 5px; }
-        
-        .modal-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 600; color: var(--text-main); margin: 0 0 5px; line-height: 1.2;}
-        .modal-sku { font-size: 13px; color: var(--text-muted); margin: 0 0 12px; }
-
-        .watching-badge {
-            display: none; align-items: center; gap: 6px; background: #fff3f5; border: 1px solid #f5c6ce;
-            color: #c97a8d; font-size: 12px; font-weight: 700; padding: 8px 12px; border-radius: 10px; margin: 0 0 16px;
-        }
-        .watching-badge.show { display: inline-flex; }
-        body.dark-mode .watching-badge { background: #2a1f22; border-color: #4a3338; color: #e8a0b0; }
-        .watching-dot { width: 8px; height: 8px; border-radius: 50%; background: #e74c3c; animation: pulseDot 1.2s ease-in-out infinite; }
-        @keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.85); } }
-
+        .modal-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 600; color: var(--text-main); margin: 0 0 5px; line-height: 1.25; }
+        .modal-sku { font-size: 13px; color: var(--text-muted); margin: 0 0 16px; }
         .modal-price-box { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
-        .modal-price-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 2px; display: block;}
-        .modal-price { font-size: 28px; color: var(--text-main); font-weight: 700; margin: 0 0 8px 0; }
-        .modal-mrp-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .modal-price-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 2px; display: block; }
+        .modal-price { font-size: 28px; color: var(--text-main); font-weight: 700; margin: 0 0 8px; }
+        .modal-mrp-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 24px; }
         .modal-mrp { font-size: 15px; color: var(--text-muted); text-decoration: line-through; }
         .modal-discount-pill { background: #e8f8ef; color: #27ae60; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 20px; }
         body.dark-mode .modal-discount-pill { background: #1a2e22; }
 
         .whatsapp-btn {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px;
-            background: #25D366; color: white; border: none; padding: 15px; border-radius: 30px; font-size: 15px;
+            background: #25D366; color: #fff; border: none; padding: 15px; border-radius: 30px; font-size: 15px;
             font-weight: 600; display: flex; justify-content: center; align-items: center; gap: 10px; text-decoration: none; z-index: 1001;
-            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3); transition: background 0.3s;
+            box-shadow: 0 8px 20px rgba(37,211,102,.3);
         }
-        .whatsapp-btn:hover { background: #1ebe57; }
 
         #installBtn {
             position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 999;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none;
-            padding: 14px 28px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; display: none; white-space: nowrap;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: none;
+            padding: 14px 28px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; display: none;
         }
 
-        /* NEW: FULLSCREEN ZOOM LIGHTBOX STYLES */
         .zoom-modal {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.94);
-            z-index: 2000; display: none; align-items: center; justify-content: center;
-            flex-direction: column; animation: fadeIn 0.25s ease-out; touch-action: none;
+            position: fixed; inset: 0; background: rgba(0,0,0,.94); z-index: 2000; display: none;
+            align-items: center; justify-content: center; flex-direction: column; animation: fadeIn .25s ease-out;
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         .zoom-close-btn {
-            position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.2);
-            color: white; border: none; font-size: 24px; width: 44px; height: 44px;
-            border-radius: 50%; cursor: pointer; z-index: 2001; display: flex;
-            align-items: center; justify-content: center; backdrop-filter: blur(5px);
-            transition: background 0.2s;
+            position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,.2); color: #fff; border: none;
+            font-size: 24px; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; z-index: 2001;
         }
-        .zoom-close-btn:hover { background: rgba(255, 255, 255, 0.35); }
-
         .zoom-img-container {
-            max-width: 95vw; max-height: 85vh; overflow: auto;
-            display: flex; align-items: center; justify-content: center;
+            max-width: 95vw; max-height: 85vh; overflow: auto; display: flex; align-items: center; justify-content: center;
             touch-action: pan-x pan-y pinch-zoom;
         }
-        .zoom-img-container img {
-            max-width: 100%; max-height: 85vh; object-fit: contain;
-            transition: transform 0.25s ease; cursor: zoom-in; border-radius: 8px;
-        }
-        .zoom-img-container img.zoomed-in {
-            max-width: none; max-height: none; width: 220%; cursor: zoom-out;
-        }
-        .zoom-tip {
-            color: rgba(255, 255, 255, 0.7); font-size: 12px; margin-top: 15px;
-            pointer-events: none; letter-spacing: 0.5px; font-weight: 500;
-        }
+        .zoom-img-container img { max-width: 100%; max-height: 85vh; object-fit: contain; transition: transform .25s ease; cursor: zoom-in; border-radius: 8px; }
+        .zoom-img-container img.zoomed-in { max-width: none; max-height: none; width: 220%; cursor: zoom-out; }
+        .zoom-tip { color: rgba(255,255,255,.7); font-size: 12px; margin-top: 15px; }
 
         @media (min-width: 768px) {
             :root { --carousel-pad: 20px; --carousel-gap: 20px; --carousel-cols: 4; }
-            .controls-container { max-width: 1200px; margin: 0 auto; }
-            .filter-row { margin-top: 15px;}
-            .notify-bar { max-width: 1200px; margin: 0 auto 10px; }
+            .controls-container, .notify-bar, .cache-note { max-width: 1200px; margin-left: auto; margin-right: auto; }
             .section-header { padding-left: 20px; padding-right: 20px; }
             .grid, .skeleton-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; padding: 0 20px 20px; }
-            .modal-content { display: grid; grid-template-columns: minmax(350px, 1fr) minmax(320px, 0.8fr); gap: 45px; max-width: 1200px; margin: 0 auto; padding: 40px; align-items: start; }
+            .modal-content {
+                display: grid; grid-template-columns: minmax(350px, 1fr) minmax(320px, .8fr); gap: 45px;
+                max-width: 1200px; margin: 0 auto; padding: 40px; align-items: start;
+            }
             .modal-gallery { position: sticky; top: 85px; }
-            .modal-img { height: min(70vh, 600px); margin-bottom: 0; border: 1px solid var(--border-color); background: transparent; }
+            .modal-img { height: min(70vh, 600px); border: 1px solid var(--border-color); background: transparent; }
             .modal-title { font-size: 32px; }
-            .modal-info { padding-top: 20px; }
-            .whatsapp-btn { position: relative; left: auto; bottom: auto; transform: none; width: 100%; max-width: none; margin-top: 25px; padding: 17px; }
+            .whatsapp-btn { position: relative; left: auto; bottom: auto; transform: none; width: 100%; max-width: none; margin-top: 25px; }
         }
     </style>
 </head>
-
 <body class="dark-mode">
+<div class="store-container">
+    <div id="topBanner">
+        <span class="banner-text">✨ Premium Jewelry • Free shipping above ₹499</span>
+        <button id="themeToggleBtn" type="button" onclick="toggleTheme()">☀️ Light</button>
+    </div>
 
-    <div class="store-container">
-        <div id="topBanner">
-            <span class="banner-text">✨ Premium Jewelry • Free shipping above ₹499</span>
-            <button id="themeToggleBtn" onclick="toggleTheme()">☀️ Light</button>
+    <header id="brandHeader" onclick="goHome()" title="Back to Home" role="button" tabindex="0" aria-label="Art By Tisha home"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goHome();}">
+        <img src="logo.png" alt="Art By Tisha" class="header-logo" onerror="this.style.display='none'">
+        <h1 class="header-title">Art By Tisha</h1>
+        <div class="header-tagline">Official Collection</div>
+    </header>
+
+    <div class="controls-container">
+        <div class="search-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="searchInput" class="search-input" placeholder="Search necklaces, rings, earrings..." aria-label="Search products" autocomplete="off">
         </div>
+        <div class="chip-row" id="chipContainer" role="toolbar" aria-label="Product categories"></div>
+    </div>
 
-        <header id="brandHeader" onclick="goHome()" title="Back to Home">
-            <img src="logo.png" alt="Art By Tisha" class="header-logo" onerror="this.style.display='none'">
-            <h1 class="header-title">Art By Tisha</h1>
-            <div class="header-tagline">Official Collection</div>
-        </header>
+    <div class="notify-bar" id="notifyBar">
+        <p><strong>🔔 Offer alerts</strong>Get notified about new designs &amp; deals</p>
+        <button id="notifyBtn" type="button" onclick="enableOfferNotifications()">Enable</button>
+    </div>
 
-        <div class="controls-container">
-            <div class="search-wrapper">
-                <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="searchInput" class="search-input" placeholder="Search necklaces, rings, earrings..." oninput="applyFilters()">
+    <div id="cacheNote" class="cache-note">Showing saved catalog — live update unavailable right now.</div>
+
+    <div id="status">
+        <div class="skeleton-grid" aria-hidden="true">
+            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text title"></div><div class="skeleton-text price"></div></div>
+            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text title"></div><div class="skeleton-text price"></div></div>
+            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text title"></div><div class="skeleton-text price"></div></div>
+            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text title"></div><div class="skeleton-text price"></div></div>
+        </div>
+    </div>
+
+    <div id="carouselSection" style="display:none;">
+        <div class="section-header">🏆 Featured Top Sellers<span class="line"></span></div>
+        <div class="carousel-viewport" id="carouselViewport">
+            <div id="carouselTrack" class="carousel-track"></div>
+        </div>
+    </div>
+
+    <div id="productGrid"></div>
+</div>
+
+<div id="productModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle" hidden>
+    <div class="modal-header">
+        <button class="back-btn" type="button" onclick="closeModalToHome()" aria-label="Close product details">✕</button>
+        <h3 style="margin:0;font-size:16px;font-family:Inter,sans-serif;">Details</h3>
+        <div style="width:24px;"></div>
+    </div>
+    <div class="modal-content">
+        <div class="modal-gallery">
+            <div class="modal-img-wrapper" onclick="triggerZoom()" role="button" tabindex="0" aria-label="Open image zoom"
+                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();triggerZoom();}">
+                <img id="mImg" class="modal-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="">
+                <div class="zoom-badge">🔍 Tap to inspect</div>
             </div>
-            
-            <div class="chip-row" id="chipContainer"></div>
+            <div id="mThumbs" class="thumb-row"></div>
         </div>
-
-        <div class="notify-bar" id="notifyBar">
-            <p><strong>🔔 Offer alerts</strong>Get notified about new designs &amp; deals</p>
-            <button id="notifyBtn" type="button" onclick="enableOfferNotifications()">Enable</button>
+        <div class="modal-info">
+            <p id="mCat" class="modal-cat"></p>
+            <h2 id="mTitle" class="modal-title"></h2>
+            <p id="mSku" class="modal-sku"></p>
+            <div class="modal-price-box">
+                <span class="modal-price-label">Our Price</span>
+                <p id="mPrice" class="modal-price"></p>
+                <div class="modal-mrp-row">
+                    <span id="mMrp" class="modal-mrp"></span>
+                    <span id="mDiscount" class="modal-discount-pill" hidden></span>
+                </div>
+            </div>
+            <a id="mWhatsapp" href="#" class="whatsapp-btn" target="_blank" rel="noopener">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2z"/></svg>
+                Inquire on WhatsApp
+            </a>
         </div>
+    </div>
+</div>
 
-        <div id="status">
+<div id="zoomModal" class="zoom-modal" role="dialog" aria-modal="true" aria-label="Image zoom viewer" hidden onclick="closeZoomModal()">
+    <button class="zoom-close-btn" type="button" onclick="closeZoomModal()" aria-label="Close zoom">✕</button>
+    <div class="zoom-img-container" onclick="event.stopPropagation()">
+        <img id="zoomImg" src="" alt="High resolution product detail" onclick="toggleMagnify(this)">
+    </div>
+    <p class="zoom-tip">Tap image to toggle 2× zoom • Pinch for fine detail</p>
+</div>
+
+<button id="installBtn" type="button" onclick="triggerInstall()">📲 Install App</button>
+
+<script>
+const WHATSAPP_NUMBER = "918287567099";
+const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
+const PRODUCT_CACHE_KEY = "abt_products_cache_v2";
+const NOTIFY_PREF_KEY = "abt_notify_enabled_v1";
+const CAROUSEL_SPEED = 2500;
+const CATEGORY_ORDER = ["TOP SELLING","NECKLACE","NECKLACES","RINGS","RING","BRACELETS","BRACELET","BANGLES","BANGLE","EARRINGS","EARRING"];
+
+let products = [];
+let modalImages = [];
+let currentImgIdx = 0;
+let rotationInterval = null;
+let carouselInterval = null;
+let userTouchingCarousel = false;
+let savedScrollPosition = 0;
+let carouselItemWidth = 0;
+let carouselGap = 15;
+let deferredPrompt = null;
+let activeCategory = "ALL";
+let searchTimer = null;
+let lastFocusedBeforeModal = null;
+
+function parseCSV(text) {
+    const rows = []; let row = []; let value = ""; let insideQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i], next = text[i + 1];
+        if (char === '"' && insideQuotes && next === '"') { value += '"'; i++; }
+        else if (char === '"') insideQuotes = !insideQuotes;
+        else if (char === ',' && !insideQuotes) { row.push(value.trim()); value = ""; }
+        else if ((char === '\n' || char === '\r') && !insideQuotes) {
+            if (char === '\r' && next === '\n') i++;
+            row.push(value.trim());
+            if (row.some(c => c !== '')) rows.push(row);
+            row = []; value = "";
+        } else value += char;
+    }
+    if (value || row.length) { row.push(value.trim()); rows.push(row); }
+    return rows;
+}
+
+function initTheme() {
+    const saved = localStorage.getItem("tisha_theme");
+    const useDark = saved !== "light";
+    document.body.classList.toggle("dark-mode", useDark);
+    document.getElementById("themeToggleBtn").innerText = useDark ? "☀️ Light" : "🌙 Dark";
+    document.getElementById("themeColorMeta").setAttribute("content", useDark ? "#121212" : "#ffffff");
+    if (!saved) localStorage.setItem("tisha_theme", "dark");
+}
+function toggleTheme() {
+    document.body.classList.toggle("dark-mode");
+    const isDark = document.body.classList.contains("dark-mode");
+    localStorage.setItem("tisha_theme", isDark ? "dark" : "light");
+    document.getElementById("themeToggleBtn").innerText = isDark ? "☀️ Light" : "🌙 Dark";
+    document.getElementById("themeColorMeta").setAttribute("content", isDark ? "#121212" : "#ffffff");
+}
+
+function hideNotifyBar() {
+    const bar = document.getElementById("notifyBar");
+    if (bar) bar.style.display = "none";
+}
+function updateNotifyUI(state) {
+    const btn = document.getElementById("notifyBtn"), bar = document.getElementById("notifyBar");
+    if (!btn || !bar) return;
+    if (state === "granted" || state === "denied") {
+        if (state === "granted") localStorage.setItem(NOTIFY_PREF_KEY, "1");
+        hideNotifyBar();
+        return;
+    }
+    bar.style.display = "flex";
+    btn.textContent = "Enable";
+    btn.disabled = false;
+}
+function initNotifyUI() {
+    if (!("Notification" in window)) return hideNotifyBar();
+    if (localStorage.getItem(NOTIFY_PREF_KEY) === "1" || Notification.permission === "granted") return updateNotifyUI("granted");
+    if (Notification.permission === "denied") return updateNotifyUI("denied");
+    updateNotifyUI("default");
+}
+async function showLocalNotification(title, body) {
+    const opts = { body, icon: "launchericon-192x192.png", badge: "launchericon-192x192.png", data: { url: location.origin + location.pathname } };
+    try {
+        const reg = await navigator.serviceWorker?.ready;
+        if (reg) return reg.showNotification(title, opts);
+    } catch (e) {}
+    if (Notification.permission === "granted") new Notification(title, opts);
+}
+async function enableOfferNotifications() {
+    if (!("Notification" in window)) return alert("Notifications not supported on this device.");
+    try {
+        const p = await Notification.requestPermission();
+        if (p === "granted") {
+            updateNotifyUI("granted");
+            await showLocalNotification("Art By Tisha", "You’re subscribed to offer alerts.");
+        } else if (p === "denied") {
+            updateNotifyUI("denied");
+            alert("Notifications are blocked in browser settings.");
+        }
+    } catch (e) {
+        alert("Could not enable notifications.");
+    }
+}
+
+/* REAL pricing only — no invented MRP */
+function calcPricing(sellingValue, mrpValue) {
+    const selling = parseFloat(String(sellingValue).replace(/[^\d.]/g, "")) || 0;
+    let mrp = parseFloat(String(mrpValue || "").replace(/[^\d.]/g, "")) || 0;
+    if (!mrp || mrp <= selling) {
+        return {
+            selling,
+            mrp: selling,
+            discount: 0,
+            sellingText: "₹" + selling.toLocaleString("en-IN"),
+            mrpText: "",
+            discountText: ""
+        };
+    }
+    const discount = Math.round(((mrp - selling) / mrp) * 100);
+    return {
+        selling,
+        mrp,
+        discount,
+        sellingText: "₹" + selling.toLocaleString("en-IN"),
+        mrpText: "₹" + mrp.toLocaleString("en-IN"),
+        discountText: discount + "% OFF"
+    };
+}
+
+function cleanImageUrl(url, size) {
+    url = String(url || "").trim();
+    const m = url.match(/\/(?:d\/|id=)([a-zA-Z0-9_-]+)/);
+    if (m) return `https://lh3.googleusercontent.com/d/${m[1]}=w${size || 600}`;
+    return url;
+}
+function hasValidImages(p) {
+    return [1,2,3,4,5].some(i => p[`Image ${i}`] && String(p[`Image ${i}`]).trim().length > 5);
+}
+function isTopSelling(p) {
+    return (p["Category"] || "").trim().toUpperCase() === "TOP SELLING";
+}
+function sortCategoryNames(names) {
+    return [...names].sort((a, b) => {
+        const ai = CATEGORY_ORDER.indexOf(String(a).toUpperCase());
+        const bi = CATEGORY_ORDER.indexOf(String(b).toUpperCase());
+        if (ai !== -1 && bi !== -1) return ai - bi;
+        if (ai !== -1) return -1;
+        if (bi !== -1) return 1;
+        return a.localeCompare(b);
+    });
+}
+
+function makeChip(label, value, isActive) {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "chip" + (isActive ? " active" : "");
+    chip.textContent = label;
+    chip.setAttribute("role", "button");
+    chip.setAttribute("aria-pressed", isActive ? "true" : "false");
+    chip.dataset.value = value;
+    chip.addEventListener("click", () => selectCategory(value, chip));
+    return chip;
+}
+function populateCategories() {
+    const container = document.getElementById("chipContainer");
+    container.innerHTML = "";
+    const cats = new Set();
+    products.forEach(p => {
+        const c = (p["Category"] || "").trim();
+        if (c && c.toUpperCase() !== "TOP SELLING") cats.add(c);
+    });
+    container.appendChild(makeChip("All Categories", "ALL", true));
+    container.appendChild(makeChip("🔥 Top Selling", "TOP_SELLING", false));
+    sortCategoryNames([...cats]).forEach(cat => {
+        container.appendChild(makeChip(cat, cat.toUpperCase(), false));
+    });
+}
+function selectCategory(catVal, clickedChip) {
+    activeCategory = catVal;
+    document.querySelectorAll(".chip").forEach(c => {
+        const on = c === clickedChip;
+        c.classList.toggle("active", on);
+        c.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    clickedChip.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    applyFilters();
+}
+
+function updateCarouselMetrics() {
+    const viewport = document.getElementById("carouselViewport");
+    if (!viewport) return;
+    const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+    const cols = isDesktop ? 4 : 2;
+    const gap = isDesktop ? 20 : 15;
+    const pad = isDesktop ? 20 : 15;
+    const w = viewport.clientWidth || window.innerWidth;
+    carouselGap = gap;
+    carouselItemWidth = Math.max(120, Math.floor(((w - pad * 2 - gap * (cols - 1)) / cols) * 1000) / 1000);
+    [viewport, document.documentElement].forEach(el => {
+        el.style.setProperty("--carousel-cols", cols);
+        el.style.setProperty("--carousel-gap", gap + "px");
+        el.style.setProperty("--carousel-pad", pad + "px");
+        el.style.setProperty("--carousel-item-width", carouselItemWidth + "px");
+    });
+}
+
+function createCard(item, badgeEmoji, eagerLoad) {
+    const pricing = calcPricing(item["Selling"], item["MRP"]);
+    const sku = item["SKU Code"] || "";
+    const url = cleanImageUrl(item["Image 1"], 600);
+    const card = document.createElement("article");
+    card.className = "product-card";
+    card.setAttribute("role", "button");
+    card.tabIndex = 0;
+    card.setAttribute("aria-label", `${item["Product Name"] || "Product"}, ${pricing.sellingText}`);
+    card.onclick = () => openModal(sku);
+    card.onkeydown = (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openModal(sku); }
+    };
+    card.innerHTML = `
+        <div class="card-img-wrapper">
+            ${isTopSelling(item) ? `<div class="card-badge">${badgeEmoji} Top Selling</div>` : ""}
+            <img src="${url}" class="card-img" ${eagerLoad ? "" : 'loading="lazy"'} alt="${(item["Product Name"] || "Product").replace(/"/g, "&quot;")}">
+        </div>
+        <div class="card-info">
+            <p class="card-category">${item["Category"] || ""}</p>
+            <p class="card-title">${item["Product Name"] || ""}</p>
+            <p class="card-sku">SKU: ${sku}</p>
+            <div class="card-price-row">
+                <p class="card-price">${pricing.sellingText}</p>
+                ${pricing.discount > 0 ? `<p class="card-mrp">${pricing.mrpText}</p><p class="card-off">${pricing.discountText}</p>` : ""}
+            </div>
+        </div>`;
+    return card;
+}
+
+function renderSection(container, icon, title, items, badgeEmoji) {
+    if (!items.length) return;
+    const header = document.createElement("div");
+    header.className = "section-header";
+    header.innerHTML = `${icon} ${title} <span class="count">(${items.length})</span><span class="line"></span>`;
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    items.forEach((item, i) => grid.appendChild(createCard(item, badgeEmoji, i < 4)));
+    container.appendChild(header);
+    container.appendChild(grid);
+}
+
+function startInfiniteCarousel() {
+    const vp = document.getElementById("carouselViewport");
+    const tr = document.getElementById("carouselTrack");
+    clearInterval(carouselInterval);
+    if (document.hidden || !vp || !tr || tr.children.length < 3) return;
+    if (document.getElementById("carouselSection").style.display === "none") return;
+
+    carouselInterval = setInterval(() => {
+        if (userTouchingCarousel || document.hidden) return;
+        const step = (tr.children[0]?.getBoundingClientRect().width || carouselItemWidth) + carouselGap;
+        if (vp.scrollLeft + step >= vp.scrollWidth - vp.clientWidth - 2) {
+            vp.style.scrollBehavior = "auto";
+            vp.scrollLeft = 0;
+            requestAnimationFrame(() => {
+                vp.style.scrollBehavior = "smooth";
+                vp.scrollBy({ left: step, behavior: "smooth" });
+            });
+            return;
+        }
+        vp.scrollBy({ left: step, behavior: "smooth" });
+    }, CAROUSEL_SPEED);
+}
+
+function renderCarousel() {
+    const topItems = products.filter(isTopSelling);
+    const section = document.getElementById("carouselSection");
+    const tr = document.getElementById("carouselTrack");
+    const vp = document.getElementById("carouselViewport");
+    clearInterval(carouselInterval);
+    tr.innerHTML = "";
+    if (!topItems.length) {
+        section.style.display = "none";
+        return;
+    }
+    section.style.display = "block";
+    updateCarouselMetrics();
+    const loopItems = topItems.length > 2 ? [...topItems, ...topItems] : [...topItems];
+    loopItems.forEach(item => tr.appendChild(createCard(item, "⭐", true)));
+    requestAnimationFrame(() => {
+        updateCarouselMetrics();
+        vp.scrollLeft = 0;
+        if (topItems.length > 2) startInfiniteCarousel();
+    });
+}
+
+function applyFilters() {
+    const query = document.getElementById("searchInput").value.toLowerCase().trim();
+    const grid = document.getElementById("productGrid");
+    grid.innerHTML = "";
+
+    if (!query && activeCategory === "ALL") renderCarousel();
+    else {
+        document.getElementById("carouselSection").style.display = "none";
+        clearInterval(carouselInterval);
+    }
+
+    const filtered = products.filter(p => {
+        const name = (p["Product Name"] || "").toLowerCase();
+        const sku = (p["SKU Code"] || "").toLowerCase();
+        const cat = (p["Category"] || "").trim().toUpperCase();
+        const sMatch = !query || name.includes(query) || sku.includes(query);
+        let cMatch = true;
+        if (activeCategory === "TOP_SELLING") cMatch = cat === "TOP SELLING";
+        else if (activeCategory !== "ALL") cMatch = cat === activeCategory;
+        return sMatch && cMatch;
+    });
+
+    if (!filtered.length) {
+        grid.innerHTML = `<div class="no-results">No items found matching your search.</div>`;
+        return;
+    }
+
+    if (activeCategory === "ALL") {
+        const groups = {};
+        filtered.forEach(p => {
+            if (!query && isTopSelling(p)) return;
+            const cat = (p["Category"] || "").trim() || "Other";
+            if (!groups[cat]) groups[cat] = [];
+            groups[cat].push(p);
+        });
+        if (query) {
+            filtered.forEach(p => {
+                if (!isTopSelling(p)) return;
+                const cat = (p["Category"] || "").trim() || "Other";
+                if (!groups[cat]) groups[cat] = [];
+                if (!groups[cat].includes(p)) groups[cat].push(p);
+            });
+        }
+        sortCategoryNames(Object.keys(groups)).forEach(cat => renderSection(grid, "📂", cat, groups[cat], "✨"));
+    } else {
+        renderSection(grid, "📂", activeCategory === "TOP_SELLING" ? "Top Selling" : activeCategory, filtered, "✨");
+    }
+}
+
+function openModal(sku) {
+    const p = products.find(i => i["SKU Code"] === sku);
+    if (!p) return;
+    lastFocusedBeforeModal = document.activeElement;
+    savedScrollPosition = window.scrollY;
+    const price = calcPricing(p["Selling"], p["MRP"]);
+
+    document.getElementById("mTitle").innerText = p["Product Name"] || "";
+    document.getElementById("mSku").innerText = "SKU: " + sku;
+    document.getElementById("mCat").innerText = p["Category"] || "";
+    document.getElementById("mPrice").innerText = price.sellingText;
+    document.getElementById("mImg").alt = p["Product Name"] || "Product image";
+
+    const mMrp = document.getElementById("mMrp");
+    const mDisc = document.getElementById("mDiscount");
+    if (price.discount > 0) {
+        mMrp.innerText = "MRP " + price.mrpText;
+        mDisc.innerText = price.discountText;
+        mDisc.hidden = false;
+    } else {
+        mMrp.innerText = "";
+        mDisc.innerText = "";
+        mDisc.hidden = true;
+    }
+
+    const msg = `Hi! I'm interested in the ${p["Product Name"]} (${price.sellingText})\n\nSKU: ${sku}\nLink: ${location.origin}${location.pathname}`;
+    document.getElementById("mWhatsapp").href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+
+    modalImages = [1,2,3,4,5].map(i => cleanImageUrl(p[`Image ${i}`], 1200)).filter(u => u && u.length > 5);
+    const mImg = document.getElementById("mImg");
+    const thumbs = document.getElementById("mThumbs");
+    clearInterval(rotationInterval);
+    thumbs.innerHTML = "";
+    currentImgIdx = 0;
+    mImg.src = modalImages[0] || "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+    modalImages.forEach((url, i) => {
+        const t = document.createElement("img");
+        t.src = cleanImageUrl(url.replace(/=w\d+/, ""), 200) || url;
+        t.alt = `View ${i + 1}`;
+        t.className = "modal-thumb" + (i === 0 ? " active" : "");
+        t.tabIndex = 0;
+        t.setAttribute("role", "button");
+        const activate = () => {
+            currentImgIdx = i;
+            mImg.src = modalImages[i];
+            document.querySelectorAll(".modal-thumb").forEach((el, idx) => el.classList.toggle("active", idx === i));
+            clearInterval(rotationInterval);
+        };
+        t.onclick = activate;
+        t.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); } };
+        thumbs.appendChild(t);
+    });
+
+    if (modalImages.length > 1) {
+        rotationInterval = setInterval(() => {
+            if (document.hidden) return;
+            currentImgIdx = (currentImgIdx + 1) % modalImages.length;
+            thumbs.children[currentImgIdx]?.click();
+        }, 2500);
+    }
+
+    const modal = document.getElementById("productModal");
+    modal.hidden = false;
+    modal.style.display = "flex";
+    document.body.classList.add("modal-open");
+    history.pushState({ page: "product" }, "", "#product");
+    modal.querySelector(".back-btn")?.focus();
+}
+
+function triggerZoom() {
+    const currentSrc = document.getElementById("mImg").src;
+    if (!currentSrc || currentSrc.includes("base64")) return;
+    const zoomImg = document.getElementById("zoomImg");
+    zoomImg.src = currentSrc;
+    zoomImg.classList.remove("zoomed-in");
+    const zm = document.getElementById("zoomModal");
+    zm.hidden = false;
+    zm.style.display = "flex";
+    document.body.classList.add("zoom-open");
+    history.pushState({ page: "zoom" }, "", "#zoom");
+    zm.querySelector(".zoom-close-btn")?.focus();
+}
+function toggleMagnify(imgEl) { imgEl.classList.toggle("zoomed-in"); }
+function closeZoomModal() {
+    const zm = document.getElementById("zoomModal");
+    zm.style.display = "none";
+    zm.hidden = true;
+    document.body.classList.remove("zoom-open");
+}
+function closeModal() {
+    if (document.getElementById("zoomModal").style.display === "flex") closeZoomModal();
+    const modal = document.getElementById("productModal");
+    modal.style.display = "none";
+    modal.hidden = true;
+    document.body.classList.remove("modal-open");
+    clearInterval(rotationInterval);
+    window.scrollTo({ top: savedScrollPosition, behavior: "instant" });
+    if (lastFocusedBeforeModal && lastFocusedBeforeModal.focus) lastFocusedBeforeModal.focus();
+}
+function closeModalToHome() {
+    closeModal();
+    if (location.hash) history.back();
+}
+function goHome() {
+    if (document.getElementById("zoomModal").style.display === "flex") closeZoomModal();
+    if (document.getElementById("productModal").style.display === "flex") closeModalToHome();
+    else {
+        document.getElementById("searchInput").value = "";
+        const firstChip = document.querySelector(".chip");
+        if (firstChip) selectCategory("ALL", firstChip);
+        else applyFilters();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+}
+
+window.addEventListener("popstate", () => {
+    if (document.getElementById("zoomModal").style.display === "flex") {
+        closeZoomModal();
+        return;
+    }
+    if (document.getElementById("productModal").style.display === "flex") closeModal();
+});
+
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) clearInterval(carouselInterval);
+    else if (document.getElementById("carouselSection").style.display !== "none") startInfiniteCarousel();
+});
+
+const searchInput = document.getElementById("searchInput");
+searchInput.addEventListener("input", () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(applyFilters, 200);
+});
+
+const vp = document.getElementById("carouselViewport");
+["touchstart", "mousedown"].forEach(evt => {
+    vp.addEventListener(evt, () => { userTouchingCarousel = true; clearInterval(carouselInterval); }, { passive: true });
+});
+["touchend", "mouseup", "mouseleave", "touchcancel"].forEach(evt => {
+    vp.addEventListener(evt, () => {
+        userTouchingCarousel = false;
+        if (document.getElementById("carouselSection").style.display !== "none" && products.filter(isTopSelling).length > 2) {
+            setTimeout(startInfiniteCarousel, 600);
+        }
+    }, { passive: true });
+});
+
+window.addEventListener("resize", () => {
+    updateCarouselMetrics();
+});
+
+function saveProductCache(list) {
+    try {
+        localStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify({ ts: Date.now(), products: list }));
+    } catch (e) {}
+}
+function loadProductCache() {
+    try {
+        const raw = localStorage.getItem(PRODUCT_CACHE_KEY);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (data && Array.isArray(data.products) && data.products.length) return data.products;
+    } catch (e) {}
+    return null;
+}
+function showErrorState() {
+    document.getElementById("status").innerHTML = `
+        <div class="error-box">
+            <p>❌ Could not load collection.</p>
+            <button type="button" class="retry-btn" onclick="loadCatalog(true)">Retry</button>
+        </div>`;
+}
+function renderCatalog(fromCache) {
+    document.getElementById("status").style.display = "none";
+    document.getElementById("cacheNote").style.display = fromCache ? "block" : "none";
+    populateCategories();
+    applyFilters();
+}
+
+async function loadCatalog(isRetry) {
+    if (isRetry) {
+        document.getElementById("status").style.display = "block";
+        document.getElementById("status").innerHTML = `
             <div class="skeleton-grid">
                 <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text title"></div><div class="skeleton-text price"></div></div>
                 <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text title"></div><div class="skeleton-text price"></div></div>
-                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text title"></div><div class="skeleton-text price"></div></div>
-                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text title"></div><div class="skeleton-text price"></div></div>
-            </div>
-        </div>
+            </div>`;
+        document.getElementById("productGrid").innerHTML = "";
+        document.getElementById("carouselSection").style.display = "none";
+    }
 
-        <div id="carouselSection" style="display:none;">
-            <div class="section-header">🏆 Featured Top Sellers<span class="line"></span></div>
-            <div class="carousel-viewport" id="carouselViewport">
-                <div id="carouselTrack" class="carousel-track"></div>
-            </div>
-        </div>
-
-        <div id="productGrid"></div>
-    </div>
-
-    <!-- Product Details Modal -->
-    <div id="productModal" class="modal">
-        <div class="modal-header">
-            <button class="back-btn" onclick="closeModalToHome()">✕</button>
-            <h3 style="margin:0;font-size:16px;font-family:'Inter',sans-serif;">Details</h3>
-            <div style="width:24px;"></div>
-        </div>
-        <div class="modal-content">
-            <div class="modal-gallery">
-                <div class="modal-img-wrapper" onclick="triggerZoom()">
-                    <img id="mImg" class="modal-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Product image">
-                    <div class="zoom-badge">🔍 Tap to inspect</div>
-                </div>
-                <div id="mThumbs" class="thumb-row"></div>
-            </div>
-            <div class="modal-info">
-                <p id="mCat" class="modal-cat"></p>
-                <h2 id="mTitle" class="modal-title"></h2>
-                <p id="mSku" class="modal-sku"></p>
-                <div id="watchingBadge" class="watching-badge">
-                    <span class="watching-dot"></span>
-                    <span id="watchingText"></span>
-                </div>
-                <div class="modal-price-box">
-                    <span class="modal-price-label">Our Price</span>
-                    <p id="mPrice" class="modal-price"></p>
-                    <div class="modal-mrp-row">
-                        <span id="mMrp" class="modal-mrp"></span>
-                        <span id="mDiscount" class="modal-discount-pill"></span>
-                    </div>
-                </div>
-                <a id="mWhatsapp" href="#" class="whatsapp-btn" target="_blank" rel="noopener">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2z"/></svg>
-                    Inquire on WhatsApp
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- NEW: Fullscreen Zoom Lightbox Modal -->
-    <div id="zoomModal" class="zoom-modal" onclick="closeZoomModal()">
-        <button class="zoom-close-btn" onclick="closeZoomModal()">✕</button>
-        <div class="zoom-img-container" onclick="event.stopPropagation()">
-            <img id="zoomImg" src="" alt="High resolution detail view" onclick="toggleMagnify(this)">
-        </div>
-        <p class="zoom-tip">Tap image to toggle 2x zoom • Pinch to inspect fine detail</p>
-    </div>
-
-    <button id="installBtn" onclick="triggerInstall()">📲 Install App</button>
-
-    <script>
-        const WHATSAPP_NUMBER = "918287567099";
-        const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
-        const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
-
-        const CATEGORY_ORDER = [
-            "TOP SELLING",
-            "NECKLACE", "NECKLACES",
-            "RINGS", "RING",
-            "BRACELETS", "BRACELET",
-            "BANGLES", "BANGLE",
-            "EARRINGS", "EARRING"
-        ];
-
-        const NOTIFY_PREF_KEY = "abt_notify_enabled_v1";
-        const CAROUSEL_SPEED = 2500;
-
-        let products = [];
-        let modalImages = [];
-        let currentImgIdx = 0;
-        let rotationInterval = null;
-        let carouselInterval = null;
-        let userTouchingCarousel = false;
-        let savedScrollPosition = 0;
-        let carouselItemWidth = 0;
-        let carouselGap = 15;
-        let deferredPrompt = null;
-        let activeCategory = "ALL";
-
-        function parseCSV(text) {
-            const rows = []; let row = []; let value = ""; let insideQuotes = false;
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i], nextChar = text[i + 1];
-                if (char === '"' && insideQuotes && nextChar === '"') { value += '"'; i++; }
-                else if (char === '"') insideQuotes = !insideQuotes;
-                else if (char === "," && !insideQuotes) { row.push(value.trim()); value = ""; }
-                else if ((char === "\n" || char === "\r") && !insideQuotes) {
-                    if (char === "\r" && nextChar === "\n") i++;
-                    row.push(value.trim()); if (row.some(c => c !== "")) rows.push(row);
-                    row = []; value = "";
-                } else value += char;
-            }
-            if (value || row.length) { row.push(value.trim()); rows.push(row); }
-            return rows;
+    try {
+        const response = await fetch(CSV_URL, { cache: "no-store" });
+        if (!response.ok) throw new Error("Network");
+        const csv = await response.text();
+        const rows = parseCSV(csv);
+        if (!rows.length) throw new Error("Empty");
+        const headers = rows[0].map(h => h.trim());
+        const next = [];
+        for (let i = 1; i < rows.length; i++) {
+            if (!rows[i].length) continue;
+            const p = {};
+            headers.forEach((h, idx) => p[h] = rows[i][idx] || "");
+            const active = String(p["Active"] || "").trim().toUpperCase();
+            if (active !== "FALSE" && active !== "0" && active !== "NO" && hasValidImages(p)) next.push(p);
         }
-
-        function initTheme() {
-            const saved = localStorage.getItem("tisha_theme");
-            const useDark = saved !== "light";
-            document.body.classList.toggle("dark-mode", useDark);
-            document.getElementById("themeToggleBtn").innerText = useDark ? "☀️ Light" : "🌙 Dark";
-            document.getElementById("themeColorMeta").setAttribute("content", useDark ? "#121212" : "#ffffff");
-            if (!saved) localStorage.setItem("tisha_theme", "dark");
+        if (!next.length) throw new Error("No products");
+        products = next;
+        saveProductCache(products);
+        renderCatalog(false);
+    } catch (error) {
+        const cached = loadProductCache();
+        if (cached && cached.length) {
+            products = cached;
+            renderCatalog(true);
+        } else {
+            showErrorState();
         }
+    }
+}
 
-        function toggleTheme() {
-            document.body.classList.toggle("dark-mode");
-            const isDark = document.body.classList.contains("dark-mode");
-            localStorage.setItem("tisha_theme", isDark ? "dark" : "light");
-            document.getElementById("themeToggleBtn").innerText = isDark ? "☀️ Light" : "🌙 Dark";
-            document.getElementById("themeColorMeta").setAttribute("content", isDark ? "#121212" : "#ffffff");
-        }
+window.addEventListener("load", async () => {
+    initTheme();
+    initNotifyUI();
+    updateCarouselMetrics();
+    await loadCatalog(false);
+});
 
-        function hideNotifyBar() { const bar = document.getElementById("notifyBar"); if (bar) bar.style.display = "none"; }
-        function updateNotifyUI(state) {
-            const btn = document.getElementById("notifyBtn"), bar = document.getElementById("notifyBar");
-            if (!btn || !bar) return;
-            if (state === "granted" || state === "denied") {
-                if (state === "granted") localStorage.setItem(NOTIFY_PREF_KEY, "1");
-                hideNotifyBar(); return;
-            }
-            bar.style.display = "flex"; btn.textContent = "Enable"; btn.disabled = false; btn.classList.remove("enabled");
-        }
-
-        function initNotifyUI() {
-            if (!("Notification" in window)) return hideNotifyBar();
-            if (localStorage.getItem(NOTIFY_PREF_KEY) === "1") return hideNotifyBar();
-            if (Notification.permission === "granted") return updateNotifyUI("granted");
-            if (Notification.permission === "denied") return updateNotifyUI("denied");
-            updateNotifyUI("default");
-        }
-
-        async function showLocalNotification(title, body) {
-            const opts = { body, icon: "launchericon-192x192.png", badge: "launchericon-192x192.png", data: { url: location.origin + location.pathname }, vibrate: [80, 40, 80] };
-            try { const reg = await navigator.serviceWorker?.ready; if (reg) return reg.showNotification(title, opts); } catch (e) {}
-            if (Notification.permission === "granted") new Notification(title, opts);
-        }
-
-        async function enableOfferNotifications() {
-            if (!("Notification" in window)) return alert("Notifications not supported.");
-            if (ONESIGNAL_APP_ID && window.OneSignalDeferred) {
-                window.OneSignalDeferred.push(async function(OneSignal) {
-                    try {
-                        await OneSignal.Notifications.requestPermission();
-                        if (await OneSignal.Notifications.getPermission()) {
-                            updateNotifyUI("granted"); await showLocalNotification("Art By Tisha", "You’re subscribed!");
-                        } else if (Notification.permission === "denied") {
-                            updateNotifyUI("denied"); alert("Notifications blocked.");
-                        }
-                    } catch (e) { await nativeNotifyFlow(); }
-                }); return;
-            }
-            await nativeNotifyFlow();
-        }
-
-        async function nativeNotifyFlow() {
-            try {
-                const p = await Notification.requestPermission();
-                if (p === "granted") { updateNotifyUI("granted"); await showLocalNotification("Art By Tisha", "You’re subscribed!"); }
-                else if (p === "denied") { updateNotifyUI("denied"); alert("Notifications blocked."); }
-                else updateNotifyUI("default");
-            } catch (e) { alert("Could not enable notifications."); }
-        }
-
-        function loadOneSignal() {
-            if (!ONESIGNAL_APP_ID) return;
-            window.OneSignalDeferred = window.OneSignalDeferred || [];
-            window.OneSignalDeferred.push(async function(OneSignal) {
-                await OneSignal.init({ appId: ONESIGNAL_APP_ID, allowLocalhostAsSecureOrigin: true, notifyButton: { enable: false }, serviceWorkerPath: "sw.js", serviceWorkerParam: { scope: "/" } });
-                if (await OneSignal.Notifications.getPermission()) updateNotifyUI("granted");
-            });
-            const s = document.createElement("script"); s.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"; s.defer = true; document.head.appendChild(s);
-        }
-
-        function calcPricing(sellingValue) {
-            const selling = parseFloat(sellingValue) || 0, mrp = Math.round(selling * 1.6);
-            return { sellingText: "₹" + selling.toLocaleString('en-IN'), mrpText: "₹" + mrp.toLocaleString('en-IN'), discountText: (mrp > 0 ? Math.round(((mrp - selling) / mrp) * 100) : 0) + "% OFF", discount: (mrp > 0 ? Math.round(((mrp - selling) / mrp) * 100) : 0) };
-        }
-
-        function cleanImageUrl(url) {
-            const m = String(url || "").trim().match(/\/(?:d\/|id=)([a-zA-Z0-9_-]+)/);
-            return m ? `https://lh3.googleusercontent.com/d/${m[1]}` : url;
-        }
-
-        function hasValidImages(p) { return [1, 2, 3, 4, 5].some(i => p[`Image ${i}`] && p[`Image ${i}`].trim().length > 5); }
-        function isTopSelling(p) { return (p["Category"] || "").trim().toUpperCase() === "TOP SELLING"; }
-
-        function sortCategoryNames(names) {
-            return [...names].sort((a, b) => {
-                const aIdx = CATEGORY_ORDER.indexOf(String(a).toUpperCase()), bIdx = CATEGORY_ORDER.indexOf(String(b).toUpperCase());
-                if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
-                if (aIdx !== -1) return -1; if (bIdx !== -1) return 1; return a.localeCompare(b);
-            });
-        }
-
-        function populateCategories() {
-            const container = document.getElementById("chipContainer");
-            const cats = new Set();
-            products.forEach(p => { const c = (p["Category"] || "").trim(); if (c && c.toUpperCase() !== "TOP SELLING") cats.add(c); });
-
-            const allChip = document.createElement("div");
-            allChip.className = "chip active"; allChip.innerText = "All Categories";
-            allChip.onclick = () => selectCategory("ALL", allChip);
-            container.appendChild(allChip);
-
-            const topChip = document.createElement("div");
-            topChip.className = "chip"; topChip.innerText = "🔥 Top Selling";
-            topChip.onclick = () => selectCategory("TOP_SELLING", topChip);
-            container.appendChild(topChip);
-
-            sortCategoryNames([...cats]).forEach(cat => {
-                const chip = document.createElement("div");
-                chip.className = "chip"; chip.innerText = cat;
-                chip.onclick = () => selectCategory(cat.toUpperCase(), chip);
-                container.appendChild(chip);
-            });
-        }
-
-        function selectCategory(catVal, clickedChip) {
-            activeCategory = catVal;
-            document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-            clickedChip.classList.add("active");
-            clickedChip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            applyFilters();
-        }
-
-        function updateCarouselMetrics() {
-            const viewport = document.getElementById("carouselViewport");
-            if (!viewport) return;
-            const isDesktop = window.matchMedia("(min-width: 768px)").matches, cols = isDesktop ? 4 : 2, gap = isDesktop ? 20 : 15, pad = isDesktop ? 20 : 15;
-            const w = viewport.clientWidth || window.innerWidth;
-            carouselGap = gap; carouselItemWidth = Math.max(120, Math.floor((w - (pad * 2) - (gap * (cols - 1))) / cols * 1000) / 1000);
-            const apply = (el) => { el.style.setProperty("--carousel-cols", cols); el.style.setProperty("--carousel-gap", gap + "px"); el.style.setProperty("--carousel-pad", pad + "px"); el.style.setProperty("--carousel-item-width", carouselItemWidth + "px"); };
-            apply(viewport); apply(document.documentElement);
-        }
-
-        function createCard(item, badgeEmoji, eagerLoad = false) {
-            const pricing = calcPricing(item["Selling"]), sku = item["SKU Code"] || "", url = cleanImageUrl(item["Image 1"]);
-            const card = document.createElement("div"); card.className = "product-card"; card.onclick = () => openModal(sku);
-            card.innerHTML = `
-                <div class="card-img-wrapper">
-                    ${isTopSelling(item) ? `<div class="card-badge">${badgeEmoji} Top Selling</div>` : ""}
-                    <img src="${url}" class="card-img" ${eagerLoad ? "" : 'loading="lazy"'} alt="${item["Product Name"] || "Product"}">
-                </div>
-                <div class="card-info">
-                    <p class="card-category">${item["Category"] || ""}</p>
-                    <p class="card-title">${item["Product Name"] || ""}</p>
-                    <p class="card-sku">SKU: ${sku}</p>
-                    <div class="card-price-row">
-                        <p class="card-price">${pricing.sellingText}</p>
-                        ${pricing.discount > 0 ? `<p class="card-mrp">${pricing.mrpText}</p><p class="card-off">${pricing.discountText}</p>` : ''}
-                    </div>
-                </div>`;
-            return card;
-        }
-
-        function renderSection(container, icon, title, items, badgeEmoji) {
-            if (!items.length) return;
-            const header = document.createElement("div"); header.className = "section-header"; header.innerHTML = `${icon} ${title} <span class="count">(${items.length})</span><span class="line"></span>`;
-            const grid = document.createElement("div"); grid.className = "grid";
-            items.forEach((item, index) => grid.appendChild(createCard(item, badgeEmoji, index < 4)));
-            container.appendChild(header); container.appendChild(grid);
-        }
-
-        function startInfiniteCarousel() {
-            const vp = document.getElementById("carouselViewport"), tr = document.getElementById("carouselTrack");
-            clearInterval(carouselInterval); if (!vp || !tr || tr.children.length < 3) return;
-            carouselInterval = setInterval(() => {
-                if (userTouchingCarousel) return;
-                const step = (tr.children[0]?.getBoundingClientRect().width || carouselItemWidth) + carouselGap;
-                if (vp.scrollLeft + step >= (vp.scrollWidth - vp.clientWidth) - 2) {
-                    vp.style.scrollBehavior = "auto"; vp.scrollLeft = 0; requestAnimationFrame(() => { vp.style.scrollBehavior = "smooth"; vp.scrollBy({ left: step, behavior: "smooth" }); }); return;
-                }
-                vp.scrollBy({ left: step, behavior: "smooth" });
-            }, CAROUSEL_SPEED);
-        }
-
-        function renderCarousel() {
-            const topItems = products.filter(isTopSelling);
-            const section = document.getElementById("carouselSection"), tr = document.getElementById("carouselTrack"), vp = document.getElementById("carouselViewport");
-            clearInterval(carouselInterval); tr.innerHTML = "";
-            if (!topItems.length) return section.style.display = "none";
-            section.style.display = "block"; updateCarouselMetrics();
-            const loopItems = topItems.length > 2 ? [...topItems, ...topItems] : [...topItems];
-            loopItems.forEach(item => tr.appendChild(createCard(item, "⭐", true)));
-            requestAnimationFrame(() => { updateCarouselMetrics(); vp.scrollLeft = 0; if (topItems.length > 2) startInfiniteCarousel(); });
-        }
-
-        function applyFilters() {
-            const query = document.getElementById("searchInput").value.toLowerCase().trim();
-            const grid = document.getElementById("productGrid"); grid.innerHTML = "";
-
-            if (!query && activeCategory === "ALL") renderCarousel();
-            else { document.getElementById("carouselSection").style.display = "none"; clearInterval(carouselInterval); }
-
-            let filtered = products.filter(p => {
-                const name = (p["Product Name"] || "").toLowerCase(), sku = (p["SKU Code"] || "").toLowerCase(), cat = (p["Category"] || "").trim().toUpperCase();
-                const sMatch = !query || name.includes(query) || sku.includes(query);
-                let cMatch = true;
-                if (activeCategory === "TOP_SELLING") cMatch = cat === "TOP SELLING";
-                else if (activeCategory !== "ALL") cMatch = cat === activeCategory;
-                return sMatch && cMatch;
-            });
-
-            if (!filtered.length) return grid.innerHTML = `<div class="no-results">No items found matching your search.</div>`;
-
-            if (activeCategory === "ALL") {
-                const groups = {};
-                filtered.forEach(p => {
-                    if (!query && isTopSelling(p)) return;
-                    const cat = (p["Category"] || "").trim() || "Other";
-                    if (!groups[cat]) groups[cat] = []; groups[cat].push(p);
-                });
-                if (query) filtered.forEach(p => {
-                    if (isTopSelling(p)) { const cat = (p["Category"] || "").trim() || "Other"; if (!groups[cat]) groups[cat] = []; if (!groups[cat].includes(p)) groups[cat].push(p); }
-                });
-                sortCategoryNames(Object.keys(groups)).forEach(cat => renderSection(grid, "📂", cat, groups[cat], "✨"));
-            } else {
-                renderSection(grid, "📂", activeCategory === "TOP_SELLING" ? "Top Selling" : activeCategory, filtered, "✨");
-            }
-        }
-
-        function openModal(sku) {
-            const p = products.find(i => i["SKU Code"] === sku); if (!p) return;
-            savedScrollPosition = window.scrollY;
-            const price = calcPricing(p["Selling"]);
-
-            document.getElementById("mTitle").innerText = p["Product Name"] || "";
-            document.getElementById("mSku").innerText = "SKU: " + sku;
-            document.getElementById("mCat").innerText = p["Category"] || "";
-            document.getElementById("mPrice").innerText = price.sellingText;
-            document.getElementById("mMrp").innerText = price.discount > 0 ? price.mrpText : "";
-            document.getElementById("mDiscount").innerText = price.discount > 0 ? price.discountText : "";
-            document.getElementById("mDiscount").style.display = price.discount > 0 ? "inline-block" : "none";
-
-            const badge = document.getElementById("watchingBadge");
-            if (isTopSelling(p)) { document.getElementById("watchingText").innerText = `${Math.floor(Math.random() * 4) + 2} customers watching currently`; badge.classList.add("show"); }
-            else badge.classList.remove("show");
-
-            const msg = `Hi! I'm interested in the ${p["Product Name"]} (${price.sellingText})\n\nSKU: ${sku}\nLink: ${location.origin}${location.pathname}#product`;
-            document.getElementById("mWhatsapp").href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
-
-            modalImages = [1, 2, 3, 4, 5].map(i => cleanImageUrl(p[`Image ${i}`])).filter(url => url.length > 5);
-            const mImg = document.getElementById("mImg"), thumbs = document.getElementById("mThumbs");
-            clearInterval(rotationInterval); thumbs.innerHTML = ""; currentImgIdx = 0;
-            mImg.src = modalImages[0] || "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-
-            modalImages.forEach((url, i) => {
-                const t = document.createElement("img"); t.src = url; t.className = "modal-thumb" + (i === 0 ? " active" : "");
-                t.onclick = () => { currentImgIdx = i; mImg.src = url; document.querySelectorAll(".modal-thumb").forEach((el, idx) => el.classList.toggle("active", idx === i)); clearInterval(rotationInterval); };
-                thumbs.appendChild(t);
-            });
-
-            if (modalImages.length > 1) rotationInterval = setInterval(() => thumbs.children[(currentImgIdx + 1) % modalImages.length].click(), 2500);
-
-            document.body.classList.add("modal-open"); document.getElementById("productModal").style.display = "flex"; history.pushState({ page: "product" }, "", "#product");
-        }
-
-        /* NEW: FULLSCREEN ZOOM LIGHTBOX LOGIC */
-        function triggerZoom() {
-            const currentSrc = document.getElementById("mImg").src;
-            if (!currentSrc || currentSrc.includes("base64")) return;
-            
-            const zoomImg = document.getElementById("zoomImg");
-            zoomImg.src = currentSrc;
-            zoomImg.classList.remove("zoomed-in");
-            
-            document.getElementById("zoomModal").style.display = "flex";
-            document.body.classList.add("zoom-open");
-            history.pushState({ page: "zoom" }, "", "#zoom");
-        }
-
-        function toggleMagnify(imgEl) {
-            imgEl.classList.toggle("zoomed-in");
-        }
-
-        function closeZoomModal() {
-            document.getElementById("zoomModal").style.display = "none";
-            document.body.classList.remove("zoom-open");
-        }
-
-        function closeModal() {
-            if (document.getElementById("zoomModal").style.display === "flex") {
-                closeZoomModal();
-            }
-            document.getElementById("productModal").style.display = "none";
-            document.body.classList.remove("modal-open");
-            clearInterval(rotationInterval);
-            window.scrollTo({ top: savedScrollPosition, behavior: "instant" });
-        }
-
-        function closeModalToHome() {
-            if (document.getElementById("zoomModal").style.display === "flex") {
-                closeZoomModal();
-            }
-            closeModal();
-            if (window.location.hash) history.back();
-        }
-
-        function goHome() {
-            if (document.getElementById("zoomModal").style.display === "flex") closeZoomModal();
-            if (document.getElementById("productModal").style.display === "flex") closeModalToHome();
-            else { document.getElementById("searchInput").value = ""; selectCategory("ALL", document.querySelector('.chip')); window.scrollTo({ top: 0, behavior: "smooth" }); }
-        }
-
-        window.addEventListener("popstate", () => {
-            if (document.getElementById("zoomModal").style.display === "flex") {
-                closeZoomModal();
-                return;
-            }
-            if (document.getElementById("productModal").style.display === "flex") {
-                closeModal();
-            }
-        });
-
-        const vp = document.getElementById("carouselViewport");
-        ["touchstart", "mousedown"].forEach(evt => vp.addEventListener(evt, () => { userTouchingCarousel = true; clearInterval(carouselInterval); }, { passive: true }));
-        ["touchend", "mouseup", "mouseleave", "touchcancel"].forEach(evt => vp.addEventListener(evt, () => { userTouchingCarousel = false; if (document.getElementById("carouselSection").style.display !== "none" && products.filter(isTopSelling).length > 2) setTimeout(startInfiniteCarousel, 600); }, { passive: true }));
-
-        let resizeTimer = null;
-        window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { updateCarouselMetrics(); if (document.getElementById("carouselSection").style.display !== "none") { const step = getCarouselStep(); if (step > 0) vp.scrollLeft = Math.round(vp.scrollLeft / step) * step; } }, 100); });
-
-        window.addEventListener("load", async () => {
-            initTheme(); initNotifyUI(); loadOneSignal(); updateCarouselMetrics();
-            try {
-                const response = await fetch(CSV_URL); const csv = await response.text(); const rows = parseCSV(csv); const headers = rows[0].map(h => h.trim());
-                for (let i = 1; i < rows.length; i++) {
-                    if (!rows[i].length) continue; const p = {}; headers.forEach((h, idx) => p[h] = rows[i][idx] || "");
-                    if (String(p["Active"] || "").trim().toUpperCase() !== "FALSE" && hasValidImages(p)) products.push(p);
-                }
-                document.getElementById("status").style.display = "none";
-                populateCategories(); applyFilters();
-            } catch (error) { document.getElementById("status").innerHTML = "<div class='no-results'>❌ Could not load collection.</div>"; }
-        });
-
-        window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredPrompt = e; document.getElementById("installBtn").style.display = "block"; });
-        function triggerInstall() { if (deferredPrompt) { deferredPrompt.prompt(); document.getElementById("installBtn").style.display = "none"; } else alert("Use browser menu → Add to Home Screen"); }
-        if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
-    </script>
+window.addEventListener("beforeinstallprompt", e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById("installBtn").style.display = "block";
+});
+function triggerInstall() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        document.getElementById("installBtn").style.display = "none";
+    } else {
+        alert("Use browser menu → Add to Home Screen");
+    }
+}
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+</script>
 </body>
 </html>
