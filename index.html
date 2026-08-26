@@ -90,25 +90,25 @@
         #musicToggleBtn.playing { background: rgba(255,255,255,.45); }
         body.dark-mode #musicToggleBtn.playing { background: var(--primary-dark); color: #121212; border-color: var(--primary-dark); }
 
-        /* --- Header & Search Redesign --- */
+        /* --- Header & Search Redesign (Mobile & Desktop) --- */
         .main-nav-wrapper {
             background: var(--card-bg);
             box-shadow: 0 4px 15px var(--shadow);
             position: sticky; top: 35px; z-index: 101;
         }
         .nav-inner {
-            padding: 15px 20px;
-            display: flex; flex-direction: column; gap: 14px;
+            padding: 12px 15px;
+            display: flex; flex-direction: column; gap: 12px;
             max-width: 1400px; margin: 0 auto;
         }
         #brandHeader {
-            display: flex; flex-direction: column; align-items: center; text-align: center;
+            display: flex; flex-direction: row; align-items: center; text-align: left; gap: 12px;
             cursor: pointer; user-select: none;
         }
-        .brand-text { display: flex; flex-direction: column; align-items: center; }
-        .header-logo { width: 65px; height: 65px; border-radius: 50%; object-fit: contain; border: 2px solid var(--border-color); background: #fff; margin-bottom: 8px; }
-        .header-title { font-family: 'Fraunces', serif; color: var(--primary-dark); margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
-        .header-tagline { color: var(--text-muted); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; margin-top: 2px; }
+        .brand-text { display: flex; flex-direction: column; align-items: flex-start; }
+        .header-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: contain; border: 2px solid var(--border-color); background: #fff; margin-bottom: 0; flex-shrink: 0; }
+        .header-title { font-family: 'Fraunces', serif; color: var(--primary-dark); margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
+        .header-tagline { color: var(--text-muted); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; margin-top: 2px; }
         
         .search-wrapper { position: relative; width: 100%; }
         .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); fill: none; stroke: var(--text-muted); stroke-width: 2; width: 18px; height: 18px; pointer-events: none; }
@@ -119,7 +119,7 @@
         .search-input:focus { border-color: var(--primary); }
 
         .controls-container { padding: 12px 15px 5px; background: var(--bg-color); max-width: 1400px; margin: 0 auto; }
-        /* -------------------------------- */
+        /* --------------------------------------------------- */
 
         .chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .chip-row::-webkit-scrollbar { display: none; }
@@ -225,15 +225,24 @@
         .back-btn { background: none; border: none; font-size: 24px; color: var(--text-main); cursor: pointer; line-height: 1; }
         .esc-hint { font-size: 10px; color: var(--text-muted); font-weight: 600; letter-spacing: .5px; }
         .modal-content { padding: 20px; padding-bottom: 100px; }
-        .modal-img-wrapper { position: relative; cursor: zoom-in; margin-bottom: 15px; }
-        .modal-img { display: block; width: 100%; height: min(55vh, 430px); object-fit: contain; background: var(--bg-color); border-radius: 12px; }
+        
+        .modal-img-wrapper { position: relative; margin-bottom: 15px; touch-action: pan-y; } /* Enable swiping */
+        .modal-img { display: block; width: 100%; height: min(55vh, 430px); object-fit: contain; background: var(--bg-color); border-radius: 12px; cursor: zoom-in; }
         .zoom-badge {
             position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,.65); color: #fff;
             font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 20px; pointer-events: none;
         }
-        .thumb-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
-        .modal-thumb { width: 50px; height: 50px; object-fit: cover; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; }
+        
+        /* Thumbnails scrollable horizontally */
+        .thumb-row { 
+            display: flex; justify-content: flex-start; gap: 10px; margin-bottom: 25px; 
+            overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+            padding-bottom: 5px; scroll-snap-type: x mandatory;
+        }
+        .thumb-row::-webkit-scrollbar { display: none; }
+        .modal-thumb { flex-shrink: 0; width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; scroll-snap-align: start; transition: .2s; }
         .modal-thumb.active { border-color: var(--primary); }
+
         .modal-cat { font-size: 12px; color: var(--primary); font-weight: bold; text-transform: uppercase; margin: 0 0 5px; }
         .modal-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 600; color: var(--text-main); margin: 0 0 5px; line-height: 1.25; }
         .modal-sku { font-size: 13px; color: var(--text-muted); margin: 0 0 16px; }
@@ -282,15 +291,13 @@
             :root { --carousel-pad: 20px; --carousel-gap: 20px; --carousel-cols: 4; }
             .notify-bar, .cache-note { max-width: 1200px; margin-left: auto; margin-right: auto; }
             
-            /* Magic Desktop Header Restructure */
+            /* Enhanced Desktop Header */
             .nav-inner { flex-direction: row; justify-content: space-between; align-items: center; padding: 15px 40px; }
-            #brandHeader { flex-direction: row; text-align: left; gap: 15px; }
-            .brand-text { align-items: flex-start; }
-            .header-logo { margin-bottom: 0; width: 75px; height: 75px; }
+            .header-logo { width: 65px; height: 65px; }
             .header-title { font-size: 24px; }
             .search-wrapper { max-width: 450px; flex-shrink: 0; }
             .controls-container { padding: 10px 40px 10px; }
-            /* --------------------------------- */
+            /* ----------------------- */
 
             .section-header { padding-left: 20px; padding-right: 20px; }
             .grid, .skeleton-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; padding: 0 20px 20px; }
@@ -302,6 +309,7 @@
             .modal-img { height: min(70vh, 600px); border: 1px solid var(--border-color); background: transparent; }
             .modal-title { font-size: 32px; }
             .whatsapp-btn { position: relative; left: auto; bottom: auto; transform: none; width: 100%; max-width: none; margin-top: 25px; }
+            .thumb-row { justify-content: center; overflow-x: visible; flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -315,7 +323,7 @@
         </div>
     </div>
 
-    <!-- Redesigned Navigation Wrapper -->
+    <!-- Responsive Navigation -->
     <div class="main-nav-wrapper">
         <div class="nav-inner">
             <header id="brandHeader" onclick="goHome()" title="Back to Home" role="button" tabindex="0" aria-label="Art By Tisha home"
@@ -337,7 +345,7 @@
     <div class="controls-container">
         <div class="chip-row" id="chipContainer" role="toolbar" aria-label="Product categories"></div>
     </div>
-    <!-- End Redesign -->
+    <!-- End Navigation -->
 
     <div class="notify-bar" id="notifyBar">
         <p><strong>🔔 Offer alerts</strong>Get notified about new designs &amp; deals</p>
@@ -373,9 +381,8 @@
     </div>
     <div class="modal-content">
         <div class="modal-gallery">
-            <div class="modal-img-wrapper" onclick="triggerZoom()" role="button" tabindex="0" aria-label="Open image zoom"
-                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();triggerZoom();}">
-                <img id="mImg" class="modal-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="">
+            <div class="modal-img-wrapper" id="swipeArea" role="button" tabindex="0" aria-label="Product image">
+                <img id="mImg" class="modal-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" onclick="triggerZoom()">
                 <div class="zoom-badge">🔍 Tap to inspect</div>
             </div>
             <div id="mThumbs" class="thumb-row"></div>
@@ -856,6 +863,39 @@ function applyFilters() {
 function isModalOpen() { return document.getElementById("productModal").style.display === "flex"; }
 function isZoomOpen() { return document.getElementById("zoomModal").style.display === "flex"; }
 
+/* --- Swipe Functionality for Modal --- */
+let touchStartX = 0;
+let touchEndX = 0;
+document.addEventListener("DOMContentLoaded", () => {
+    const swipeArea = document.getElementById("swipeArea");
+    swipeArea.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    swipeArea.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, {passive: true});
+});
+function handleSwipe() {
+    if (!modalImages || modalImages.length <= 1) return;
+    const diff = touchStartX - touchEndX;
+    if (diff > 50) { // Swiped left (Next image)
+        activateModalImage((currentImgIdx + 1) % modalImages.length);
+    } else if (diff < -50) { // Swiped right (Prev image)
+        activateModalImage((currentImgIdx - 1 + modalImages.length) % modalImages.length);
+    }
+}
+function activateModalImage(idx) {
+    currentImgIdx = idx;
+    document.getElementById("mImg").src = modalImages[idx];
+    document.querySelectorAll(".modal-thumb").forEach((el, i) => {
+        el.classList.toggle("active", i === idx);
+        if (i === idx) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+    });
+    clearInterval(rotationInterval); // Stop auto-rotate once user interacts
+}
+/* ----------------------------------- */
+
 function openModal(id) {
     const p = products.find(i => i._id === id);
     if (!p) return;
@@ -910,12 +950,7 @@ function openModal(id) {
         t.className = "modal-thumb" + (i === 0 ? " active" : "");
         t.tabIndex = 0;
         t.setAttribute("role", "button");
-        const activate = () => {
-            currentImgIdx = i;
-            mImg.src = modalImages[i];
-            document.querySelectorAll(".modal-thumb").forEach((el, idx) => el.classList.toggle("active", idx === i));
-            clearInterval(rotationInterval);
-        };
+        const activate = () => activateModalImage(i);
         t.onclick = activate;
         t.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); } };
         thumbs.appendChild(t);
@@ -924,8 +959,7 @@ function openModal(id) {
     if (modalImages.length > 1) {
         rotationInterval = setInterval(() => {
             if (document.hidden) return;
-            currentImgIdx = (currentImgIdx + 1) % modalImages.length;
-            thumbs.children[currentImgIdx]?.click();
+            activateModalImage((currentImgIdx + 1) % modalImages.length);
         }, 2500);
     }
 
