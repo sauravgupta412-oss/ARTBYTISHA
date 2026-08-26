@@ -13,14 +13,9 @@
 
     <link rel="preconnect" href="https://docs.google.com">
     <link rel="preconnect" href="https://lh3.googleusercontent.com">
-    <link rel="preconnect" href="https://cdn.onesignal.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-    <script>
-        const ONESIGNAL_APP_ID = ""; // optional
-    </script>
 
     <style>
         :root {
@@ -63,24 +58,21 @@
         }
         body.modal-open, body.zoom-open { overflow: hidden; }
 
-        :focus-visible {
-            outline: 2px solid var(--focus);
-            outline-offset: 2px;
-        }
+        :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
         button:focus:not(:focus-visible),
         a:focus:not(:focus-visible),
-        .chip:focus:not(:focus-visible) { outline: none; }
+        .chip:focus:not(:focus-visible),
+        select:focus:not(:focus-visible) { outline: none; }
 
         .store-container { width: 100%; max-width: 1400px; margin: 0 auto; min-height: 100vh; }
 
-        /* Slim top bar */
         #topBanner {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: #fff; padding: 7px 12px; display: flex; justify-content: space-between;
             align-items: center; font-size: 11px; font-weight: 600; position: sticky; top: 0; z-index: 102; gap: 8px;
         }
         body.dark-mode #topBanner { background: #1a1a1a; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
-        #topBanner .banner-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: .2px; }
+        #topBanner .banner-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .banner-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
         .banner-btn {
             background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.35); color: #fff;
@@ -106,10 +98,10 @@
             cursor: pointer; user-select: none;
         }
         .brand-text { display: flex; flex-direction: column; align-items: flex-start; }
-        .header-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: contain; border: 2px solid var(--border-color); background: #fff; margin-bottom: 0; flex-shrink: 0; }
+        .header-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: contain; border: 2px solid var(--border-color); background: #fff; flex-shrink: 0; }
         .header-title { font-family: 'Fraunces', serif; color: var(--primary-dark); margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
         .header-tagline { color: var(--text-muted); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; margin-top: 2px; }
-        
+
         .search-wrapper { position: relative; width: 100%; }
         .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); fill: none; stroke: var(--text-muted); stroke-width: 2; width: 18px; height: 18px; pointer-events: none; }
         .search-input {
@@ -130,6 +122,29 @@
         .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); font-weight: 600; }
         body.dark-mode .chip.active { background: var(--primary-dark); color: #121212; border-color: var(--primary-dark); }
 
+        /* Special New Launch chip */
+        .chip.chip-new {
+            background: linear-gradient(135deg, #fff5f7, #f0fff4);
+            border: 1px solid #c97a8d;
+            color: var(--primary-dark);
+            font-weight: 700;
+            box-shadow: 0 0 0 1px rgba(201,122,141,.2), 0 4px 14px rgba(201,122,141,.25);
+            animation: newPulse 2.4s ease-in-out infinite;
+        }
+        body.dark-mode .chip.chip-new {
+            background: linear-gradient(135deg, #2a1f24, #1a2a22);
+            color: #e8a0b0;
+            border-color: #e8a0b0;
+        }
+        .chip.chip-new.active {
+            background: linear-gradient(135deg, #c97a8d, #27ae60);
+            color: #fff; border-color: transparent; animation: none;
+        }
+        @keyframes newPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(201,122,141,.35), 0 4px 12px rgba(0,0,0,.08); }
+            50% { box-shadow: 0 0 0 6px rgba(201,122,141,0), 0 4px 16px rgba(201,122,141,.3); }
+        }
+
         .notify-bar {
             margin: 8px 15px 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border-color);
             background: var(--card-bg); display: flex; align-items: center; justify-content: space-between; gap: 10px; box-shadow: 0 4px 12px var(--shadow);
@@ -147,12 +162,56 @@
         }
         body.dark-mode .cache-note { background: #2a2618; color: #e6d89a; border-color: #4a4220; }
 
+        /* New Launch spotlight strip */
+        .new-launch-spotlight {
+            display: none;
+            margin: 4px 15px 8px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(216,143,160,.2), rgba(39,174,96,.12));
+            border: 1px solid rgba(216,143,160,.4);
+            cursor: pointer;
+            box-shadow: 0 6px 18px var(--shadow);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .new-launch-spotlight:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.12); }
+        body.dark-mode .new-launch-spotlight {
+            background: linear-gradient(135deg, rgba(232,160,176,.12), rgba(39,174,96,.08));
+            border-color: rgba(232,160,176,.3);
+        }
+        .new-launch-spotlight .nl-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .new-launch-spotlight .nl-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .new-launch-spotlight .nl-emoji {
+            width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 22px;
+            background: rgba(255,255,255,.7);
+        }
+        body.dark-mode .new-launch-spotlight .nl-emoji { background: rgba(255,255,255,.08); }
+        .new-launch-spotlight strong { display: block; font-size: 14px; color: var(--primary-dark); font-weight: 800; }
+        .new-launch-spotlight span { font-size: 12px; color: var(--text-muted); }
+        .new-launch-spotlight .nl-cta {
+            flex-shrink: 0; background: linear-gradient(135deg, var(--primary), #27ae60);
+            color: #fff; border: none; border-radius: 20px; padding: 8px 14px;
+            font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit; white-space: nowrap;
+        }
+
         .section-header {
             padding: 15px 15px 8px; font-size: 13px; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 1.5px; color: var(--primary-dark); display: flex; align-items: center; gap: 8px;
+            letter-spacing: 1.5px; color: var(--primary-dark); display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
         }
-        .section-header .line { flex: 1; height: 1px; background: var(--border-color); }
-        .section-header .count { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+        .section-header .line { flex: 1; height: 1px; background: var(--border-color); min-width: 20px; }
+        .section-header .count { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: none; letter-spacing: 0; }
+        .section-header .sort-wrap {
+            display: flex; align-items: center; gap: 6px; margin-left: auto; flex-shrink: 0;
+        }
+        .section-header .sort-wrap label {
+            font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: none; letter-spacing: 0;
+        }
+        .sort-select {
+            font-family: inherit; font-size: 11px; font-weight: 600;
+            padding: 5px 8px; border-radius: 8px; border: 1px solid var(--border-color);
+            background: var(--input-bg); color: var(--text-main); cursor: pointer; max-width: 140px;
+        }
 
         .carousel-viewport {
             width: 100%; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory;
@@ -167,6 +226,10 @@
             scroll-snap-align: start; scroll-snap-stop: always; touch-action: manipulation;
         }
 
+        /* New launch carousel accent */
+        #newLaunchSection .section-header { color: #27ae60; }
+        body.dark-mode #newLaunchSection .section-header { color: #5dde8a; }
+
         .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; padding: 0 15px 10px; }
         .product-card {
             background: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 6px 15px var(--shadow);
@@ -178,6 +241,13 @@
         .card-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
         .product-card:hover .card-img { transform: scale(1.05); }
         .card-badge { position: absolute; top: 8px; left: 8px; background: linear-gradient(135deg, #f7a8b8, #c97a8d); color: #fff; font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 20px; z-index: 2; }
+        .card-new-badge {
+            position: absolute; top: 8px; left: 8px; z-index: 2;
+            background: linear-gradient(135deg, #27ae60, #2ecc71); color: #fff;
+            font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 20px;
+        }
+        .card-badge + .card-new-badge,
+        .card-img-wrapper .card-badge ~ .card-new-badge { top: 32px; }
         .card-save-badge {
             position: absolute; top: 8px; right: 8px; background: #27ae60; color: #fff; font-size: 9px;
             font-weight: 800; padding: 4px 8px; border-radius: 20px; z-index: 2;
@@ -225,23 +295,20 @@
         .back-btn { background: none; border: none; font-size: 24px; color: var(--text-main); cursor: pointer; line-height: 1; }
         .esc-hint { font-size: 10px; color: var(--text-muted); font-weight: 600; letter-spacing: .5px; }
         .modal-content { padding: 20px; padding-bottom: 100px; }
-        
         .modal-img-wrapper { position: relative; margin-bottom: 15px; touch-action: pan-y; }
         .modal-img { display: block; width: 100%; height: min(55vh, 430px); object-fit: contain; background: var(--bg-color); border-radius: 12px; cursor: zoom-in; }
         .zoom-badge {
             position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,.65); color: #fff;
             font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 20px; pointer-events: none;
         }
-        
-        .thumb-row { 
-            display: flex; justify-content: flex-start; gap: 10px; margin-bottom: 25px; 
+        .thumb-row {
+            display: flex; justify-content: flex-start; gap: 10px; margin-bottom: 25px;
             overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
             padding-bottom: 5px; scroll-snap-type: x mandatory;
         }
         .thumb-row::-webkit-scrollbar { display: none; }
-        .modal-thumb { flex-shrink: 0; width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; scroll-snap-align: start; transition: .2s; }
+        .modal-thumb { flex-shrink: 0; width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; scroll-snap-align: start; }
         .modal-thumb.active { border-color: var(--primary); }
-
         .modal-cat { font-size: 12px; color: var(--primary); font-weight: bold; text-transform: uppercase; margin: 0 0 5px; }
         .modal-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 600; color: var(--text-main); margin: 0 0 5px; line-height: 1.25; }
         .modal-sku { font-size: 13px; color: var(--text-muted); margin: 0 0 16px; }
@@ -254,38 +321,30 @@
         body.dark-mode .modal-discount-pill { background: #1a2e22; }
         .modal-save-line { margin: 10px 0 0; font-size: 13px; font-weight: 700; color: #27ae60; }
         .modal-compare-note { margin: 6px 0 0; font-size: 11px; color: var(--text-muted); }
-
         .price-reason-box {
             margin-top: 14px; padding: 12px 14px; border-radius: 10px;
             background: rgba(39,174,96,.08); border: 1px solid rgba(39,174,96,.25);
         }
         body.dark-mode .price-reason-box { background: rgba(39,174,96,.1); border-color: rgba(39,174,96,.22); }
-        .price-reason-box h4 {
-            margin: 0 0 6px; font-size: 12px; font-weight: 800; color: #27ae60;
-            text-transform: uppercase; letter-spacing: .4px;
-        }
+        .price-reason-box h4 { margin: 0 0 6px; font-size: 12px; font-weight: 800; color: #27ae60; text-transform: uppercase; letter-spacing: .4px; }
         .price-reason-box ul { margin: 0; padding-left: 18px; color: var(--text-main); font-size: 12px; line-height: 1.55; }
-        .price-reason-box li { margin-bottom: 3px; }
-        .price-reason-box .reason-foot { margin: 8px 0 0; font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+        .price-reason-box .reason-foot { margin: 8px 0 0; font-size: 11px; color: var(--text-muted); }
         .inaugural-pill {
             display: inline-block; margin-top: 10px;
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: #fff; font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 20px;
         }
-
         .whatsapp-btn {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px;
             background: #25D366; color: #fff; border: none; padding: 15px; border-radius: 30px; font-size: 15px;
             font-weight: 600; display: flex; justify-content: center; align-items: center; gap: 10px; text-decoration: none; z-index: 1001;
             box-shadow: 0 8px 20px rgba(37,211,102,.3);
         }
-
         #installBtn {
             position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 999;
             background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: none;
             padding: 14px 28px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; display: none;
         }
-
         .zoom-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,.94); z-index: 2000; display: none;
             align-items: center; justify-content: center; flex-direction: column; animation: fadeIn .25s ease-out;
@@ -305,7 +364,7 @@
 
         @media (min-width: 768px) {
             :root { --carousel-pad: 20px; --carousel-gap: 20px; --carousel-cols: 4; }
-            .notify-bar, .cache-note { max-width: 1200px; margin-left: auto; margin-right: auto; }
+            .notify-bar, .cache-note, .new-launch-spotlight { max-width: 1200px; margin-left: auto; margin-right: auto; }
             .nav-inner { flex-direction: row; justify-content: space-between; align-items: center; padding: 15px 40px; }
             .header-logo { width: 65px; height: 65px; }
             .header-title { font-size: 24px; }
@@ -327,11 +386,10 @@
 </head>
 <body class="dark-mode">
 <div class="store-container">
-    <!-- Short top banner -->
     <div id="topBanner">
         <span class="banner-text">🎉 Launch prices · Free shipping above ₹499</span>
         <div class="banner-actions">
-            <button id="musicToggleBtn" class="banner-btn" type="button" onclick="toggleMusic()" aria-pressed="false" title="Play background music">🎵 Music</button>
+            <button id="musicToggleBtn" class="banner-btn" type="button" onclick="toggleMusic()" aria-pressed="false">🎵 Music</button>
             <button id="themeToggleBtn" class="banner-btn" type="button" onclick="toggleTheme()">☀️ Light</button>
         </div>
     </div>
@@ -346,7 +404,6 @@
                     <div class="header-tagline">Official Collection</div>
                 </div>
             </header>
-
             <div class="search-wrapper">
                 <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <input type="search" id="searchInput" class="search-input" placeholder="Search necklaces, rings, earrings..." aria-label="Search products" autocomplete="off">
@@ -356,6 +413,21 @@
 
     <div class="controls-container">
         <div class="chip-row" id="chipContainer" role="toolbar" aria-label="Product categories"></div>
+    </div>
+
+    <!-- Tap to jump to New Launch — always visible when new items exist -->
+    <div class="new-launch-spotlight" id="newLaunchSpotlight" onclick="jumpToNewLaunch()" role="button" tabindex="0"
+         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();jumpToNewLaunch();}">
+        <div class="nl-row">
+            <div class="nl-left">
+                <div class="nl-emoji">✨</div>
+                <div>
+                    <strong>New Launch is live</strong>
+                    <span id="newLaunchCountText">Fresh designs just dropped — tap to explore</span>
+                </div>
+            </div>
+            <button type="button" class="nl-cta" tabindex="-1">Explore →</button>
+        </div>
     </div>
 
     <div class="notify-bar" id="notifyBar">
@@ -374,6 +446,16 @@
         </div>
     </div>
 
+    <!-- New Launch carousel (home) -->
+    <div id="newLaunchSection" style="display:none;">
+        <div class="section-header">✨ Just Launched <span class="count" id="newLaunchHeaderCount"></span><span class="line"></span>
+            <button type="button" class="chip" style="margin:0;padding:5px 12px;font-size:11px;" onclick="jumpToNewLaunch()">View all</button>
+        </div>
+        <div class="carousel-viewport" id="newLaunchViewport">
+            <div id="newLaunchTrack" class="carousel-track"></div>
+        </div>
+    </div>
+
     <div id="carouselSection" style="display:none;">
         <div class="section-header">🏆 Featured Top Sellers<span class="line"></span></div>
         <div class="carousel-viewport" id="carouselViewport">
@@ -386,13 +468,13 @@
 
 <div id="productModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle" hidden>
     <div class="modal-header">
-        <button class="back-btn" type="button" onclick="closeModalToHome()" aria-label="Close product details">✕</button>
+        <button class="back-btn" type="button" onclick="closeModalToHome()" aria-label="Close">✕</button>
         <h3 style="margin:0;font-size:16px;font-family:Inter,sans-serif;">Details</h3>
         <span class="esc-hint">ESC</span>
     </div>
     <div class="modal-content">
         <div class="modal-gallery">
-            <div class="modal-img-wrapper" id="swipeArea" role="button" tabindex="0" aria-label="Product image">
+            <div class="modal-img-wrapper" id="swipeArea" role="button" tabindex="0">
                 <img id="mImg" class="modal-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" onclick="triggerZoom()">
                 <div class="zoom-badge">🔍 Tap to inspect</div>
             </div>
@@ -412,8 +494,6 @@
                 <p id="mSave" class="modal-save-line" hidden></p>
                 <p id="mCompareNote" class="modal-compare-note" hidden>Amazon price for comparison only.</p>
                 <span id="mInauguralPill" class="inaugural-pill" hidden>🎉 Launch price</span>
-
-                <!-- Shown strictly ONLY when compared with an Amazon price -->
                 <div id="mPriceReason" class="price-reason-box" hidden>
                     <h4>💡 Why so affordable?</h4>
                     <ul>
@@ -432,10 +512,10 @@
     </div>
 </div>
 
-<div id="zoomModal" class="zoom-modal" role="dialog" aria-modal="true" aria-label="Image zoom viewer" hidden onclick="dismissZoom()">
-    <button class="zoom-close-btn" type="button" onclick="event.stopPropagation();dismissZoom();" aria-label="Close zoom">✕</button>
+<div id="zoomModal" class="zoom-modal" role="dialog" aria-modal="true" hidden onclick="dismissZoom()">
+    <button class="zoom-close-btn" type="button" onclick="event.stopPropagation();dismissZoom();" aria-label="Close">✕</button>
     <div class="zoom-img-container" onclick="event.stopPropagation()">
-        <img id="zoomImg" src="" alt="High resolution product detail" onclick="toggleMagnify(this)">
+        <img id="zoomImg" src="" alt="" onclick="toggleMagnify(this)">
     </div>
     <p class="zoom-tip">Tap image to toggle 2× zoom · Press ESC to close</p>
 </div>
@@ -445,7 +525,6 @@
 <audio id="bgMusic" loop preload="none">
     <source src="krishna-flute.mp3" type="audio/mpeg">
     <source src="krishna-flute.mp3.mp3" type="audio/mpeg">
-    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=krishna-flute-112281.mp3" type="audio/mpeg">
 </audio>
 
 <script>
@@ -454,12 +533,14 @@ const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
 const PRODUCT_CACHE_KEY = "abt_products_cache_v3";
 const NOTIFY_PREF_KEY = "abt_notify_enabled_v1";
+const SORT_PREF_KEY = "abt_sort_pref_v1";
 const CAROUSEL_SPEED = 2500;
-const CATEGORY_ORDER = ["TOP SELLING","NECKLACE","NECKLACES","RINGS","RING","BRACELETS","BRACELET","BANGLES","BANGLE","EARRINGS","EARRING"];
+const CATEGORY_ORDER = ["NEW LAUNCH","TOP SELLING","NECKLACE","NECKLACES","RINGS","RING","BRACELETS","BRACELET","BANGLES","BANGLE","EARRINGS","EARRING"];
 const MUSIC_VOLUME = 0.20;
 const MUSIC_PREF_KEY = "abt_music_pref_v1";
 const CARD_WHY_SHORT = "Studio price · Launch offer";
 const WHATSAPP_OFFER_NOTE = "\n\n(Launch price — direct studio, no Amazon fees)";
+const SPECIAL_CATS = new Set(["TOP SELLING", "NEW LAUNCH"]);
 
 let products = [];
 let modalImages = [];
@@ -477,6 +558,7 @@ let lastFocusedBeforeModal = null;
 let musicEl = null;
 let musicOn = false;
 let musicFadeTimer = null;
+let currentSort = localStorage.getItem(SORT_PREF_KEY) || "price-asc";
 
 function getASIN(p) {
     if (!p) return "";
@@ -503,6 +585,7 @@ function parseCSV(text) {
     if (value || row.length) { row.push(value.trim()); rows.push(row); }
     return rows;
 }
+
 function initTheme() {
     const saved = localStorage.getItem("tisha_theme");
     const useDark = saved !== "light";
@@ -518,6 +601,7 @@ function toggleTheme() {
     document.getElementById("themeToggleBtn").innerText = isDark ? "☀️ Light" : "🌙 Dark";
     document.getElementById("themeColorMeta").setAttribute("content", isDark ? "#121212" : "#ffffff");
 }
+
 function initMusic() {
     musicEl = document.getElementById("bgMusic");
     if (!musicEl) return;
@@ -529,7 +613,6 @@ function updateMusicUI() {
     if (!btn) return;
     btn.textContent = musicOn ? "⏸️ Music" : "🎵 Music";
     btn.classList.toggle("playing", musicOn);
-    btn.setAttribute("aria-pressed", musicOn ? "true" : "false");
 }
 function fadeMusicTo(target, onDone) {
     if (!musicEl) return;
@@ -582,6 +665,7 @@ function maybeStartMusicOnProductOpen() {
     if (localStorage.getItem(MUSIC_PREF_KEY) === "off") return;
     playMusic();
 }
+
 function hideNotifyBar() {
     const bar = document.getElementById("notifyBar");
     if (bar) bar.style.display = "none";
@@ -596,7 +680,6 @@ function updateNotifyUI(state) {
     }
     bar.style.display = "flex";
     btn.textContent = "Enable";
-    btn.disabled = false;
 }
 function initNotifyUI() {
     if (!("Notification" in window)) return hideNotifyBar();
@@ -613,7 +696,7 @@ async function showLocalNotification(title, body) {
     if (Notification.permission === "granted") new Notification(title, opts);
 }
 async function enableOfferNotifications() {
-    if (!("Notification" in window)) return alert("Notifications not supported on this device.");
+    if (!("Notification" in window)) return alert("Notifications not supported.");
     try {
         const p = await Notification.requestPermission();
         if (p === "granted") {
@@ -623,10 +706,9 @@ async function enableOfferNotifications() {
             updateNotifyUI("denied");
             alert("Notifications are blocked in browser settings.");
         }
-    } catch (e) {
-        alert("Could not enable notifications.");
-    }
+    } catch (e) { alert("Could not enable notifications."); }
 }
+
 function toNumber(v) { return parseFloat(String(v == null ? "" : v).replace(/[^\d.]/g, "")) || 0; }
 function inr(n) { return "₹" + Math.round(n).toLocaleString("en-IN"); }
 function calcPricing(sellingValue, amazonValue) {
@@ -647,6 +729,7 @@ function calcPricing(sellingValue, amazonValue) {
         hasCompare: true
     };
 }
+
 function cleanImageUrl(url, size) {
     url = String(url || "").trim();
     const m = url.match(/\/(?:d\/|id=)([a-zA-Z0-9_-]+)/);
@@ -656,9 +739,10 @@ function cleanImageUrl(url, size) {
 function hasValidImages(p) {
     return [1,2,3,4,5].some(i => p[`Image ${i}`] && String(p[`Image ${i}`]).trim().length > 5);
 }
-function isTopSelling(p) {
-    return (p["Category"] || "").trim().toUpperCase() === "TOP SELLING";
-}
+function catOf(p) { return (p["Category"] || "").trim().toUpperCase(); }
+function isTopSelling(p) { return catOf(p) === "TOP SELLING"; }
+function isNewLaunch(p) { return catOf(p) === "NEW LAUNCH"; }
+
 function sortCategoryNames(names) {
     return [...names].sort((a, b) => {
         const ai = CATEGORY_ORDER.indexOf(String(a).toUpperCase());
@@ -669,12 +753,58 @@ function sortCategoryNames(names) {
         return a.localeCompare(b);
     });
 }
-function makeChip(label, value, isActive) {
+
+/* ---------- SORTING ---------- */
+function sortProducts(list) {
+    const arr = [...list];
+    switch (currentSort) {
+        case "price-asc":
+            return arr.sort((a, b) => toNumber(a["Selling"]) - toNumber(b["Selling"]));
+        case "price-desc":
+            return arr.sort((a, b) => toNumber(b["Selling"]) - toNumber(a["Selling"]));
+        case "name-asc":
+            return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "name-desc":
+            return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "default":
+        default:
+            return arr; // sheet / load order
+    }
+}
+function onSortChange(val) {
+    currentSort = val || "price-asc";
+    try { localStorage.setItem(SORT_PREF_KEY, currentSort); } catch (e) {}
+    // Keep all dropdowns in sync
+    document.querySelectorAll(".sort-select").forEach(s => { s.value = currentSort; });
+    applyFilters();
+}
+function makeSortSelect() {
+    const wrap = document.createElement("div");
+    wrap.className = "sort-wrap";
+    wrap.innerHTML = `
+        <label for="sort-">Sort</label>
+        <select class="sort-select" aria-label="Sort products">
+            <option value="default">Default</option>
+            <option value="price-asc">Price: Low → High</option>
+            <option value="price-desc">Price: High → Low</option>
+            <option value="name-asc">Name: A → Z</option>
+            <option value="name-desc">Name: Z → A</option>
+        </select>`;
+    const sel = wrap.querySelector("select");
+    sel.value = currentSort;
+    sel.addEventListener("click", e => e.stopPropagation());
+    sel.addEventListener("change", e => {
+        e.stopPropagation();
+        onSortChange(sel.value);
+    });
+    return wrap;
+}
+
+function makeChip(label, value, isActive, extraClass) {
     const chip = document.createElement("button");
     chip.type = "button";
-    chip.className = "chip" + (isActive ? " active" : "");
+    chip.className = "chip" + (extraClass ? " " + extraClass : "") + (isActive ? " active" : "");
     chip.textContent = label;
-    chip.setAttribute("role", "button");
     chip.setAttribute("aria-pressed", isActive ? "true" : "false");
     chip.dataset.value = value;
     chip.addEventListener("click", () => selectCategory(value, chip));
@@ -684,13 +814,20 @@ function populateCategories() {
     const container = document.getElementById("chipContainer");
     container.innerHTML = "";
     const cats = new Set();
+    let hasNew = false;
     products.forEach(p => {
         const c = (p["Category"] || "").trim();
-        if (c && c.toUpperCase() !== "TOP SELLING") cats.add(c);
+        const u = c.toUpperCase();
+        if (u === "NEW LAUNCH") hasNew = true;
+        if (c && !SPECIAL_CATS.has(u)) cats.add(c);
     });
     container.appendChild(makeChip("All Categories", "ALL", true));
+    if (hasNew) container.appendChild(makeChip("✨ New Launch", "NEW_LAUNCH", false, "chip-new"));
     container.appendChild(makeChip("🔥 Top Selling", "TOP_SELLING", false));
-    sortCategoryNames([...cats]).forEach(cat => container.appendChild(makeChip(cat, cat.toUpperCase(), false)));
+    sortCategoryNames([...cats]).forEach(cat => {
+        container.appendChild(makeChip(cat, cat.toUpperCase(), false));
+    });
+    updateNewLaunchSpotlight();
 }
 function selectCategory(catVal, clickedChip) {
     activeCategory = catVal;
@@ -699,26 +836,45 @@ function selectCategory(catVal, clickedChip) {
         c.classList.toggle("active", on);
         c.setAttribute("aria-pressed", on ? "true" : "false");
     });
-    clickedChip.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    if (clickedChip) clickedChip.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
     applyFilters();
 }
+function jumpToNewLaunch() {
+    const chip = document.querySelector('.chip[data-value="NEW_LAUNCH"]');
+    if (chip) selectCategory("NEW_LAUNCH", chip);
+    else {
+        const sec = document.getElementById("newLaunchSection");
+        if (sec && sec.style.display !== "none") sec.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+}
+function updateNewLaunchSpotlight() {
+    const spot = document.getElementById("newLaunchSpotlight");
+    const n = products.filter(isNewLaunch).length;
+    if (!spot) return;
+    if (n > 0) {
+        spot.style.display = "block";
+        const t = document.getElementById("newLaunchCountText");
+        if (t) t.textContent = n === 1 ? "1 fresh design just dropped — tap to explore" : `${n} fresh designs just dropped — tap to explore`;
+    } else {
+        spot.style.display = "none";
+    }
+}
+
 function updateCarouselMetrics() {
     const viewport = document.getElementById("carouselViewport");
-    if (!viewport) return;
     const isDesktop = window.matchMedia("(min-width: 768px)").matches;
     const cols = isDesktop ? 4 : 2;
     const gap = isDesktop ? 20 : 15;
     const pad = isDesktop ? 20 : 15;
-    const w = viewport.clientWidth || window.innerWidth;
+    const w = (viewport && viewport.clientWidth) || window.innerWidth;
     carouselGap = gap;
     carouselItemWidth = Math.max(120, Math.floor(((w - pad * 2 - gap * (cols - 1)) / cols) * 1000) / 1000);
-    [viewport, document.documentElement].forEach(el => {
-        el.style.setProperty("--carousel-cols", cols);
-        el.style.setProperty("--carousel-gap", gap + "px");
-        el.style.setProperty("--carousel-pad", pad + "px");
-        el.style.setProperty("--carousel-item-width", carouselItemWidth + "px");
-    });
+    document.documentElement.style.setProperty("--carousel-cols", cols);
+    document.documentElement.style.setProperty("--carousel-gap", gap + "px");
+    document.documentElement.style.setProperty("--carousel-pad", pad + "px");
+    document.documentElement.style.setProperty("--carousel-item-width", carouselItemWidth + "px");
 }
+
 function createCard(item, badgeEmoji, eagerLoad) {
     const pricing = calcPricing(item["Selling"], getAmazonPrice(item));
     const asin = getASIN(item);
@@ -727,21 +883,23 @@ function createCard(item, badgeEmoji, eagerLoad) {
     card.className = "product-card";
     card.setAttribute("role", "button");
     card.tabIndex = 0;
-    card.setAttribute("aria-label", `${item["Product Name"] || "Product"}, ${pricing.sellingText}`);
     card.onclick = () => openModal(item._id);
     card.onkeydown = (e) => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openModal(item._id); }
     };
+    const top = isTopSelling(item);
+    const neu = isNewLaunch(item);
     card.innerHTML = `
         <div class="card-img-wrapper">
-            ${isTopSelling(item) ? `<div class="card-badge">${badgeEmoji} Top Selling</div>` : ""}
+            ${top ? `<div class="card-badge">${badgeEmoji || "⭐"} Top Selling</div>` : ""}
+            ${neu ? `<div class="card-new-badge">✨ NEW</div>` : ""}
             ${pricing.hasCompare ? `<div class="card-save-badge">${pricing.discount}% OFF</div>` : ""}
             <img src="${url}" class="card-img" ${eagerLoad ? "" : 'loading="lazy"'} alt="${(item["Product Name"] || "Product").replace(/"/g, "&quot;")}">
         </div>
         <div class="card-info">
             <p class="card-category">${item["Category"] || ""}</p>
             <p class="card-title">${item["Product Name"] || ""}</p>
-            <p class="card-sku">${asin ? 'ASIN: ' + asin : ''}</p>
+            <p class="card-sku">${asin ? "ASIN: " + asin : ""}</p>
             <div class="card-price-row">
                 <p class="card-price">${pricing.sellingText}</p>
                 ${pricing.hasCompare ? `<p class="card-mrp">${pricing.amazonText}</p><p class="card-off">${pricing.discountText}</p>` : ""}
@@ -752,17 +910,26 @@ function createCard(item, badgeEmoji, eagerLoad) {
         </div>`;
     return card;
 }
+
 function renderSection(container, icon, title, items, badgeEmoji) {
     if (!items.length) return;
+    const sorted = sortProducts(items);
     const header = document.createElement("div");
     header.className = "section-header";
-    header.innerHTML = `${icon} ${title} <span class="count">(${items.length})</span><span class="line"></span>`;
+    const titleSpan = document.createElement("span");
+    titleSpan.innerHTML = `${icon} ${title} <span class="count">(${sorted.length})</span>`;
+    header.appendChild(titleSpan);
+    const line = document.createElement("span");
+    line.className = "line";
+    header.appendChild(line);
+    header.appendChild(makeSortSelect());
     const grid = document.createElement("div");
     grid.className = "grid";
-    items.forEach((item, i) => grid.appendChild(createCard(item, badgeEmoji, i < 4)));
+    sorted.forEach((item, i) => grid.appendChild(createCard(item, badgeEmoji, i < 4)));
     container.appendChild(header);
     container.appendChild(grid);
 }
+
 function startInfiniteCarousel() {
     const vp = document.getElementById("carouselViewport");
     const tr = document.getElementById("carouselTrack");
@@ -784,7 +951,8 @@ function startInfiniteCarousel() {
         vp.scrollBy({ left: step, behavior: "smooth" });
     }, CAROUSEL_SPEED);
 }
-function renderCarousel() {
+
+function renderTopCarousel() {
     const topItems = products.filter(isTopSelling);
     const section = document.getElementById("carouselSection");
     const tr = document.getElementById("carouselTrack");
@@ -802,57 +970,99 @@ function renderCarousel() {
         if (topItems.length > 2) startInfiniteCarousel();
     });
 }
+
+function renderNewLaunchCarousel() {
+    const items = products.filter(isNewLaunch);
+    const section = document.getElementById("newLaunchSection");
+    const tr = document.getElementById("newLaunchTrack");
+    const countEl = document.getElementById("newLaunchHeaderCount");
+    tr.innerHTML = "";
+    if (!items.length) { section.style.display = "none"; return; }
+    section.style.display = "block";
+    if (countEl) countEl.textContent = `(${items.length})`;
+    updateCarouselMetrics();
+    // Show unique items in carousel (no need to loop forever for new)
+    const show = items.length > 6 ? items.slice(0, 12) : items;
+    show.forEach(item => tr.appendChild(createCard(item, "✨", true)));
+}
+
 function applyFilters() {
     const query = document.getElementById("searchInput").value.toLowerCase().trim();
     const grid = document.getElementById("productGrid");
     grid.innerHTML = "";
-    if (!query && activeCategory === "ALL") renderCarousel();
-    else {
+
+    const showHomeCarousels = !query && activeCategory === "ALL";
+    if (showHomeCarousels) {
+        renderNewLaunchCarousel();
+        renderTopCarousel();
+    } else {
+        document.getElementById("newLaunchSection").style.display = "none";
         document.getElementById("carouselSection").style.display = "none";
         clearInterval(carouselInterval);
     }
+
+    // Hide spotlight when already on New Launch filter (less clutter)
+    const spot = document.getElementById("newLaunchSpotlight");
+    if (spot) {
+        const n = products.filter(isNewLaunch).length;
+        spot.style.display = (n > 0 && activeCategory !== "NEW_LAUNCH") ? "block" : "none";
+    }
+
     const filtered = products.filter(p => {
         const name = (p["Product Name"] || "").toLowerCase();
         const asin = getASIN(p).toLowerCase();
-        const cat = (p["Category"] || "").trim().toUpperCase();
+        const cat = catOf(p);
         const sMatch = !query || name.includes(query) || asin.includes(query);
         let cMatch = true;
         if (activeCategory === "TOP_SELLING") cMatch = cat === "TOP SELLING";
+        else if (activeCategory === "NEW_LAUNCH") cMatch = cat === "NEW LAUNCH";
         else if (activeCategory !== "ALL") cMatch = cat === activeCategory;
         return sMatch && cMatch;
     });
+
     if (!filtered.length) {
         grid.innerHTML = `<div class="no-results">No items found matching your search.</div>`;
         return;
     }
+
     if (activeCategory === "ALL") {
         const groups = {};
         filtered.forEach(p => {
-            if (!query && isTopSelling(p)) return;
+            // On home without search: skip special cats in main grid (they're in carousels)
+            if (!query && (isTopSelling(p) || isNewLaunch(p))) return;
             const cat = (p["Category"] || "").trim() || "Other";
             if (!groups[cat]) groups[cat] = [];
             groups[cat].push(p);
         });
         if (query) {
             filtered.forEach(p => {
-                if (!isTopSelling(p)) return;
                 const cat = (p["Category"] || "").trim() || "Other";
                 if (!groups[cat]) groups[cat] = [];
                 if (!groups[cat].includes(p)) groups[cat].push(p);
             });
         }
-        sortCategoryNames(Object.keys(groups)).forEach(cat => renderSection(grid, "📂", cat, groups[cat], "✨"));
+        sortCategoryNames(Object.keys(groups)).forEach(cat => {
+            const icon = cat.toUpperCase() === "NEW LAUNCH" ? "✨" : "📂";
+            renderSection(grid, icon, cat, groups[cat], "✨");
+        });
     } else {
-        renderSection(grid, "📂", activeCategory === "TOP_SELLING" ? "Top Selling" : activeCategory, filtered, "✨");
+        const title =
+            activeCategory === "TOP_SELLING" ? "Top Selling" :
+            activeCategory === "NEW_LAUNCH" ? "New Launch" :
+            activeCategory;
+        const icon = activeCategory === "NEW_LAUNCH" ? "✨" : "📂";
+        renderSection(grid, icon, title, filtered, "✨");
     }
 }
+
 function isModalOpen() { return document.getElementById("productModal").style.display === "flex"; }
 function isZoomOpen() { return document.getElementById("zoomModal").style.display === "flex"; }
+
 let touchStartX = 0, touchEndX = 0;
 document.addEventListener("DOMContentLoaded", () => {
     const swipeArea = document.getElementById("swipeArea");
-    swipeArea.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
-    swipeArea.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); }, {passive: true});
+    swipeArea.addEventListener("touchstart", e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+    swipeArea.addEventListener("touchend", e => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); }, { passive: true });
 });
 function handleSwipe() {
     if (!modalImages || modalImages.length <= 1) return;
@@ -865,7 +1075,7 @@ function activateModalImage(idx) {
     document.getElementById("mImg").src = modalImages[idx];
     document.querySelectorAll(".modal-thumb").forEach((el, i) => {
         el.classList.toggle("active", i === idx);
-        if (i === idx) el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        if (i === idx) el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
     });
     clearInterval(rotationInterval);
 }
@@ -890,7 +1100,6 @@ function openModal(id) {
     const mNote = document.getElementById("mCompareNote");
     const mReason = document.getElementById("mPriceReason");
     const mPill = document.getElementById("mInauguralPill");
-    
     mPill.hidden = false;
 
     if (price.hasCompare) {
@@ -900,15 +1109,13 @@ function openModal(id) {
         mSave.innerText = "🎉 " + price.savingsText;
         mSave.hidden = false;
         mNote.hidden = false;
-        mReason.hidden = false; // SHOW "Why so affordable?" box ONLY when Amazon price exists
+        mReason.hidden = false;
     } else {
         mMrp.innerText = price.amazonText ? "Amazon " + price.amazonText : "";
-        mDisc.innerText = "";
         mDisc.hidden = true;
-        mSave.innerText = "";
         mSave.hidden = true;
         mNote.hidden = !price.amazonText;
-        mReason.hidden = true;  // HIDE "Why so affordable?" box when no Amazon compare
+        mReason.hidden = true;
     }
 
     const msg = `Hi! I'm interested in the ${p["Product Name"]} (${price.sellingText})` +
@@ -928,16 +1135,11 @@ function openModal(id) {
     modalImages.forEach((url, i) => {
         const t = document.createElement("img");
         t.src = cleanImageUrl(url.replace(/=w\d+/, ""), 200) || url;
-        t.alt = `View ${i + 1}`;
         t.className = "modal-thumb" + (i === 0 ? " active" : "");
         t.tabIndex = 0;
-        t.setAttribute("role", "button");
-        const activate = () => activateModalImage(i);
-        t.onclick = activate;
-        t.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); } };
+        t.onclick = () => activateModalImage(i);
         thumbs.appendChild(t);
     });
-
     if (modalImages.length > 1) {
         rotationInterval = setInterval(() => {
             if (document.hidden) return;
@@ -950,22 +1152,19 @@ function openModal(id) {
     modal.style.display = "flex";
     document.body.classList.add("modal-open");
     history.pushState({ page: "product" }, "", "#product");
-    modal.querySelector(".back-btn")?.focus();
     maybeStartMusicOnProductOpen();
 }
 
 function triggerZoom() {
     const currentSrc = document.getElementById("mImg").src;
     if (!currentSrc || currentSrc.includes("base64")) return;
-    const zoomImg = document.getElementById("zoomImg");
-    zoomImg.src = currentSrc;
-    zoomImg.classList.remove("zoomed-in");
+    document.getElementById("zoomImg").src = currentSrc;
+    document.getElementById("zoomImg").classList.remove("zoomed-in");
     const zm = document.getElementById("zoomModal");
     zm.hidden = false;
     zm.style.display = "flex";
     document.body.classList.add("zoom-open");
     history.pushState({ page: "zoom" }, "", "#zoom");
-    zm.querySelector(".zoom-close-btn")?.focus();
 }
 function toggleMagnify(imgEl) { imgEl.classList.toggle("zoomed-in"); }
 function closeZoomModal() {
@@ -986,7 +1185,7 @@ function closeModal() {
     document.body.classList.remove("modal-open");
     clearInterval(rotationInterval);
     window.scrollTo({ top: savedScrollPosition, behavior: "instant" });
-    if (lastFocusedBeforeModal && lastFocusedBeforeModal.focus) lastFocusedBeforeModal.focus();
+    if (lastFocusedBeforeModal?.focus) lastFocusedBeforeModal.focus();
 }
 function closeModalToHome() {
     closeModal();
@@ -1003,6 +1202,7 @@ function goHome() {
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 }
+
 document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape" && e.key !== "Esc") return;
     if (isZoomOpen()) { e.preventDefault(); dismissZoom(); return; }
@@ -1015,30 +1215,32 @@ window.addEventListener("popstate", () => {
 document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
         clearInterval(carouselInterval);
-        if (musicOn && musicEl) { try { musicEl.pause(); } catch (e) {} }
+        if (musicOn && musicEl) try { musicEl.pause(); } catch (e) {}
     } else {
         if (document.getElementById("carouselSection").style.display !== "none") startInfiniteCarousel();
-        if (musicOn && musicEl) { musicEl.play().catch(() => {}); }
+        if (musicOn && musicEl) musicEl.play().catch(() => {});
     }
 });
-const searchInput = document.getElementById("searchInput");
-searchInput.addEventListener("input", () => {
+
+document.getElementById("searchInput").addEventListener("input", () => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(applyFilters, 200);
 });
-const vp = document.getElementById("carouselViewport");
+
+const vpEl = document.getElementById("carouselViewport");
 ["touchstart", "mousedown"].forEach(evt => {
-    vp.addEventListener(evt, () => { userTouchingCarousel = true; clearInterval(carouselInterval); }, { passive: true });
+    vpEl.addEventListener(evt, () => { userTouchingCarousel = true; clearInterval(carouselInterval); }, { passive: true });
 });
 ["touchend", "mouseup", "mouseleave", "touchcancel"].forEach(evt => {
-    vp.addEventListener(evt, () => {
+    vpEl.addEventListener(evt, () => {
         userTouchingCarousel = false;
         if (document.getElementById("carouselSection").style.display !== "none" && products.filter(isTopSelling).length > 2) {
             setTimeout(startInfiniteCarousel, 600);
         }
     }, { passive: true });
 });
-window.addEventListener("resize", () => { updateCarouselMetrics(); });
+window.addEventListener("resize", updateCarouselMetrics);
+
 function saveProductCache(list) {
     try { localStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify({ ts: Date.now(), products: list })); } catch (e) {}
 }
@@ -1067,13 +1269,9 @@ function renderCatalog(fromCache) {
 async function loadCatalog(isRetry) {
     if (isRetry) {
         document.getElementById("status").style.display = "block";
-        document.getElementById("status").innerHTML = `
-            <div class="skeleton-grid">
-                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text title"></div><div class="skeleton-text price"></div></div>
-                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text title"></div><div class="skeleton-text price"></div></div>
-            </div>`;
         document.getElementById("productGrid").innerHTML = "";
         document.getElementById("carouselSection").style.display = "none";
+        document.getElementById("newLaunchSection").style.display = "none";
     }
     try {
         const response = await fetch(CSV_URL, { cache: "no-store" });
@@ -1105,6 +1303,7 @@ async function loadCatalog(isRetry) {
         } else showErrorState();
     }
 }
+
 window.addEventListener("load", async () => {
     initTheme();
     initMusic();
