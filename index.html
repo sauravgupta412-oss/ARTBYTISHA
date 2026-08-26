@@ -384,10 +384,10 @@ let activeCategory = "ALL";
 let searchTimer = null;
 let lastFocusedBeforeModal = null;
 
-// Helper to reliably retrieve Amazon ASIN code from sheet headers
+// Helper to reliably retrieve Amazon ASIN code from sheet headers (Fixed Case Sensitivity)
 function getASIN(p) {
     if (!p) return "";
-    return p["Amazon ASIN code"] || p["ASIN Code"] || p["ASIN"] || p["SKU Code"] || p["SKU"] || "";
+    return p["Amazon ASIN Code"] || p["Amazon ASIN code"] || p["ASIN Code"] || p["ASIN"] || p["SKU Code"] || p["SKU"] || "";
 }
 
 function parseCSV(text) {
@@ -494,6 +494,7 @@ function calcPricing(sellingValue, mrpValue) {
     };
 }
 
+// Fixed function to cleanly extract and serve correct image formats
 function cleanImageUrl(url, size) {
     url = String(url || "").trim();
     const m = url.match(/\/(?:d\/|id=)([a-zA-Z0-9_-]+)/);
@@ -571,6 +572,7 @@ function updateCarouselMetrics() {
     });
 }
 
+// Updated mapping to open modal via internal ID (_id) instead of ASIN to prevent duplicate/blank lookup bugs
 function createCard(item, badgeEmoji, eagerLoad) {
     const pricing = calcPricing(item["Selling"], item["MRP"]);
     const asin = getASIN(item);
@@ -580,9 +582,9 @@ function createCard(item, badgeEmoji, eagerLoad) {
     card.setAttribute("role", "button");
     card.tabIndex = 0;
     card.setAttribute("aria-label", `${item["Product Name"] || "Product"}, ${pricing.sellingText}`);
-    card.onclick = () => openModal(asin);
+    card.onclick = () => openModal(item._id);
     card.onkeydown = (e) => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openModal(asin); }
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openModal(item._id); }
     };
     card.innerHTML = `
         <div class="card-img-wrapper">
@@ -707,9 +709,11 @@ function applyFilters() {
     }
 }
 
-function openModal(asin) {
-    const p = products.find(i => getASIN(i) === asin);
+// Fixed function parameters to search by unique internal id to resolve product details overlay duplicate bug
+function openModal(id) {
+    const p = products.find(i => i._id === id);
     if (!p) return;
+    const asin = getASIN(p);
     lastFocusedBeforeModal = document.activeElement;
     savedScrollPosition = window.scrollY;
     const price = calcPricing(p["Selling"], p["MRP"]);
@@ -912,7 +916,10 @@ async function loadCatalog(isRetry) {
             const p = {};
             headers.forEach((h, idx) => p[h] = rows[i][idx] || "");
             const active = String(p["Active"] || "").trim().toUpperCase();
-            if (active !== "FALSE" && active !== "0" && active !== "NO" && hasValidImages(p)) next.push(p);
+            if (active !== "FALSE" && active !== "0" && active !== "NO" && hasValidImages(p)) {
+                p._id = "prod_" + i; // Generates unique internal identifier sequence
+                next.push(p);
+            }
         }
         if (!next.length) throw new Error("No products");
         products = next;
