@@ -2,11 +2,11 @@
   "name": "Art By Tisha - Catalog Finder",
   "short_name": "ArtByTisha",
   "description": "Jewelry Catalog & Product Finder",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#fdf5f6",
-  "theme_color": "#d88fa0",
+  "background_color": "#121212",
+  "theme_color": "#121212",
   "orientation": "portrait",
   "icons": [
     {
