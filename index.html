@@ -122,19 +122,14 @@
         .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); font-weight: 600; }
         body.dark-mode .chip.active { background: var(--primary-dark); color: #121212; border-color: var(--primary-dark); }
 
-        /* Special New Launch chip */
         .chip.chip-new {
             background: linear-gradient(135deg, #fff5f7, #f0fff4);
-            border: 1px solid #c97a8d;
-            color: var(--primary-dark);
-            font-weight: 700;
+            border: 1px solid #c97a8d; color: var(--primary-dark); font-weight: 700;
             box-shadow: 0 0 0 1px rgba(201,122,141,.2), 0 4px 14px rgba(201,122,141,.25);
             animation: newPulse 2.4s ease-in-out infinite;
         }
         body.dark-mode .chip.chip-new {
-            background: linear-gradient(135deg, #2a1f24, #1a2a22);
-            color: #e8a0b0;
-            border-color: #e8a0b0;
+            background: linear-gradient(135deg, #2a1f24, #1a2a22); color: #e8a0b0; border-color: #e8a0b0;
         }
         .chip.chip-new.active {
             background: linear-gradient(135deg, #c97a8d, #27ae60);
@@ -162,16 +157,10 @@
         }
         body.dark-mode .cache-note { background: #2a2618; color: #e6d89a; border-color: #4a4220; }
 
-        /* New Launch spotlight strip */
         .new-launch-spotlight {
-            display: none;
-            margin: 4px 15px 8px;
-            padding: 14px 16px;
-            border-radius: 14px;
+            display: none; margin: 4px 15px 8px; padding: 14px 16px; border-radius: 14px;
             background: linear-gradient(135deg, rgba(216,143,160,.2), rgba(39,174,96,.12));
-            border: 1px solid rgba(216,143,160,.4);
-            cursor: pointer;
-            box-shadow: 0 6px 18px var(--shadow);
+            border: 1px solid rgba(216,143,160,.4); cursor: pointer; box-shadow: 0 6px 18px var(--shadow);
             transition: transform .2s ease, box-shadow .2s ease;
         }
         .new-launch-spotlight:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.12); }
@@ -183,8 +172,7 @@
         .new-launch-spotlight .nl-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .new-launch-spotlight .nl-emoji {
             width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center; font-size: 22px;
-            background: rgba(255,255,255,.7);
+            display: flex; align-items: center; justify-content: center; font-size: 22px; background: rgba(255,255,255,.7);
         }
         body.dark-mode .new-launch-spotlight .nl-emoji { background: rgba(255,255,255,.08); }
         .new-launch-spotlight strong { display: block; font-size: 14px; color: var(--primary-dark); font-weight: 800; }
@@ -201,16 +189,11 @@
         }
         .section-header .line { flex: 1; height: 1px; background: var(--border-color); min-width: 20px; }
         .section-header .count { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: none; letter-spacing: 0; }
-        .section-header .sort-wrap {
-            display: flex; align-items: center; gap: 6px; margin-left: auto; flex-shrink: 0;
-        }
-        .section-header .sort-wrap label {
-            font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: none; letter-spacing: 0;
-        }
+        .section-header .sort-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; flex-shrink: 0; }
+        .section-header .sort-wrap label { font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: none; letter-spacing: 0; }
         .sort-select {
-            font-family: inherit; font-size: 11px; font-weight: 600;
-            padding: 5px 8px; border-radius: 8px; border: 1px solid var(--border-color);
-            background: var(--input-bg); color: var(--text-main); cursor: pointer; max-width: 140px;
+            font-family: inherit; font-size: 11px; font-weight: 600; padding: 5px 8px; border-radius: 8px;
+            border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); cursor: pointer; max-width: 140px;
         }
 
         .carousel-viewport {
@@ -226,7 +209,6 @@
             scroll-snap-align: start; scroll-snap-stop: always; touch-action: manipulation;
         }
 
-        /* New launch carousel accent */
         #newLaunchSection .section-header { color: #27ae60; }
         body.dark-mode #newLaunchSection .section-header { color: #5dde8a; }
 
@@ -307,7 +289,7 @@
             padding-bottom: 5px; scroll-snap-type: x mandatory;
         }
         .thumb-row::-webkit-scrollbar { display: none; }
-        .modal-thumb { flex-shrink: 0; width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; scroll-snap-align: start; }
+        .modal-thumb { flex-shrink: 0; width: 60px; height: 60px; object-fit: cover; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; scroll-snap-align: start; transition: .2s; }
         .modal-thumb.active { border-color: var(--primary); }
         .modal-cat { font-size: 12px; color: var(--primary); font-weight: bold; text-transform: uppercase; margin: 0 0 5px; }
         .modal-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 600; color: var(--text-main); margin: 0 0 5px; line-height: 1.25; }
@@ -321,6 +303,7 @@
         body.dark-mode .modal-discount-pill { background: #1a2e22; }
         .modal-save-line { margin: 10px 0 0; font-size: 13px; font-weight: 700; color: #27ae60; }
         .modal-compare-note { margin: 6px 0 0; font-size: 11px; color: var(--text-muted); }
+        
         .price-reason-box {
             margin-top: 14px; padding: 12px 14px; border-radius: 10px;
             background: rgba(39,174,96,.08); border: 1px solid rgba(39,174,96,.25);
@@ -345,6 +328,7 @@
             background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: none;
             padding: 14px 28px; border-radius: 50px; font-size: 15px; font-weight: bold; cursor: pointer; display: none;
         }
+
         .zoom-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,.94); z-index: 2000; display: none;
             align-items: center; justify-content: center; flex-direction: column; animation: fadeIn .25s ease-out;
@@ -415,7 +399,6 @@
         <div class="chip-row" id="chipContainer" role="toolbar" aria-label="Product categories"></div>
     </div>
 
-    <!-- Tap to jump to New Launch — always visible when new items exist -->
     <div class="new-launch-spotlight" id="newLaunchSpotlight" onclick="jumpToNewLaunch()" role="button" tabindex="0"
          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();jumpToNewLaunch();}">
         <div class="nl-row">
@@ -446,9 +429,10 @@
         </div>
     </div>
 
-    <!-- New Launch carousel (home) -->
+    <!-- NEW LAUNCH AUTO-SCROLL CAROUSEL -->
     <div id="newLaunchSection" style="display:none;">
-        <div class="section-header">✨ Just Launched <span class="count" id="newLaunchHeaderCount"></span><span class="line"></span>
+        <div class="section-header">
+            ✨ Just Launched <span class="count" id="newLaunchHeaderCount"></span><span class="line"></span>
             <button type="button" class="chip" style="margin:0;padding:5px 12px;font-size:11px;" onclick="jumpToNewLaunch()">View all</button>
         </div>
         <div class="carousel-viewport" id="newLaunchViewport">
@@ -456,6 +440,7 @@
         </div>
     </div>
 
+    <!-- TOP SELLING AUTO-SCROLL CAROUSEL -->
     <div id="carouselSection" style="display:none;">
         <div class="section-header">🏆 Featured Top Sellers<span class="line"></span></div>
         <div class="carousel-viewport" id="carouselViewport">
@@ -558,7 +543,7 @@ let lastFocusedBeforeModal = null;
 let musicEl = null;
 let musicOn = false;
 let musicFadeTimer = null;
-let currentSort = localStorage.getItem(SORT_PREF_KEY) || "price-asc";
+let currentSort = localStorage.getItem(SORT_PREF_KEY) || "default";
 
 function getASIN(p) {
     if (!p) return "";
@@ -736,9 +721,7 @@ function cleanImageUrl(url, size) {
     if (m) return `https://lh3.googleusercontent.com/d/${m[1]}=w${size || 600}`;
     return url;
 }
-function hasValidImages(p) {
-    return [1,2,3,4,5].some(i => p[`Image ${i}`] && String(p[`Image ${i}`]).trim().length > 5);
-}
+function hasValidImages(p) { return [1,2,3,4,5].some(i => p[`Image ${i}`] && String(p[`Image ${i}`]).trim().length > 5); }
 function catOf(p) { return (p["Category"] || "").trim().toUpperCase(); }
 function isTopSelling(p) { return catOf(p) === "TOP SELLING"; }
 function isNewLaunch(p) { return catOf(p) === "NEW LAUNCH"; }
@@ -754,27 +737,20 @@ function sortCategoryNames(names) {
     });
 }
 
-/* ---------- SORTING ---------- */
 function sortProducts(list) {
     const arr = [...list];
     switch (currentSort) {
-        case "price-asc":
-            return arr.sort((a, b) => toNumber(a["Selling"]) - toNumber(b["Selling"]));
-        case "price-desc":
-            return arr.sort((a, b) => toNumber(b["Selling"]) - toNumber(a["Selling"]));
-        case "name-asc":
-            return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
-        case "name-desc":
-            return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "price-asc": return arr.sort((a, b) => toNumber(a["Selling"]) - toNumber(b["Selling"]));
+        case "price-desc": return arr.sort((a, b) => toNumber(b["Selling"]) - toNumber(a["Selling"]));
+        case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
         case "default":
-        default:
-            return arr; // sheet / load order
+        default: return arr;
     }
 }
 function onSortChange(val) {
-    currentSort = val || "price-asc";
+    currentSort = val || "default";
     try { localStorage.setItem(SORT_PREF_KEY, currentSort); } catch (e) {}
-    // Keep all dropdowns in sync
     document.querySelectorAll(".sort-select").forEach(s => { s.value = currentSort; });
     applyFilters();
 }
@@ -793,10 +769,7 @@ function makeSortSelect() {
     const sel = wrap.querySelector("select");
     sel.value = currentSort;
     sel.addEventListener("click", e => e.stopPropagation());
-    sel.addEventListener("change", e => {
-        e.stopPropagation();
-        onSortChange(sel.value);
-    });
+    sel.addEventListener("change", e => { e.stopPropagation(); onSortChange(sel.value); });
     return wrap;
 }
 
@@ -930,26 +903,54 @@ function renderSection(container, icon, title, items, badgeEmoji) {
     container.appendChild(grid);
 }
 
+// Global auto-scroller for all visible carousels
 function startInfiniteCarousel() {
-    const vp = document.getElementById("carouselViewport");
-    const tr = document.getElementById("carouselTrack");
     clearInterval(carouselInterval);
-    if (document.hidden || !vp || !tr || tr.children.length < 3) return;
-    if (document.getElementById("carouselSection").style.display === "none") return;
+    if (document.hidden || userTouchingCarousel) return;
+    
     carouselInterval = setInterval(() => {
         if (userTouchingCarousel || document.hidden) return;
-        const step = (tr.children[0]?.getBoundingClientRect().width || carouselItemWidth) + carouselGap;
-        if (vp.scrollLeft + step >= vp.scrollWidth - vp.clientWidth - 2) {
-            vp.style.scrollBehavior = "auto";
-            vp.scrollLeft = 0;
-            requestAnimationFrame(() => {
-                vp.style.scrollBehavior = "smooth";
+        
+        document.querySelectorAll('.carousel-viewport').forEach(vp => {
+            if (vp.offsetParent === null) return; // Skip if hidden
+            const tr = vp.querySelector('.carousel-track');
+            if (!tr || tr.children.length < 3) return;
+            
+            const step = (tr.children[0]?.getBoundingClientRect().width || carouselItemWidth) + carouselGap;
+            if (vp.scrollLeft + step >= vp.scrollWidth - vp.clientWidth - 2) {
+                vp.style.scrollBehavior = "auto";
+                vp.scrollLeft = 0;
+                requestAnimationFrame(() => {
+                    vp.style.scrollBehavior = "smooth";
+                    vp.scrollBy({ left: step, behavior: "smooth" });
+                });
+            } else {
                 vp.scrollBy({ left: step, behavior: "smooth" });
-            });
-            return;
-        }
-        vp.scrollBy({ left: step, behavior: "smooth" });
+            }
+        });
     }, CAROUSEL_SPEED);
+}
+
+function renderNewLaunchCarousel() {
+    const items = products.filter(isNewLaunch);
+    const section = document.getElementById("newLaunchSection");
+    const tr = document.getElementById("newLaunchTrack");
+    const vp = document.getElementById("newLaunchViewport");
+    const countEl = document.getElementById("newLaunchHeaderCount");
+    tr.innerHTML = "";
+    if (!items.length) { section.style.display = "none"; return; }
+    section.style.display = "block";
+    if (countEl) countEl.textContent = `(${items.length})`;
+    updateCarouselMetrics();
+    
+    // Duplicate to allow infinite scrolling
+    const loopItems = items.length > 2 ? [...items, ...items] : [...items];
+    loopItems.forEach(item => tr.appendChild(createCard(item, "✨", true)));
+    
+    requestAnimationFrame(() => {
+        vp.scrollLeft = 0;
+        if (items.length > 2) startInfiniteCarousel();
+    });
 }
 
 function renderTopCarousel() {
@@ -957,33 +958,18 @@ function renderTopCarousel() {
     const section = document.getElementById("carouselSection");
     const tr = document.getElementById("carouselTrack");
     const vp = document.getElementById("carouselViewport");
-    clearInterval(carouselInterval);
     tr.innerHTML = "";
     if (!topItems.length) { section.style.display = "none"; return; }
     section.style.display = "block";
     updateCarouselMetrics();
+    
     const loopItems = topItems.length > 2 ? [...topItems, ...topItems] : [...topItems];
     loopItems.forEach(item => tr.appendChild(createCard(item, "⭐", true)));
+    
     requestAnimationFrame(() => {
-        updateCarouselMetrics();
         vp.scrollLeft = 0;
         if (topItems.length > 2) startInfiniteCarousel();
     });
-}
-
-function renderNewLaunchCarousel() {
-    const items = products.filter(isNewLaunch);
-    const section = document.getElementById("newLaunchSection");
-    const tr = document.getElementById("newLaunchTrack");
-    const countEl = document.getElementById("newLaunchHeaderCount");
-    tr.innerHTML = "";
-    if (!items.length) { section.style.display = "none"; return; }
-    section.style.display = "block";
-    if (countEl) countEl.textContent = `(${items.length})`;
-    updateCarouselMetrics();
-    // Show unique items in carousel (no need to loop forever for new)
-    const show = items.length > 6 ? items.slice(0, 12) : items;
-    show.forEach(item => tr.appendChild(createCard(item, "✨", true)));
 }
 
 function applyFilters() {
@@ -1001,7 +987,6 @@ function applyFilters() {
         clearInterval(carouselInterval);
     }
 
-    // Hide spotlight when already on New Launch filter (less clutter)
     const spot = document.getElementById("newLaunchSpotlight");
     if (spot) {
         const n = products.filter(isNewLaunch).length;
@@ -1028,7 +1013,6 @@ function applyFilters() {
     if (activeCategory === "ALL") {
         const groups = {};
         filtered.forEach(p => {
-            // On home without search: skip special cats in main grid (they're in carousels)
             if (!query && (isTopSelling(p) || isNewLaunch(p))) return;
             const cat = (p["Category"] || "").trim() || "Other";
             if (!groups[cat]) groups[cat] = [];
@@ -1046,10 +1030,7 @@ function applyFilters() {
             renderSection(grid, icon, cat, groups[cat], "✨");
         });
     } else {
-        const title =
-            activeCategory === "TOP_SELLING" ? "Top Selling" :
-            activeCategory === "NEW_LAUNCH" ? "New Launch" :
-            activeCategory;
+        const title = activeCategory === "TOP_SELLING" ? "Top Selling" : activeCategory === "NEW_LAUNCH" ? "New Launch" : activeCategory;
         const icon = activeCategory === "NEW_LAUNCH" ? "✨" : "📂";
         renderSection(grid, icon, title, filtered, "✨");
     }
@@ -1217,7 +1198,10 @@ document.addEventListener("visibilitychange", () => {
         clearInterval(carouselInterval);
         if (musicOn && musicEl) try { musicEl.pause(); } catch (e) {}
     } else {
-        if (document.getElementById("carouselSection").style.display !== "none") startInfiniteCarousel();
+        if (document.getElementById("carouselSection").style.display !== "none" || 
+            document.getElementById("newLaunchSection").style.display !== "none") {
+            startInfiniteCarousel();
+        }
         if (musicOn && musicEl) musicEl.play().catch(() => {});
     }
 });
@@ -1227,18 +1211,23 @@ document.getElementById("searchInput").addEventListener("input", () => {
     searchTimer = setTimeout(applyFilters, 200);
 });
 
-const vpEl = document.getElementById("carouselViewport");
-["touchstart", "mousedown"].forEach(evt => {
-    vpEl.addEventListener(evt, () => { userTouchingCarousel = true; clearInterval(carouselInterval); }, { passive: true });
-});
-["touchend", "mouseup", "mouseleave", "touchcancel"].forEach(evt => {
-    vpEl.addEventListener(evt, () => {
-        userTouchingCarousel = false;
-        if (document.getElementById("carouselSection").style.display !== "none" && products.filter(isTopSelling).length > 2) {
-            setTimeout(startInfiniteCarousel, 600);
-        }
-    }, { passive: true });
-});
+// Bind touch/mouse pause events to ALL active carousels dynamically
+function bindCarouselEvents() {
+    document.querySelectorAll(".carousel-viewport").forEach(vpEl => {
+        if (vpEl.dataset.eventsBound) return; // Prevent double binding
+        ["touchstart", "mousedown"].forEach(evt => {
+            vpEl.addEventListener(evt, () => { userTouchingCarousel = true; clearInterval(carouselInterval); }, { passive: true });
+        });
+        ["touchend", "mouseup", "mouseleave", "touchcancel"].forEach(evt => {
+            vpEl.addEventListener(evt, () => {
+                userTouchingCarousel = false;
+                setTimeout(startInfiniteCarousel, 600);
+            }, { passive: true });
+        });
+        vpEl.dataset.eventsBound = "true";
+    });
+}
+
 window.addEventListener("resize", updateCarouselMetrics);
 
 function saveProductCache(list) {
@@ -1265,6 +1254,7 @@ function renderCatalog(fromCache) {
     document.getElementById("cacheNote").style.display = fromCache ? "block" : "none";
     populateCategories();
     applyFilters();
+    bindCarouselEvents();
 }
 async function loadCatalog(isRetry) {
     if (isRetry) {
