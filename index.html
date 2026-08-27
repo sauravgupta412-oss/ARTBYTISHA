@@ -29,7 +29,6 @@
             --input-bg: #ffffff;
             --shadow: rgba(0,0,0,0.04);
             --focus: #b87383;
-            
             --carousel-pad: 15px;
             --carousel-gap: 15px;
             --carousel-cols: 2;
@@ -53,7 +52,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-color); color: var(--text-main);
-            margin: 0; padding: 0;
+            margin: 0; padding: 0 0 80px;
             transition: background-color .3s, color .3s;
         }
         body.modal-open, body.zoom-open { overflow: hidden; }
@@ -62,41 +61,63 @@
         button:focus:not(:focus-visible), a:focus:not(:focus-visible), select:focus:not(:focus-visible) { outline: none; }
         a { text-decoration: none; color: inherit; }
 
-        .store-container { width: 100%; max-width: 1400px; margin: 0 auto; min-height: 100vh; padding-bottom: 40px; }
+        .store-container { width: 100%; max-width: 1400px; margin: 0 auto; min-height: 100vh; padding-bottom: 20px; }
 
-        /* --- Minimal Top Bar --- */
+        /* --- Top Bar (theme-aware) --- */
         #topBanner {
-            background: var(--text-main); color: var(--bg-color);
+            background: #2c2c2c;
+            color: #ffffff;
             padding: 8px 15px; display: flex; justify-content: space-between; align-items: center;
             font-size: 11px; font-weight: 500; letter-spacing: 0.5px; z-index: 102;
         }
-        body.dark-mode #topBanner { background: #000; border-bottom: 1px solid #222; }
-        #topBanner .banner-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .banner-actions { display: flex; align-items: center; gap: 10px; }
-        .banner-btn {
-            background: none; border: none; color: var(--bg-color);
-            font-size: 11px; font-weight: 600; cursor: pointer; padding: 0;
-            text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; transition: opacity 0.2s;
+        body.dark-mode #topBanner {
+            background: #000000;
+            color: #ffffff;
+            border-bottom: 1px solid #2a2a2a;
         }
-        .banner-btn:hover { opacity: 1; }
-        #musicToggleBtn.playing { opacity: 1; color: var(--primary); }
+        #topBanner .banner-text {
+            flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            color: #ffffff;
+        }
+        .banner-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .banner-btn {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #ffffff !important;
+            font-size: 11px; font-weight: 600; cursor: pointer;
+            padding: 4px 10px; border-radius: 20px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            font-family: inherit; line-height: 1.3;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .banner-btn:hover { background: rgba(255,255,255,0.22); }
+        body.dark-mode .banner-btn {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+            color: #ffffff !important;
+        }
+        #musicToggleBtn.playing {
+            background: rgba(216,143,160,0.35);
+            border-color: var(--primary);
+            color: #ffffff !important;
+        }
 
-        /* --- Premium Header --- */
+        /* --- Header --- */
         .main-nav-wrapper { background: var(--card-bg); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 101; }
         .nav-inner { padding: 15px; display: flex; flex-direction: column; gap: 15px; max-width: 1400px; margin: 0 auto; }
         #brandHeader { display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; gap: 10px; }
-        .header-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: contain; border: 1px solid var(--border-color); }
+        .header-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: contain; border: 1px solid var(--border-color); background: #fff; }
         .header-title { font-family: 'Fraunces', serif; color: var(--text-main); margin: 0; font-size: 22px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; }
+        .header-tagline { color: var(--text-muted); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; }
         
         .search-wrapper { position: relative; width: 100%; }
-        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); fill: none; stroke: var(--text-muted); stroke-width: 1.5; width: 16px; height: 16px; }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); fill: none; stroke: var(--text-muted); stroke-width: 1.5; width: 16px; height: 16px; pointer-events: none; }
         .search-input {
             width: 100%; padding: 12px 14px 12px 40px; border: 1px solid var(--border-color); border-radius: 4px;
             outline: none; font-size: 14px; background: var(--bg-color); color: var(--text-main); font-family: inherit;
         }
         .search-input:focus { border-color: var(--text-main); }
 
-        /* --- Hero Section --- */
         .hero-section {
             text-align: center; padding: 40px 20px;
             background: linear-gradient(to bottom, var(--card-bg), var(--bg-color));
@@ -105,47 +126,42 @@
         .hero-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 300; margin: 0 0 10px; color: var(--text-main); letter-spacing: 1px; }
         .hero-subtitle { font-size: 13px; color: var(--text-muted); max-width: 500px; margin: 0 auto; line-height: 1.6; font-weight: 300; }
 
-        /* --- Categories --- */
         .controls-container { padding: 0 15px; max-width: 1400px; margin: 0 auto 15px; }
         .chip-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
         .chip-row::-webkit-scrollbar { display: none; }
         .chip {
             padding: 8px 18px; border: 1px solid var(--border-color); border-radius: 30px; background: var(--card-bg);
             color: var(--text-muted); font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: .2s;
+            font-family: inherit;
         }
         .chip.active { background: var(--text-main); color: var(--card-bg); border-color: var(--text-main); }
         .chip.chip-new { border-color: var(--primary-dark); color: var(--primary-dark); }
         .chip.chip-new.active { background: var(--primary-dark); color: #fff; }
 
-        /* --- Sections & Sorting --- */
         .section-header {
             padding: 20px 15px 15px; font-family: 'Fraunces', serif; font-size: 18px; font-weight: 400;
-            color: var(--text-main); display: flex; align-items: center; justify-content: space-between;
+            color: var(--text-main); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
         }
         .section-header .count { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-muted); font-weight: 400; margin-left: 6px; }
-        
         .sort-select {
             font-family: inherit; font-size: 11px; font-weight: 400; padding: 6px 10px; border-radius: 4px;
             border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); cursor: pointer;
         }
 
-        /* --- Carousels --- */
-        .carousel-viewport { width: 100%; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-padding-inline: var(--carousel-pad); scrollbar-width: none; }
+        .carousel-viewport { width: 100%; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-padding-inline: var(--carousel-pad); scrollbar-width: none; cursor: grab; }
+        .carousel-viewport:active { cursor: grabbing; }
         .carousel-viewport::-webkit-scrollbar { display: none; }
         .carousel-track { display: flex; gap: var(--carousel-gap); padding: 5px var(--carousel-pad) 20px; width: max-content; min-width: 100%; }
         .carousel-track .product-card { flex: 0 0 var(--carousel-item-width); width: var(--carousel-item-width); scroll-snap-align: start; }
 
-        /* --- Product Cards --- */
         .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; padding: 0 15px 20px; }
         .product-card {
             background: var(--card-bg); overflow: hidden; cursor: pointer; display: flex; flex-direction: column;
             border: 1px solid transparent; transition: border-color .3s;
         }
         .product-card:hover { border-color: var(--border-color); }
-        .card-img-wrapper { width: 100%; aspect-ratio: 1/1; background: var(--bg-color); position: relative; }
+        .card-img-wrapper { width: 100%; aspect-ratio: 1/1; background: var(--bg-color); position: relative; overflow: hidden; }
         .card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        
-        /* Elegant Badges */
         .card-badge, .card-new-badge {
             position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.9);
             color: #111; font-size: 9px; font-weight: 600; padding: 4px 8px; letter-spacing: 0.5px;
@@ -153,7 +169,6 @@
         }
         body.dark-mode .card-badge, body.dark-mode .card-new-badge { background: rgba(0,0,0,0.7); color: #fff; }
         .card-badge + .card-new-badge { top: 34px; }
-        
         .card-info { padding: 12px 4px; text-align: center; display: flex; flex-direction: column; flex: 1; }
         .card-title {
             font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-main); margin: 0 0 6px; font-weight: 400;
@@ -163,7 +178,6 @@
         .card-price { font-size: 14px; color: var(--text-main); font-weight: 500; margin: 0; }
         .card-mrp { font-size: 12px; color: var(--text-muted); text-decoration: line-through; margin: 0; font-weight: 300; }
 
-        /* --- Skeletons --- */
         .skeleton-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; padding: 15px; }
         .skeleton-card { background: var(--card-bg); padding-bottom: 15px; }
         .skeleton-img { width: 100%; aspect-ratio: 1/1; background: var(--border-color); animation: shimmer 1.5s infinite linear; }
@@ -171,7 +185,6 @@
         @keyframes shimmer { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
         .error-box { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 14px; }
 
-        /* --- Premium Modal --- */
         .modal {
             position: fixed; inset: 0; background: var(--card-bg); z-index: 1000;
             display: none; flex-direction: column; animation: slideUp .3s ease-out; overflow-y: auto;
@@ -185,53 +198,56 @@
         .modal-content { padding: 20px; padding-bottom: 100px; }
         .modal-img-wrapper { position: relative; margin-bottom: 20px; touch-action: pan-y; background: var(--bg-color); }
         .modal-img { display: block; width: 100%; height: min(55vh, 450px); object-fit: contain; cursor: zoom-in; }
-        
         .thumb-row { display: flex; gap: 10px; margin-bottom: 30px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
         .thumb-row::-webkit-scrollbar { display: none; }
         .modal-thumb { flex-shrink: 0; width: 60px; height: 60px; object-fit: cover; border: 1px solid transparent; cursor: pointer; opacity: 0.6; transition: .2s; }
         .modal-thumb.active { border-color: var(--text-main); opacity: 1; }
-
         .modal-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 400; color: var(--text-main); margin: 0 0 15px; line-height: 1.3; }
         .modal-price-box { border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 20px 0; margin-bottom: 25px; }
         .modal-price-row { display: flex; align-items: baseline; gap: 12px; }
         .modal-price { font-size: 22px; color: var(--text-main); font-weight: 500; margin: 0; }
         .modal-mrp { font-size: 15px; color: var(--text-muted); text-decoration: line-through; }
-        
-        /* Premium Value Box (Replaces "Why Affordable") */
         .premium-promise { margin-top: 20px; padding: 15px; background: var(--bg-color); border-radius: 4px; }
         .premium-promise h4 { margin: 0 0 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main); }
         .premium-promise ul { margin: 0; padding-left: 16px; color: var(--text-muted); font-size: 13px; line-height: 1.8; font-weight: 300; }
 
-        /* Premium WhatsApp CTA */
         .whatsapp-btn {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 400px;
             background: var(--text-main); color: var(--card-bg); border: none; padding: 16px; border-radius: 4px; font-size: 14px;
             font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 10px; text-decoration: none; z-index: 1001;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15); letter-spacing: 0.5px; transition: transform 0.2s;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); letter-spacing: 0.5px; font-family: inherit;
         }
-        .whatsapp-btn:active { transform: translateX(-50%) scale(0.98); }
 
-        /* --- Footer --- */
+        /* Install App CTA */
+        #installBtn {
+            position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 998;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff; border: none; padding: 14px 28px; border-radius: 50px;
+            font-size: 14px; font-weight: 600; cursor: pointer; display: none;
+            box-shadow: 0 8px 24px rgba(201,122,141,0.35); font-family: inherit;
+            letter-spacing: 0.3px;
+        }
+        body.modal-open #installBtn { display: none !important; }
+
         .site-footer {
             background: var(--bg-color); border-top: 1px solid var(--border-color);
             padding: 40px 20px; text-align: center; margin-top: 20px;
         }
         .footer-logo { font-family: 'Fraunces', serif; font-size: 20px; color: var(--text-main); letter-spacing: 2px; margin-bottom: 15px; display: block; }
         .footer-links { display: flex; justify-content: center; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
-        .footer-links a { font-size: 12px; color: var(--text-muted); font-weight: 400; transition: color 0.2s; }
+        .footer-links a { font-size: 12px; color: var(--text-muted); font-weight: 400; }
         .footer-links a:hover { color: var(--text-main); }
         .footer-copy { font-size: 11px; color: var(--text-muted); opacity: 0.7; }
 
-        /* --- Zoom Modal --- */
         .zoom-modal { position: fixed; inset: 0; background: rgba(0,0,0,.95); z-index: 2000; display: none; align-items: center; justify-content: center; flex-direction: column; }
         .zoom-close-btn { position: absolute; top: 20px; right: 20px; background: none; color: #fff; border: none; font-size: 30px; font-weight: 300; cursor: pointer; z-index: 2001; }
         .zoom-img-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: auto; }
-        .zoom-img-container img { max-width: 100%; max-height: 90vh; object-fit: contain; cursor: zoom-out; }
+        .zoom-img-container img { max-width: 100%; max-height: 90vh; object-fit: contain; }
 
         @media (min-width: 768px) {
             :root { --carousel-pad: 20px; --carousel-gap: 20px; --carousel-cols: 4; }
             .nav-inner { flex-direction: row; justify-content: space-between; align-items: center; padding: 20px 40px; }
-            #brandHeader { flex-direction: row; gap: 15px; }
+            #brandHeader { flex-direction: row; gap: 15px; text-align: left; }
             .header-title { font-size: 26px; }
             .search-wrapper { max-width: 350px; }
             .hero-section { padding: 60px 40px; }
@@ -244,7 +260,6 @@
             .modal-img { height: 600px; border: 1px solid var(--border-color); }
             .modal-title { font-size: 32px; }
             .whatsapp-btn { position: relative; left: auto; bottom: auto; transform: none; width: 100%; margin-top: 30px; box-shadow: none; }
-            .whatsapp-btn:active { transform: scale(0.98); }
         }
     </style>
 </head>
@@ -254,14 +269,15 @@
     <div id="topBanner">
         <span class="banner-text">Free shipping on orders above ₹499</span>
         <div class="banner-actions">
-            <button id="musicToggleBtn" class="banner-btn" type="button" onclick="toggleMusic()" aria-pressed="false">Music</button>
+            <button id="musicToggleBtn" class="banner-btn" type="button" onclick="toggleMusic()" aria-pressed="false" title="Background music">Music</button>
             <button id="themeToggleBtn" class="banner-btn" type="button" onclick="toggleTheme()">Dark</button>
         </div>
     </div>
 
     <div class="main-nav-wrapper">
         <div class="nav-inner">
-            <header id="brandHeader" onclick="goHome()">
+            <header id="brandHeader" onclick="goHome()" role="button" tabindex="0" aria-label="Home"
+                    onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goHome();}">
                 <img src="logo.png" alt="Art By Tisha" class="header-logo" onerror="this.style.display='none'">
                 <div class="brand-text">
                     <h1 class="header-title">Art By Tisha</h1>
@@ -269,8 +285,8 @@
                 </div>
             </header>
             <div class="search-wrapper">
-                <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="search" id="searchInput" class="search-input" placeholder="Search our collection..." autocomplete="off">
+                <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" id="searchInput" class="search-input" placeholder="Search our collection..." autocomplete="off" aria-label="Search">
             </div>
         </div>
     </div>
@@ -281,7 +297,7 @@
     </div>
 
     <div class="controls-container">
-        <div class="chip-row" id="chipContainer"></div>
+        <div class="chip-row" id="chipContainer" role="toolbar" aria-label="Categories"></div>
     </div>
 
     <div id="status">
@@ -316,16 +332,16 @@
 <footer class="site-footer" id="siteFooter">
     <span class="footer-logo">ART BY TISHA</span>
     <div class="footer-links">
-        <a href="https://wa.me/918287567099" target="_blank">Contact Us</a>
-        <a href="#" onclick="alert('Shipping Policy: Free shipping on orders over ₹499. Standard delivery 3-5 business days.')">Shipping Policy</a>
-        <a href="#">Instagram</a>
+        <a href="https://wa.me/918287567099" target="_blank" rel="noopener">Contact Us</a>
+        <a href="#" onclick="event.preventDefault();alert('Free shipping on orders over ₹499. Standard delivery 3–5 business days.');">Shipping</a>
+        <a href="#" onclick="event.preventDefault();">Instagram</a>
     </div>
     <div class="footer-copy">© 2024 Art By Tisha. All rights reserved.</div>
 </footer>
 
 <div id="productModal" class="modal" role="dialog" aria-modal="true" hidden>
     <div class="modal-header">
-        <button class="back-btn" type="button" onclick="closeModalToHome()">✕</button>
+        <button class="back-btn" type="button" onclick="closeModalToHome()" aria-label="Close">✕</button>
         <span style="font-size: 12px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">Details</span>
         <div style="width:24px;"></div>
     </div>
@@ -338,25 +354,22 @@
         </div>
         <div class="modal-info">
             <h2 id="mTitle" class="modal-title"></h2>
-            
             <div class="modal-price-box">
                 <div class="modal-price-row">
                     <span id="mPrice" class="modal-price"></span>
                     <span id="mMrp" class="modal-mrp"></span>
                 </div>
-                
                 <div class="premium-promise">
                     <h4>The Art By Tisha Promise</h4>
                     <ul>
                         <li>Premium handcrafted quality</li>
                         <li>Direct from studio pricing</li>
-                        <li>Secure packaging & shipping</li>
+                        <li>Secure packaging &amp; shipping</li>
                     </ul>
                 </div>
             </div>
-            
             <a id="mWhatsapp" href="#" class="whatsapp-btn" target="_blank" rel="noopener">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2z"/></svg>
                 Purchase via WhatsApp
             </a>
         </div>
@@ -364,14 +377,17 @@
 </div>
 
 <div id="zoomModal" class="zoom-modal" role="dialog" hidden onclick="dismissZoom()">
-    <button class="zoom-close-btn" type="button" onclick="event.stopPropagation();dismissZoom();">✕</button>
+    <button class="zoom-close-btn" type="button" onclick="event.stopPropagation();dismissZoom();" aria-label="Close">✕</button>
     <div class="zoom-img-container" onclick="event.stopPropagation()">
         <img id="zoomImg" src="" alt="">
     </div>
 </div>
 
-<audio id="bgMusic" loop preload="none">
+<button id="installBtn" type="button" onclick="triggerInstall()">📲 Install App</button>
+
+<audio id="bgMusic" loop preload="auto">
     <source src="krishna-flute.mp3" type="audio/mpeg">
+    <source src="./krishna-flute.mp3" type="audio/mpeg">
     <source src="krishna-flute.mp3.mp3" type="audio/mpeg">
 </audio>
 
@@ -383,7 +399,7 @@ const PRODUCT_CACHE_KEY = "abt_products_cache_v4";
 const SORT_PREF_KEY = "abt_sort_pref_v2";
 const CAROUSEL_SPEED = 3000;
 const CATEGORY_ORDER = ["NEW LAUNCH","TOP SELLING","NECKLACE","NECKLACES","RINGS","RING","BRACELETS","BRACELET","BANGLES","BANGLE","EARRINGS","EARRING"];
-const MUSIC_VOLUME = 0.15;
+const MUSIC_VOLUME = 0.20;
 const MUSIC_PREF_KEY = "abt_music_pref_v2";
 const SPECIAL_CATS = new Set(["TOP SELLING", "NEW LAUNCH"]);
 
@@ -396,14 +412,16 @@ let userTouchingCarousel = false;
 let savedScrollPosition = 0;
 let carouselItemWidth = 0;
 let carouselGap = 15;
+let deferredPrompt = null;
 let activeCategory = "ALL";
 let searchTimer = null;
+let lastFocusedBeforeModal = null;
 let musicEl = null;
 let musicOn = false;
 let musicFadeTimer = null;
+let musicUnlocked = false;
 let currentSort = localStorage.getItem(SORT_PREF_KEY) || "default";
 
-// KEEP ASIN extraction for internal WhatsApp message only
 function getASIN(p) {
     if (!p) return "";
     return String(p["Amazon ASIN Code"] || p["Amazon ASIN code"] || p["ASIN Code"] || p["ASIN"] || p["SKU Code"] || p["SKU"] || "").trim();
@@ -429,7 +447,10 @@ function parseCSV(text) {
 
 function initTheme() {
     let saved = localStorage.getItem("tisha_theme");
-    if (!saved) { saved = "light"; localStorage.setItem("tisha_theme", "light"); }
+    if (!saved) {
+        saved = "light";
+        localStorage.setItem("tisha_theme", "light");
+    }
     const useDark = saved === "dark";
     document.body.classList.toggle("dark-mode", useDark);
     document.getElementById("themeToggleBtn").innerText = useDark ? "Light" : "Dark";
@@ -443,65 +464,106 @@ function toggleTheme() {
     document.getElementById("themeColorMeta").setAttribute("content", isDark ? "#121212" : "#ffffff");
 }
 
+/* ===== MUSIC (fixed) ===== */
 function initMusic() {
     musicEl = document.getElementById("bgMusic");
     if (!musicEl) return;
+    musicEl.loop = true;
     musicEl.volume = 0;
+    musicEl.preload = "auto";
+
+    // Unlock audio context on first user gesture (required by browsers)
+    const unlock = () => {
+        musicUnlocked = true;
+        if (musicEl && musicEl.paused) {
+            musicEl.play().then(() => {
+                musicEl.pause();
+                musicEl.currentTime = 0;
+            }).catch(() => {});
+        }
+        document.removeEventListener("touchstart", unlock);
+        document.removeEventListener("click", unlock);
+    };
+    document.addEventListener("touchstart", unlock, { passive: true, once: true });
+    document.addEventListener("click", unlock, { passive: true, once: true });
+
     updateMusicUI();
 }
 function updateMusicUI() {
     const btn = document.getElementById("musicToggleBtn");
     if (!btn) return;
+    btn.textContent = musicOn ? "Pause" : "Music";
     btn.classList.toggle("playing", musicOn);
+    btn.setAttribute("aria-pressed", musicOn ? "true" : "false");
+    btn.title = musicOn ? "Pause music" : "Play soft background music";
 }
-function fadeMusicTo(target) {
+function fadeMusicTo(target, onDone) {
     if (!musicEl) return;
     clearInterval(musicFadeTimer);
-    const step = 0.02;
+    const step = 0.025;
     musicFadeTimer = setInterval(() => {
         const v = musicEl.volume;
         if (Math.abs(v - target) <= step) {
             musicEl.volume = target;
             clearInterval(musicFadeTimer);
-            if (target === 0) musicEl.pause();
+            if (onDone) onDone();
             return;
         }
         musicEl.volume = Math.min(1, Math.max(0, v + (target > v ? step : -step)));
-    }, 60);
+    }, 50);
 }
-async function playMusic() {
-    if (!musicEl) return;
+async function playMusic(fromUser) {
+    if (!musicEl) return false;
     try {
+        musicUnlocked = true;
         musicEl.volume = 0;
-        const p = musicEl.play();
-        if (p !== undefined) await p;
+        await musicEl.play();
         musicOn = true;
         fadeMusicTo(MUSIC_VOLUME);
         updateMusicUI();
+        return true;
     } catch (e) {
-        musicOn = false; updateMusicUI();
+        musicOn = false;
+        updateMusicUI();
+        if (fromUser) {
+            console.warn("Music play failed:", e.name, e.message);
+            // Soft tip — no blocking alert spam
+            const btn = document.getElementById("musicToggleBtn");
+            if (btn) {
+                const old = btn.textContent;
+                btn.textContent = "Tap again";
+                setTimeout(() => updateMusicUI(), 1200);
+            }
+        }
+        return false;
     }
+}
+function pauseMusic() {
+    if (!musicEl) return;
+    musicOn = false;
+    updateMusicUI();
+    fadeMusicTo(0, () => { try { musicEl.pause(); } catch (e) {} });
 }
 function toggleMusic() {
     if (musicOn) {
         localStorage.setItem(MUSIC_PREF_KEY, "off");
-        musicOn = false; updateMusicUI(); fadeMusicTo(0);
+        pauseMusic();
     } else {
         localStorage.setItem(MUSIC_PREF_KEY, "on");
-        playMusic();
+        playMusic(true);
     }
 }
 function maybeStartMusicOnProductOpen() {
     if (!musicEl || musicOn) return;
     if (localStorage.getItem(MUSIC_PREF_KEY) === "off") return;
-    playMusic();
+    playMusic(false);
 }
 
 function toNumber(v) { return parseFloat(String(v == null ? "" : v).replace(/[^\d.]/g, "")) || 0; }
 function inr(n) { return "₹" + Math.round(n).toLocaleString("en-IN"); }
 function calcPricing(sellingValue, mrpValue) {
     const selling = toNumber(sellingValue);
-    const mrp = toNumber(mrpValue); // Assuming Column M is now just standard MRP, not Amazon price
+    const mrp = toNumber(mrpValue);
     return {
         selling, mrp,
         sellingText: inr(selling),
@@ -538,7 +600,7 @@ function sortProducts(list) {
         case "price-desc": return arr.sort((a, b) => toNumber(b["Selling"]) - toNumber(a["Selling"]));
         case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
         case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
-        case "default": default: return arr;
+        default: return arr;
     }
 }
 function onSortChange(val) {
@@ -550,6 +612,7 @@ function onSortChange(val) {
 function makeSortSelect() {
     const sel = document.createElement("select");
     sel.className = "sort-select";
+    sel.setAttribute("aria-label", "Sort");
     sel.innerHTML = `
         <option value="default">Default Sort</option>
         <option value="price-asc">Price: Low to High</option>
@@ -585,19 +648,14 @@ function populateCategories() {
     container.appendChild(makeChip("All", "ALL", true));
     if (hasNew) container.appendChild(makeChip("New Collection", "NEW_LAUNCH", false, "chip-new"));
     container.appendChild(makeChip("Bestsellers", "TOP_SELLING", false));
-    sortCategoryNames([...cats]).forEach(cat => {
-        container.appendChild(makeChip(cat, cat.toUpperCase(), false));
-    });
+    sortCategoryNames([...cats]).forEach(cat => container.appendChild(makeChip(cat, cat.toUpperCase(), false)));
 }
 function selectCategory(catVal, clickedChip) {
     activeCategory = catVal;
     document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c === clickedChip));
     if (clickedChip) clickedChip.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-    
-    // Manage hero section visibility based on filter
     const hero = document.getElementById("heroSection");
     if (hero) hero.style.display = (catVal === "ALL" && !document.getElementById("searchInput").value) ? "block" : "none";
-    
     applyFilters();
 }
 function forceNewLaunchFilter() {
@@ -621,19 +679,15 @@ function updateCarouselMetrics() {
     document.documentElement.style.setProperty("--carousel-item-width", carouselItemWidth + "px");
 }
 
-function createCard(item, badgeText, eagerLoad) {
-    // We assume column M (formerly Amazon Price) is now just an MRP for visual strikethrough if you want it.
-    // If not, calcPricing handles it gracefully.
-    const pricing = calcPricing(item["Selling"], item["Amazon Price"] || item["MRP"]); 
+function createCard(item, eagerLoad) {
+    const pricing = calcPricing(item["Selling"], item["Amazon Price"] || item["MRP"]);
     const url = cleanImageUrl(item["Image 1"], 600);
     const card = document.createElement("article");
     card.className = "product-card";
     card.onclick = () => openModal(item._id);
-    
     let badgeHtml = "";
     if (isNewLaunch(item)) badgeHtml = `<div class="card-new-badge">NEW</div>`;
     else if (isTopSelling(item)) badgeHtml = `<div class="card-badge">BESTSELLER</div>`;
-    
     card.innerHTML = `
         <div class="card-img-wrapper">
             ${badgeHtml}
@@ -649,17 +703,16 @@ function createCard(item, badgeText, eagerLoad) {
     return card;
 }
 
-function renderSection(container, title, items, badgeText) {
+function renderSection(container, title, items) {
     if (!items.length) return;
     const sorted = sortProducts(items);
     const header = document.createElement("div");
     header.className = "section-header";
     header.innerHTML = `<div>${title} <span class="count">${sorted.length}</span></div>`;
     header.appendChild(makeSortSelect());
-    
     const grid = document.createElement("div");
     grid.className = "grid";
-    sorted.forEach((item, i) => grid.appendChild(createCard(item, badgeText, i < 4)));
+    sorted.forEach((item, i) => grid.appendChild(createCard(item, i < 4)));
     container.appendChild(header);
     container.appendChild(grid);
 }
@@ -667,15 +720,12 @@ function renderSection(container, title, items, badgeText) {
 function startInfiniteCarousel() {
     clearInterval(carouselInterval);
     if (document.hidden || userTouchingCarousel) return;
-    
     carouselInterval = setInterval(() => {
         if (userTouchingCarousel || document.hidden) return;
-        
-        document.querySelectorAll('.carousel-viewport').forEach(vp => {
-            if (vp.offsetParent === null) return; 
-            const tr = vp.querySelector('.carousel-track');
+        document.querySelectorAll(".carousel-viewport").forEach(vp => {
+            if (vp.offsetParent === null) return;
+            const tr = vp.querySelector(".carousel-track");
             if (!tr || tr.children.length < 3) return;
-            
             const step = (tr.children[0]?.getBoundingClientRect().width || carouselItemWidth) + carouselGap;
             if (vp.scrollLeft + step >= vp.scrollWidth - vp.clientWidth - 2) {
                 vp.style.scrollBehavior = "auto";
@@ -700,10 +750,8 @@ function renderTopCarousel() {
     if (!topItems.length) { section.style.display = "none"; return; }
     section.style.display = "block";
     updateCarouselMetrics();
-    
     const loopItems = topItems.length > 2 ? [...topItems, ...topItems] : [...topItems];
-    loopItems.forEach(item => tr.appendChild(createCard(item, "Bestseller", true)));
-    
+    loopItems.forEach(item => tr.appendChild(createCard(item, true)));
     requestAnimationFrame(() => {
         vp.scrollLeft = 0;
         if (topItems.length > 2) startInfiniteCarousel();
@@ -719,12 +767,10 @@ function renderNewLaunchCarousel() {
     tr.innerHTML = "";
     if (!items.length) { section.style.display = "none"; return; }
     section.style.display = "block";
-    if (countEl) countEl.textContent = `${items.length}`;
+    if (countEl) countEl.textContent = String(items.length);
     updateCarouselMetrics();
-    
     const loopItems = items.length > 2 ? [...items, ...items] : [...items];
-    loopItems.forEach(item => tr.appendChild(createCard(item, "New", true)));
-    
+    loopItems.forEach(item => tr.appendChild(createCard(item, true)));
     requestAnimationFrame(() => {
         vp.scrollLeft = 0;
         if (items.length > 2) startInfiniteCarousel();
@@ -753,7 +799,7 @@ function applyFilters() {
         const name = (p["Product Name"] || "").toLowerCase();
         const asin = getASIN(p).toLowerCase();
         const cat = catOf(p);
-        const sMatch = !query || name.includes(query) || asin.includes(query); // Keeping internal ASIN search active
+        const sMatch = !query || name.includes(query) || asin.includes(query);
         let cMatch = true;
         if (activeCategory === "TOP_SELLING") cMatch = cat === "TOP SELLING";
         else if (activeCategory === "NEW_LAUNCH") cMatch = cat === "NEW LAUNCH";
@@ -781,16 +827,20 @@ function applyFilters() {
                 if (!groups[cat].includes(p)) groups[cat].push(p);
             });
         }
-        sortCategoryNames(Object.keys(groups)).forEach(cat => renderSection(grid, cat, groups[cat], ""));
+        sortCategoryNames(Object.keys(groups)).forEach(cat => renderSection(grid, cat, groups[cat]));
     } else {
         const title = activeCategory === "TOP_SELLING" ? "Bestsellers" : activeCategory === "NEW_LAUNCH" ? "New Collection" : activeCategory;
-        renderSection(grid, title, filtered, "");
+        renderSection(grid, title, filtered);
     }
 }
+
+function isModalOpen() { return document.getElementById("productModal").style.display === "flex"; }
+function isZoomOpen() { return document.getElementById("zoomModal").style.display === "flex"; }
 
 let touchStartX = 0, touchEndX = 0;
 document.addEventListener("DOMContentLoaded", () => {
     const swipeArea = document.getElementById("swipeArea");
+    if (!swipeArea) return;
     swipeArea.addEventListener("touchstart", e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
     swipeArea.addEventListener("touchend", e => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); }, { passive: true });
 });
@@ -813,26 +863,25 @@ function activateModalImage(idx) {
 function openModal(id) {
     const p = products.find(i => i._id === id);
     if (!p) return;
-    const asin = getASIN(p); // Extracted for WhatsApp only, not displayed in UI
+    const asin = getASIN(p);
     lastFocusedBeforeModal = document.activeElement;
     savedScrollPosition = window.scrollY;
-    
-    // Assuming col M is standard MRP now.
     const price = calcPricing(p["Selling"], p["Amazon Price"] || p["MRP"]);
 
     document.getElementById("mTitle").innerText = p["Product Name"] || "";
     document.getElementById("mPrice").innerText = price.sellingText;
-    
     const mMrp = document.getElementById("mMrp");
     if (price.hasDiscount) {
         mMrp.innerText = price.mrpText;
         mMrp.hidden = false;
     } else {
+        mMrp.innerText = "";
         mMrp.hidden = true;
     }
 
-    // Clean, professional WhatsApp Message
-    const msg = `Hello Art By Tisha,\n\nI would like to purchase the following item:\n\n*${p["Product Name"]}*\nPrice: ${price.sellingText}\nItem Code: ${asin}\n\nLink: ${location.origin}${location.pathname}`;
+    const msg = `Hello Art By Tisha,\n\nI would like to purchase:\n\n*${p["Product Name"]}*\nPrice: ${price.sellingText}` +
+                (asin ? `\nItem Code: ${asin}` : "") +
+                `\n\nLink: ${location.origin}${location.pathname}`;
     document.getElementById("mWhatsapp").href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
 
     modalImages = [1,2,3,4,5].map(i => cleanImageUrl(p[`Image ${i}`], 1200)).filter(u => u && u.length > 5);
@@ -866,11 +915,13 @@ function triggerZoom() {
     const zm = document.getElementById("zoomModal");
     zm.hidden = false;
     zm.style.display = "flex";
+    document.body.classList.add("zoom-open");
 }
 function dismissZoom() {
     const zm = document.getElementById("zoomModal");
     zm.style.display = "none";
     zm.hidden = true;
+    document.body.classList.remove("zoom-open");
 }
 function closeModal() {
     dismissZoom();
@@ -880,6 +931,7 @@ function closeModal() {
     document.body.classList.remove("modal-open");
     clearInterval(rotationInterval);
     window.scrollTo({ top: savedScrollPosition, behavior: "instant" });
+    if (lastFocusedBeforeModal && lastFocusedBeforeModal.focus) lastFocusedBeforeModal.focus();
 }
 function closeModalToHome() {
     closeModal();
@@ -887,16 +939,21 @@ function closeModalToHome() {
 }
 function goHome() {
     dismissZoom();
-    closeModalToHome();
+    if (isModalOpen()) closeModalToHome();
     document.getElementById("searchInput").value = "";
     const firstChip = document.querySelector(".chip");
     if (firstChip) selectCategory("ALL", firstChip);
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" && e.key !== "Esc") return;
+    if (isZoomOpen()) { e.preventDefault(); dismissZoom(); return; }
+    if (isModalOpen()) { e.preventDefault(); closeModalToHome(); }
+});
 window.addEventListener("popstate", () => {
     dismissZoom();
-    closeModal();
+    if (isModalOpen()) closeModal();
 });
 document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
@@ -960,6 +1017,25 @@ async function loadCatalog() {
         renderCatalog();
     } catch (error) {
         document.getElementById("status").innerHTML = `<div class="error-box"><p>Unable to load collections.</p></div>`;
+    }
+}
+
+/* Install App */
+window.addEventListener("beforeinstallprompt", e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const btn = document.getElementById("installBtn");
+    if (btn) btn.style.display = "block";
+});
+function triggerInstall() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.finally(() => {
+            deferredPrompt = null;
+            document.getElementById("installBtn").style.display = "none";
+        });
+    } else {
+        alert("To install: open browser menu → Add to Home Screen / Install app");
     }
 }
 
