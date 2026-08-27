@@ -17,6 +17,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
+    <!-- Google tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BV118QPWD9"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-BV118QPWD9');
+    </script>
+
     <style>
         :root {
             --bg-color: #faf9f8;
@@ -682,6 +691,15 @@ function submitReviewDirectly() {
         }).catch(() => {});
     }
 
+    // Track review submission in Google Analytics
+    if (typeof gtag === "function") {
+        gtag("event", "submit_review", {
+            product_id: currentModalProduct._id,
+            product_name: currentModalProduct["Product Name"],
+            rating: currentSelectedFormRating
+        });
+    }
+
     // Reset Form UI
     nameInput.value = "";
     textInput.value = "";
@@ -766,7 +784,7 @@ function sortProducts(list) {
         case "price-asc": return arr.sort((a, b) => toNumber(a["Selling"]) - toNumber(b["Selling"]));
         case "price-desc": return arr.sort((a, b) => toNumber(b["Selling"]) - toNumber(a["Selling"]));
         case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
-        case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
         case "rating-desc":
             return arr.sort((a, b) => {
                 const ra = getProductRating(a)?.rating || 0;
@@ -829,6 +847,10 @@ function selectCategory(catVal, clickedChip) {
     if (clickedChip) clickedChip.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
     const hero = document.getElementById("heroSection");
     if (hero) hero.style.display = (catVal === "ALL" && !document.getElementById("searchInput").value) ? "block" : "none";
+    // Track category selection in Google Analytics
+    if (typeof gtag === "function") {
+        gtag("event", "select_category", { category_name: catVal });
+    }
     applyFilters();
 }
 function forceNewLaunchFilter() {
@@ -1014,6 +1036,11 @@ function applyFilters() {
         return sMatch && cMatch;
     });
 
+    // Track search event in Google Analytics
+    if (query && typeof gtag === "function") {
+        gtag("event", "search", { search_term: query, results_count: filtered.length });
+    }
+
     if (!filtered.length) {
         grid.innerHTML = `<div class="error-box"><p>No collections found matching your criteria.</p></div>`;
         return;
@@ -1151,7 +1178,39 @@ function openModal(id) {
     document.body.classList.add("modal-open");
     history.pushState({ page: "product" }, "", "#product");
     maybeStartMusicOnProductOpen();
+
+    // Track product view event in Google Analytics
+    if (typeof gtag === "function") {
+        gtag("event", "view_item", {
+            currency: "INR",
+            value: price.selling,
+            items: [{
+                item_id: asin || p._id,
+                item_name: p["Product Name"] || "",
+                item_category: p["Category"] || "",
+                price: price.selling
+            }]
+        });
+    }
 }
+
+// Track WhatsApp purchase clicks in Google Analytics
+document.addEventListener("click", (e) => {
+    const wa = e.target.closest("#mWhatsapp");
+    if (!wa || !currentModalProduct || typeof gtag !== "function") return;
+    const price = calcPricing(currentModalProduct["Selling"], currentModalProduct["Amazon Price"] || currentModalProduct["MRP"]);
+    const asin = getASIN(currentModalProduct);
+    gtag("event", "whatsapp_purchase_click", {
+        currency: "INR",
+        value: price.selling,
+        items: [{
+            item_id: asin || currentModalProduct._id,
+            item_name: currentModalProduct["Product Name"] || "",
+            item_category: currentModalProduct["Category"] || "",
+            price: price.selling
+        }]
+    });
+});
 
 function triggerZoom() {
     const currentSrc = document.getElementById("mImg").src;
@@ -1261,6 +1320,10 @@ async function loadCatalog() {
         if (!next.length) throw new Error("No products");
         products = next;
         renderCatalog();
+        // Track catalog load success in Google Analytics
+        if (typeof gtag === "function") {
+            gtag("event", "catalog_loaded", { product_count: products.length });
+        }
     } catch (error) {
         document.getElementById("status").innerHTML = `<div class="error-box"><p>Unable to load collections.</p></div>`;
     }
@@ -1274,6 +1337,8 @@ function triggerInstall() {
     if (deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.finally(() => { deferredPrompt = null; });
+        // Track PWA install in Google Analytics
+        if (typeof gtag === "function") gtag("event", "install_pwa_prompt");
     } else {
         alert("To install app: Open your browser menu (⋮ or ⬆) → Tap 'Add to Home Screen' or 'Install App'.");
     }
@@ -1289,5 +1354,9 @@ if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 }
 </script>
+
+<!-- GoatCounter Visitor Analytics Tag -->
+<script data-goatcounter="https://artbytisha.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
 </body>
 </html>
