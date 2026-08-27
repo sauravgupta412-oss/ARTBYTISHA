@@ -29,6 +29,7 @@
             --input-bg: #ffffff;
             --shadow: rgba(0,0,0,0.04);
             --focus: #b87383;
+            --star: #c4a35a;
             --carousel-pad: 15px;
             --carousel-gap: 15px;
             --carousel-cols: 2;
@@ -45,6 +46,7 @@
             --input-bg: #222;
             --shadow: rgba(0,0,0,0.4);
             --focus: #e8a0b0;
+            --star: #e0c56e;
         }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -63,46 +65,25 @@
 
         .store-container { width: 100%; max-width: 1400px; margin: 0 auto; min-height: 100vh; }
 
-        /* --- Top Bar (Theme Aware) --- */
         #topBanner {
-            background: #2c2c2c;
-            color: #ffffff;
+            background: #2c2c2c; color: #ffffff;
             padding: 8px 15px; display: flex; justify-content: space-between; align-items: center;
             font-size: 11px; font-weight: 500; letter-spacing: 0.5px; z-index: 102;
         }
-        body.dark-mode #topBanner {
-            background: #000000;
-            color: #ffffff;
-            border-bottom: 1px solid #2a2a2a;
-        }
+        body.dark-mode #topBanner { background: #000; border-bottom: 1px solid #2a2a2a; }
         #topBanner .banner-text {
-            flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            color: #ffffff !important;
+            flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff !important;
         }
         .banner-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         .banner-btn {
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: #ffffff !important;
-            font-size: 11px; font-weight: 600; cursor: pointer;
-            padding: 4px 10px; border-radius: 20px;
-            text-transform: uppercase; letter-spacing: 0.5px;
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+            color: #fff !important; font-size: 11px; font-weight: 600; cursor: pointer;
+            padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
             font-family: inherit; line-height: 1.3;
-            transition: background 0.2s, border-color 0.2s;
         }
         .banner-btn:hover { background: rgba(255,255,255,0.25); }
-        body.dark-mode .banner-btn {
-            background: rgba(255,255,255,0.12);
-            border-color: rgba(255,255,255,0.25);
-            color: #ffffff !important;
-        }
-        #musicToggleBtn.playing {
-            background: rgba(216,143,160,0.4);
-            border-color: var(--primary);
-            color: #ffffff !important;
-        }
+        #musicToggleBtn.playing { background: rgba(216,143,160,0.4); border-color: var(--primary); }
 
-        /* --- Header --- */
         .main-nav-wrapper { background: var(--card-bg); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 101; }
         .nav-inner { padding: 15px; display: flex; flex-direction: column; gap: 15px; max-width: 1400px; margin: 0 auto; }
         #brandHeader { display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; gap: 10px; }
@@ -123,7 +104,7 @@
             background: linear-gradient(to bottom, var(--card-bg), var(--bg-color));
             border-bottom: 1px solid var(--border-color); margin-bottom: 20px;
         }
-        .hero-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 300; margin: 0 0 10px; color: var(--text-main); letter-spacing: 1px; }
+        .hero-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 300; margin: 0 0 10px; color: var(--text-main); }
         .hero-subtitle { font-size: 13px; color: var(--text-muted); max-width: 500px; margin: 0 auto; line-height: 1.6; font-weight: 300; }
 
         .controls-container { padding: 0 15px; max-width: 1400px; margin: 0 auto 15px; }
@@ -131,8 +112,8 @@
         .chip-row::-webkit-scrollbar { display: none; }
         .chip {
             padding: 8px 18px; border: 1px solid var(--border-color); border-radius: 30px; background: var(--card-bg);
-            color: var(--text-muted); font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: .2s;
-            font-family: inherit;
+            color: var(--text-muted); font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap;
+            font-family: inherit; transition: .2s;
         }
         .chip.active { background: var(--text-main); color: var(--card-bg); border-color: var(--text-main); }
         .chip.chip-new { border-color: var(--primary-dark); color: var(--primary-dark); }
@@ -144,9 +125,35 @@
         }
         .section-header .count { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-muted); font-weight: 400; margin-left: 6px; }
         .sort-select {
-            font-family: inherit; font-size: 11px; font-weight: 400; padding: 6px 10px; border-radius: 4px;
+            font-family: inherit; font-size: 11px; padding: 6px 10px; border-radius: 4px;
             border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); cursor: pointer;
         }
+
+        /* Testimonials */
+        .testimonials-section { padding: 10px 15px 30px; max-width: 1400px; margin: 0 auto; }
+        .testimonials-head {
+            text-align: center; margin-bottom: 20px;
+        }
+        .testimonials-head h2 {
+            font-family: 'Fraunces', serif; font-weight: 300; font-size: 22px; margin: 0 0 6px; color: var(--text-main);
+        }
+        .testimonials-head p { margin: 0; font-size: 13px; color: var(--text-muted); font-weight: 300; }
+        .testimonials-track {
+            display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px;
+            scroll-snap-type: x mandatory; scrollbar-width: none;
+        }
+        .testimonials-track::-webkit-scrollbar { display: none; }
+        .testimonial-card {
+            flex: 0 0 min(300px, 85vw); scroll-snap-align: start;
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 20px; border-radius: 8px;
+        }
+        .testimonial-stars { color: var(--star); font-size: 13px; letter-spacing: 2px; margin-bottom: 10px; }
+        .testimonial-text {
+            font-size: 13px; line-height: 1.65; color: var(--text-main); font-weight: 300;
+            margin: 0 0 14px; font-style: italic;
+        }
+        .testimonial-name { font-size: 11px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; }
 
         .carousel-viewport { width: 100%; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-padding-inline: var(--carousel-pad); scrollbar-width: none; cursor: grab; }
         .carousel-viewport:active { cursor: grabbing; }
@@ -171,9 +178,15 @@
         .card-badge + .card-new-badge { top: 34px; }
         .card-info { padding: 12px 4px; text-align: center; display: flex; flex-direction: column; flex: 1; }
         .card-title {
-            font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-main); margin: 0 0 6px; font-weight: 400;
+            font-size: 13px; color: var(--text-main); margin: 0 0 6px; font-weight: 400;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;
         }
+        .card-rating {
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+            margin: 0 0 8px; min-height: 16px;
+        }
+        .card-rating .stars { color: var(--star); font-size: 11px; letter-spacing: 1px; }
+        .card-rating .rating-meta { font-size: 10px; color: var(--text-muted); font-weight: 400; }
         .card-price-row { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: auto; }
         .card-price { font-size: 14px; color: var(--text-main); font-weight: 500; margin: 0; }
         .card-mrp { font-size: 12px; color: var(--text-muted); text-decoration: line-through; margin: 0; font-weight: 300; }
@@ -200,9 +213,17 @@
         .modal-img { display: block; width: 100%; height: min(55vh, 450px); object-fit: contain; cursor: zoom-in; }
         .thumb-row { display: flex; gap: 10px; margin-bottom: 30px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
         .thumb-row::-webkit-scrollbar { display: none; }
-        .modal-thumb { flex-shrink: 0; width: 60px; height: 60px; object-fit: cover; border: 1px solid transparent; cursor: pointer; opacity: 0.6; transition: .2s; }
+        .modal-thumb { flex-shrink: 0; width: 60px; height: 60px; object-fit: cover; border: 1px solid transparent; cursor: pointer; opacity: 0.6; }
         .modal-thumb.active { border-color: var(--text-main); opacity: 1; }
-        .modal-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 400; color: var(--text-main); margin: 0 0 15px; line-height: 1.3; }
+        .modal-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 400; color: var(--text-main); margin: 0 0 10px; line-height: 1.3; }
+        
+        .modal-rating-row {
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 18px;
+        }
+        .modal-rating-row .stars { color: var(--star); font-size: 15px; letter-spacing: 2px; }
+        .modal-rating-row .rating-score { font-size: 14px; font-weight: 500; color: var(--text-main); }
+        .modal-rating-row .rating-count { font-size: 12px; color: var(--text-muted); }
+
         .modal-price-box { border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 20px 0; margin-bottom: 25px; }
         .modal-price-row { display: flex; align-items: baseline; gap: 12px; }
         .modal-price { font-size: 22px; color: var(--text-main); font-weight: 500; margin: 0; }
@@ -211,6 +232,30 @@
         .premium-promise h4 { margin: 0 0 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main); }
         .premium-promise ul { margin: 0; padding-left: 16px; color: var(--text-muted); font-size: 13px; line-height: 1.8; font-weight: 300; }
 
+        /* Product reviews block */
+        .product-reviews { margin-top: 8px; margin-bottom: 20px; }
+        .product-reviews h3 {
+            font-family: 'Fraunces', serif; font-size: 18px; font-weight: 400;
+            margin: 0 0 14px; color: var(--text-main);
+        }
+        .review-item {
+            padding: 14px 0; border-top: 1px solid var(--border-color);
+        }
+        .review-item:last-child { border-bottom: 1px solid var(--border-color); }
+        .review-item .stars { color: var(--star); font-size: 12px; letter-spacing: 1px; margin-bottom: 6px; }
+        .review-item .review-body { font-size: 13px; line-height: 1.6; color: var(--text-main); font-weight: 300; margin: 0 0 8px; }
+        .review-item .review-author { font-size: 11px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.3px; }
+        .review-empty { font-size: 13px; color: var(--text-muted); font-weight: 300; margin: 0 0 12px; line-height: 1.5; }
+        .write-review-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            margin-top: 12px; padding: 10px 16px;
+            border: 1px solid var(--border-color); border-radius: 4px;
+            background: var(--card-bg); color: var(--text-main);
+            font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit;
+            letter-spacing: 0.3px; transition: border-color .2s, background .2s;
+        }
+        .write-review-btn:hover { border-color: var(--text-main); }
+
         .whatsapp-btn {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 400px;
             background: var(--text-main); color: var(--card-bg); border: none; padding: 16px; border-radius: 4px; font-size: 14px;
@@ -218,52 +263,28 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.15); letter-spacing: 0.5px; font-family: inherit;
         }
 
-        /* --- Premium Footer with Inline Install App --- */
         .site-footer {
             background: var(--bg-color); border-top: 1px solid var(--border-color);
             padding: 40px 20px; text-align: center; margin-top: 30px;
         }
         .footer-logo { font-family: 'Fraunces', serif; font-size: 20px; color: var(--text-main); letter-spacing: 2px; margin-bottom: 15px; display: block; }
-        
         .footer-links {
             display: flex; justify-content: center; align-items: center;
             gap: 10px 18px; margin-bottom: 25px; flex-wrap: wrap;
         }
-        .footer-links a,
-        .footer-install-link {
+        .footer-links a, .footer-install-link {
             font-size: 12px; color: var(--text-muted); font-weight: 400;
-            font-family: inherit; letter-spacing: 0.3px;
-            transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+            font-family: inherit; letter-spacing: 0.3px; transition: color 0.2s, border-color 0.2s, background 0.2s;
         }
         .footer-links a:hover { color: var(--text-main); }
-        
-        /* Premium subtle outline pill for Install App */
         .footer-install-link {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 5px 14px;
-            margin-left: 4px;
-            border-radius: 20px;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
+            background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main);
+            padding: 5px 14px; margin-left: 4px; border-radius: 20px; font-weight: 500; cursor: pointer;
+            display: inline-flex; align-items: center;
         }
-        .footer-install-link:hover {
-            border-color: var(--text-main);
-            background: var(--bg-color);
-        }
-        body.dark-mode .footer-install-link {
-            background: transparent;
-            border-color: #3a3a3a;
-        }
-        body.dark-mode .footer-install-link:hover {
-            border-color: #f0f0f0;
-            background: rgba(255,255,255,0.04);
-        }
-        
+        .footer-install-link:hover { border-color: var(--text-main); background: var(--bg-color); }
+        body.dark-mode .footer-install-link { background: transparent; border-color: #3a3a3a; }
+        body.dark-mode .footer-install-link:hover { border-color: #f0f0f0; background: rgba(255,255,255,0.04); }
         .footer-copy { font-size: 11px; color: var(--text-muted); opacity: 0.7; }
 
         .zoom-modal { position: fixed; inset: 0; background: rgba(0,0,0,.95); z-index: 2000; display: none; align-items: center; justify-content: center; flex-direction: column; }
@@ -279,7 +300,7 @@
             .search-wrapper { max-width: 350px; }
             .hero-section { padding: 60px 40px; }
             .hero-title { font-size: 36px; }
-            .controls-container { padding: 10px 40px; }
+            .controls-container, .testimonials-section { padding-left: 40px; padding-right: 40px; }
             .section-header { padding: 30px 20px 20px; font-size: 22px; }
             .grid, .skeleton-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 30px; padding: 0 20px 40px; }
             .modal-content { display: grid; grid-template-columns: 1fr 400px; gap: 60px; max-width: 1200px; margin: 0 auto; padding: 40px; align-items: start; }
@@ -287,6 +308,7 @@
             .modal-img { height: 600px; border: 1px solid var(--border-color); }
             .modal-title { font-size: 32px; }
             .whatsapp-btn { position: relative; left: auto; bottom: auto; transform: none; width: 100%; margin-top: 30px; box-shadow: none; }
+            .testimonial-card { flex: 0 0 320px; }
         }
     </style>
 </head>
@@ -353,6 +375,15 @@
         </div>
     </div>
 
+    <!-- Home testimonials -->
+    <div class="testimonials-section" id="testimonialsSection" style="display:none;">
+        <div class="testimonials-head">
+            <h2>Loved by our customers</h2>
+            <p>Real words from people who wear Art By Tisha</p>
+        </div>
+        <div class="testimonials-track" id="testimonialsTrack"></div>
+    </div>
+
     <div id="productGrid"></div>
 </div>
 
@@ -362,16 +393,14 @@
         <a href="https://wa.me/918287567099" target="_blank" rel="noopener">Contact Us</a>
         <a href="#" onclick="event.preventDefault();alert('Free shipping on orders over ₹499. Standard delivery 3–5 business days.');">Shipping</a>
         <a href="#" onclick="event.preventDefault();">Instagram</a>
-        <button id="installBtn" class="footer-install-link" type="button" onclick="triggerInstall()" title="Install Art By Tisha app">
-            Install App
-        </button>
+        <button id="installBtn" class="footer-install-link" type="button" onclick="triggerInstall()" title="Install Art By Tisha app">Install App</button>
     </div>
     <div class="footer-copy">© 2024 Art By Tisha. All rights reserved.</div>
 </footer>
 
 <div id="productModal" class="modal" role="dialog" aria-modal="true" hidden>
     <div class="modal-header">
-        <button class="back-btn" type="button" onclick="closeModalToHome()">✕</button>
+        <button class="back-btn" type="button" onclick="closeModalToHome()" aria-label="Close">✕</button>
         <span style="font-size: 12px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">Details</span>
         <div style="width:24px;"></div>
     </div>
@@ -385,12 +414,17 @@
         <div class="modal-info">
             <h2 id="mTitle" class="modal-title"></h2>
             
+            <div id="mRatingRow" class="modal-rating-row" hidden>
+                <span id="mStars" class="stars"></span>
+                <span id="mRatingScore" class="rating-score"></span>
+                <span id="mRatingCount" class="rating-count"></span>
+            </div>
+
             <div class="modal-price-box">
                 <div class="modal-price-row">
                     <span id="mPrice" class="modal-price"></span>
                     <span id="mMrp" class="modal-mrp"></span>
                 </div>
-                
                 <div class="premium-promise">
                     <h4>The Art By Tisha Promise</h4>
                     <ul>
@@ -400,9 +434,15 @@
                     </ul>
                 </div>
             </div>
+
+            <div class="product-reviews" id="productReviews">
+                <h3>Customer reviews</h3>
+                <div id="mReviewsList"></div>
+                <button type="button" class="write-review-btn" id="writeReviewBtn">✎ Write a review</button>
+            </div>
             
             <a id="mWhatsapp" href="#" class="whatsapp-btn" target="_blank" rel="noopener">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2z"/></svg>
                 Purchase via WhatsApp
             </a>
         </div>
@@ -410,7 +450,7 @@
 </div>
 
 <div id="zoomModal" class="zoom-modal" role="dialog" hidden onclick="dismissZoom()">
-    <button class="zoom-close-btn" type="button" onclick="event.stopPropagation();dismissZoom();">✕</button>
+    <button class="zoom-close-btn" type="button" onclick="event.stopPropagation();dismissZoom();" aria-label="Close">✕</button>
     <div class="zoom-img-container" onclick="event.stopPropagation()">
         <img id="zoomImg" src="" alt="">
     </div>
@@ -420,13 +460,28 @@
 const WHATSAPP_NUMBER = "918287567099";
 const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
-const PRODUCT_CACHE_KEY = "abt_products_cache_v5";
+const PRODUCT_CACHE_KEY = "abt_products_cache_v6";
 const SORT_PREF_KEY = "abt_sort_pref_v2";
 const CAROUSEL_SPEED = 3000;
 const CATEGORY_ORDER = ["NEW LAUNCH","TOP SELLING","NECKLACE","NECKLACES","RINGS","RING","BRACELETS","BRACELET","BANGLES","BANGLE","EARRINGS","EARRING"];
 const MUSIC_VOLUME = 0.20;
 const MUSIC_PREF_KEY = "abt_music_pref_v3";
 const SPECIAL_CATS = new Set(["TOP SELLING", "NEW LAUNCH"]);
+
+/* ===== Edit these homepage testimonials anytime ===== */
+const SITE_TESTIMONIALS = [
+    { name: "Ananya M.", rating: 5, text: "The finish is so refined — I wore the haar set to a wedding and got endless compliments." },
+    { name: "Riya K.", rating: 5, text: "Beautiful packaging and even more beautiful jewellery. Feels premium without the marketplace fuss." },
+    { name: "Sneha P.", rating: 4, text: "Ordered earrings for my sister. Quality is excellent and delivery was quick." },
+    { name: "Meera D.", rating: 5, text: "Studio-direct pieces with such care in the details. Already planning my next order." }
+];
+
+const AUDIO_SOURCES = [
+    "krishna-flute.mp3",
+    "./krishna-flute.mp3",
+    "krishna-flute.mp3.mp3",
+    "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=krishna-flute-112281.mp3"
+];
 
 let products = [];
 let modalImages = [];
@@ -442,17 +497,10 @@ let activeCategory = "ALL";
 let searchTimer = null;
 let lastFocusedBeforeModal = null;
 let currentSort = localStorage.getItem(SORT_PREF_KEY) || "default";
-
-/* --- PROGRAMMATIC AUDIO ENGINE --- */
-const AUDIO_SOURCES = [
-    "krishna-flute.mp3",
-    "./krishna-flute.mp3",
-    "krishna-flute.mp3.mp3",
-    "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=krishna-flute-112281.mp3"
-];
 let audioSourceIndex = 0;
 let audioObj = null;
 let musicOn = false;
+let currentModalProduct = null;
 
 function initMusicEngine() {
     if (audioObj) return;
@@ -460,7 +508,6 @@ function initMusicEngine() {
     audioObj.loop = true;
     audioObj.volume = MUSIC_VOLUME;
     audioObj.src = AUDIO_SOURCES[audioSourceIndex];
-
     audioObj.addEventListener("error", () => {
         if (audioSourceIndex < AUDIO_SOURCES.length - 1) {
             audioSourceIndex++;
@@ -472,14 +519,12 @@ function initMusicEngine() {
         }
     });
 }
-
 function updateMusicUI() {
     const btn = document.getElementById("musicToggleBtn");
     if (!btn) return;
     btn.textContent = musicOn ? "Pause" : "Music";
     btn.classList.toggle("playing", musicOn);
 }
-
 function toggleMusic() {
     initMusicEngine();
     if (musicOn) {
@@ -500,22 +545,63 @@ function toggleMusic() {
         });
     }
 }
-
 function maybeStartMusicOnProductOpen() {
     if (musicOn) return;
     if (localStorage.getItem(MUSIC_PREF_KEY) === "off") return;
     initMusicEngine();
     musicOn = true;
     updateMusicUI();
-    audioObj.play().catch(() => {
-        musicOn = false;
-        updateMusicUI();
-    });
+    audioObj.play().catch(() => { musicOn = false; updateMusicUI(); });
 }
 
 function getASIN(p) {
     if (!p) return "";
     return String(p["Amazon ASIN Code"] || p["Amazon ASIN code"] || p["ASIN Code"] || p["ASIN"] || p["SKU Code"] || p["SKU"] || "").trim();
+}
+
+/* ===== RATINGS & REVIEWS ===== */
+function clampRating(n) {
+    if (!n || n < 0) return 0;
+    if (n > 5) return 5;
+    return Math.round(n * 10) / 10;
+}
+function getProductRating(p) {
+    if (!p) return null;
+    const raw = p["Rating"] || p["Ratings"] || p["Stars"] || p["Star Rating"] || "";
+    const rating = clampRating(parseFloat(String(raw).replace(/[^\d.]/g, "")));
+    if (!rating) return null;
+    const countRaw = p["Review Count"] || p["Reviews Count"] || p["Reviews"] || p["No of Reviews"] || "";
+    let count = parseInt(String(countRaw).replace(/[^\d]/g, ""), 10);
+    if (!count || count < 0) count = 0;
+    return { rating, count };
+}
+function getProductReviewList(p) {
+    const list = [];
+    if (!p) return list;
+    for (let i = 1; i <= 5; i++) {
+        const text = String(p[`Review ${i}`] || p[`Review${i}`] || p[`Customer Review ${i}`] || "").trim();
+        if (!text) continue;
+        const name = String(p[`Review ${i} Name`] || p[`Review${i} Name`] || p[`Reviewer ${i}`] || p[`Name ${i}`] || "Customer").trim();
+        const rRaw = p[`Review ${i} Rating`] || p[`Review${i} Rating`] || p["Rating"] || 5;
+        const r = clampRating(parseFloat(String(rRaw).replace(/[^\d.]/g, ""))) || 5;
+        list.push({ text, name, rating: r });
+    }
+    return list;
+}
+function starsString(rating, max = 5) {
+    const full = Math.floor(rating);
+    const half = rating - full >= 0.3 && rating - full < 0.8;
+    const empty = max - full - (half ? 1 : 0);
+    // Use ★ and ☆ for broad font support; half shown as ★ for simplicity
+    let s = "★".repeat(Math.max(0, full));
+    if (half) s += "★";
+    s += "☆".repeat(Math.max(0, empty - (half ? 0 : 0)));
+    // Normalize length
+    const filled = Math.min(max, Math.round(rating));
+    return "★".repeat(filled) + "☆".repeat(max - filled);
+}
+function renderStarsHtml(rating) {
+    return `<span class="stars" aria-label="${rating} out of 5 stars">${starsString(rating)}</span>`;
 }
 
 function parseCSV(text) {
@@ -593,7 +679,13 @@ function sortProducts(list) {
         case "price-desc": return arr.sort((a, b) => toNumber(b["Selling"]) - toNumber(a["Selling"]));
         case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
         case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
-        case "default": default: return arr;
+        case "rating-desc":
+            return arr.sort((a, b) => {
+                const ra = getProductRating(a)?.rating || 0;
+                const rb = getProductRating(b)?.rating || 0;
+                return rb - ra;
+            });
+        default: return arr;
     }
 }
 function onSortChange(val) {
@@ -610,6 +702,7 @@ function makeSortSelect() {
         <option value="price-asc">Price: Low to High</option>
         <option value="price-desc">Price: High to Low</option>
         <option value="name-asc">Name: A to Z</option>
+        <option value="rating-desc">Top Rated</option>
     `;
     sel.value = currentSort;
     sel.addEventListener("click", e => e.stopPropagation());
@@ -640,18 +733,14 @@ function populateCategories() {
     container.appendChild(makeChip("All", "ALL", true));
     if (hasNew) container.appendChild(makeChip("New Collection", "NEW_LAUNCH", false, "chip-new"));
     container.appendChild(makeChip("Bestsellers", "TOP_SELLING", false));
-    sortCategoryNames([...cats]).forEach(cat => {
-        container.appendChild(makeChip(cat, cat.toUpperCase(), false));
-    });
+    sortCategoryNames([...cats]).forEach(cat => container.appendChild(makeChip(cat, cat.toUpperCase(), false)));
 }
 function selectCategory(catVal, clickedChip) {
     activeCategory = catVal;
     document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c === clickedChip));
     if (clickedChip) clickedChip.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-    
     const hero = document.getElementById("heroSection");
     if (hero) hero.style.display = (catVal === "ALL" && !document.getElementById("searchInput").value) ? "block" : "none";
-    
     applyFilters();
 }
 function forceNewLaunchFilter() {
@@ -675,17 +764,24 @@ function updateCarouselMetrics() {
     document.documentElement.style.setProperty("--carousel-item-width", carouselItemWidth + "px");
 }
 
-function createCard(item, badgeText, eagerLoad) {
-    const pricing = calcPricing(item["Selling"], item["Amazon Price"] || item["MRP"]); 
+function createCard(item, eagerLoad) {
+    const pricing = calcPricing(item["Selling"], item["Amazon Price"] || item["MRP"]);
     const url = cleanImageUrl(item["Image 1"], 600);
+    const ratingInfo = getProductRating(item);
     const card = document.createElement("article");
     card.className = "product-card";
     card.onclick = () => openModal(item._id);
-    
+
     let badgeHtml = "";
     if (isNewLaunch(item)) badgeHtml = `<div class="card-new-badge">NEW</div>`;
     else if (isTopSelling(item)) badgeHtml = `<div class="card-badge">BESTSELLER</div>`;
-    
+
+    let ratingHtml = `<div class="card-rating"></div>`;
+    if (ratingInfo) {
+        const countLabel = ratingInfo.count > 0 ? `(${ratingInfo.count})` : "";
+        ratingHtml = `<div class="card-rating">${renderStarsHtml(ratingInfo.rating)}<span class="rating-meta">${ratingInfo.rating}${countLabel ? " " + countLabel : ""}</span></div>`;
+    }
+
     card.innerHTML = `
         <div class="card-img-wrapper">
             ${badgeHtml}
@@ -693,6 +789,7 @@ function createCard(item, badgeText, eagerLoad) {
         </div>
         <div class="card-info">
             <h3 class="card-title">${item["Product Name"] || ""}</h3>
+            ${ratingHtml}
             <div class="card-price-row">
                 <p class="card-price">${pricing.sellingText}</p>
                 ${pricing.hasDiscount ? `<p class="card-mrp">${pricing.mrpText}</p>` : ""}
@@ -701,33 +798,50 @@ function createCard(item, badgeText, eagerLoad) {
     return card;
 }
 
-function renderSection(container, title, items, badgeText) {
+function renderSection(container, title, items) {
     if (!items.length) return;
     const sorted = sortProducts(items);
     const header = document.createElement("div");
     header.className = "section-header";
     header.innerHTML = `<div>${title} <span class="count">${sorted.length}</span></div>`;
     header.appendChild(makeSortSelect());
-    
     const grid = document.createElement("div");
     grid.className = "grid";
-    sorted.forEach((item, i) => grid.appendChild(createCard(item, badgeText, i < 4)));
+    sorted.forEach((item, i) => grid.appendChild(createCard(item, i < 4)));
     container.appendChild(header);
     container.appendChild(grid);
+}
+
+function renderTestimonials() {
+    const section = document.getElementById("testimonialsSection");
+    const track = document.getElementById("testimonialsTrack");
+    if (!section || !track) return;
+    track.innerHTML = "";
+    if (!SITE_TESTIMONIALS.length) {
+        section.style.display = "none";
+        return;
+    }
+    section.style.display = "block";
+    SITE_TESTIMONIALS.forEach(t => {
+        const el = document.createElement("article");
+        el.className = "testimonial-card";
+        el.innerHTML = `
+            <div class="testimonial-stars">${starsString(t.rating || 5)}</div>
+            <p class="testimonial-text">“${t.text}”</p>
+            <div class="testimonial-name">— ${t.name}</div>`;
+        track.appendChild(el);
+    });
 }
 
 function startInfiniteCarousel() {
     clearInterval(carouselInterval);
     if (document.hidden || userTouchingCarousel) return;
-    
     carouselInterval = setInterval(() => {
         if (userTouchingCarousel || document.hidden) return;
-        
-        document.querySelectorAll('.carousel-viewport').forEach(vp => {
-            if (vp.offsetParent === null) return; 
-            const tr = vp.querySelector('.carousel-track');
+        document.querySelectorAll(".carousel-viewport").forEach(vp => {
+            if (vp.offsetParent === null) return;
+            const tr = vp.querySelector(".carousel-track");
             if (!tr || tr.children.length < 3) return;
-            
             const step = (tr.children[0]?.getBoundingClientRect().width || carouselItemWidth) + carouselGap;
             if (vp.scrollLeft + step >= vp.scrollWidth - vp.clientWidth - 2) {
                 vp.style.scrollBehavior = "auto";
@@ -752,10 +866,8 @@ function renderTopCarousel() {
     if (!topItems.length) { section.style.display = "none"; return; }
     section.style.display = "block";
     updateCarouselMetrics();
-    
     const loopItems = topItems.length > 2 ? [...topItems, ...topItems] : [...topItems];
-    loopItems.forEach(item => tr.appendChild(createCard(item, "Bestseller", true)));
-    
+    loopItems.forEach(item => tr.appendChild(createCard(item, true)));
     requestAnimationFrame(() => {
         vp.scrollLeft = 0;
         if (topItems.length > 2) startInfiniteCarousel();
@@ -771,12 +883,10 @@ function renderNewLaunchCarousel() {
     tr.innerHTML = "";
     if (!items.length) { section.style.display = "none"; return; }
     section.style.display = "block";
-    if (countEl) countEl.textContent = `${items.length}`;
+    if (countEl) countEl.textContent = String(items.length);
     updateCarouselMetrics();
-    
     const loopItems = items.length > 2 ? [...items, ...items] : [...items];
-    loopItems.forEach(item => tr.appendChild(createCard(item, "New", true)));
-    
+    loopItems.forEach(item => tr.appendChild(createCard(item, true)));
     requestAnimationFrame(() => {
         vp.scrollLeft = 0;
         if (items.length > 2) startInfiniteCarousel();
@@ -788,13 +898,16 @@ function applyFilters() {
     const grid = document.getElementById("productGrid");
     grid.innerHTML = "";
 
-    const showHomeCarousels = !query && activeCategory === "ALL";
+    const showHome = !query && activeCategory === "ALL";
     const hero = document.getElementById("heroSection");
-    if (hero) hero.style.display = showHomeCarousels ? "block" : "none";
+    const testimonials = document.getElementById("testimonialsSection");
+    if (hero) hero.style.display = showHome ? "block" : "none";
+    if (testimonials) testimonials.style.display = showHome && SITE_TESTIMONIALS.length ? "block" : "none";
 
-    if (showHomeCarousels) {
+    if (showHome) {
         renderTopCarousel();
         renderNewLaunchCarousel();
+        renderTestimonials();
     } else {
         document.getElementById("newLaunchSection").style.display = "none";
         document.getElementById("carouselSection").style.display = "none";
@@ -833,10 +946,10 @@ function applyFilters() {
                 if (!groups[cat].includes(p)) groups[cat].push(p);
             });
         }
-        sortCategoryNames(Object.keys(groups)).forEach(cat => renderSection(grid, cat, groups[cat], ""));
+        sortCategoryNames(Object.keys(groups)).forEach(cat => renderSection(grid, cat, groups[cat]));
     } else {
         const title = activeCategory === "TOP_SELLING" ? "Bestsellers" : activeCategory === "NEW_LAUNCH" ? "New Collection" : activeCategory;
-        renderSection(grid, title, filtered, "");
+        renderSection(grid, title, filtered);
     }
 }
 
@@ -863,27 +976,81 @@ function activateModalImage(idx) {
     clearInterval(rotationInterval);
 }
 
+function openWriteReview(p) {
+    const name = p?.["Product Name"] || "your jewellery";
+    const asin = getASIN(p);
+    const msg =
+`Hello Art By Tisha,
+
+I would like to share a review for:
+*${name}*${asin ? `\nItem Code: ${asin}` : ""}
+
+My rating: _ / 5
+My review:
+`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+}
+
 function openModal(id) {
     const p = products.find(i => i._id === id);
     if (!p) return;
+    currentModalProduct = p;
     const asin = getASIN(p);
     lastFocusedBeforeModal = document.activeElement;
     savedScrollPosition = window.scrollY;
-    
     const price = calcPricing(p["Selling"], p["Amazon Price"] || p["MRP"]);
+    const ratingInfo = getProductRating(p);
+    const reviewList = getProductReviewList(p);
 
     document.getElementById("mTitle").innerText = p["Product Name"] || "";
     document.getElementById("mPrice").innerText = price.sellingText;
-    
+
     const mMrp = document.getElementById("mMrp");
     if (price.hasDiscount) {
         mMrp.innerText = price.mrpText;
         mMrp.hidden = false;
     } else {
+        mMrp.innerText = "";
         mMrp.hidden = true;
     }
 
-    const msg = `Hello Art By Tisha,\n\nI would like to purchase the following item:\n\n*${p["Product Name"]}*\nPrice: ${price.sellingText}` + (asin ? `\nItem Code: ${asin}` : "") + `\n\nLink: ${location.origin}${location.pathname}`;
+    // Rating summary
+    const ratingRow = document.getElementById("mRatingRow");
+    if (ratingInfo) {
+        ratingRow.hidden = false;
+        document.getElementById("mStars").textContent = starsString(ratingInfo.rating);
+        document.getElementById("mRatingScore").textContent = ratingInfo.rating.toFixed(1);
+        document.getElementById("mRatingCount").textContent = ratingInfo.count > 0
+            ? `· ${ratingInfo.count} review${ratingInfo.count === 1 ? "" : "s"}`
+            : "· Customer rated";
+    } else {
+        ratingRow.hidden = true;
+    }
+
+    // Reviews list
+    const listEl = document.getElementById("mReviewsList");
+    listEl.innerHTML = "";
+    if (reviewList.length) {
+        reviewList.forEach(r => {
+            const item = document.createElement("div");
+            item.className = "review-item";
+            item.innerHTML = `
+                <div class="stars">${starsString(r.rating)}</div>
+                <p class="review-body">“${r.text}”</p>
+                <div class="review-author">— ${r.name}</div>`;
+            listEl.appendChild(item);
+        });
+    } else if (ratingInfo) {
+        listEl.innerHTML = `<p class="review-empty">This piece is rated ${ratingInfo.rating.toFixed(1)}/5${ratingInfo.count ? ` by ${ratingInfo.count} customers` : ""}. Be the next to share your experience.</p>`;
+    } else {
+        listEl.innerHTML = `<p class="review-empty">No written reviews yet. If you own this piece, we’d love to hear from you.</p>`;
+    }
+
+    document.getElementById("writeReviewBtn").onclick = () => openWriteReview(p);
+
+    const msg = `Hello Art By Tisha,\n\nI would like to purchase the following item:\n\n*${p["Product Name"]}*\nPrice: ${price.sellingText}` +
+                (asin ? `\nItem Code: ${asin}` : "") +
+                `\n\nLink: ${location.origin}${location.pathname}`;
     document.getElementById("mWhatsapp").href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
 
     modalImages = [1,2,3,4,5].map(i => cleanImageUrl(p[`Image ${i}`], 1200)).filter(u => u && u.length > 5);
@@ -893,6 +1060,7 @@ function openModal(id) {
     thumbs.innerHTML = "";
     currentImgIdx = 0;
     mImg.src = modalImages[0] || "";
+    mImg.alt = p["Product Name"] || "";
 
     modalImages.forEach((url, i) => {
         const t = document.createElement("img");
@@ -917,11 +1085,13 @@ function triggerZoom() {
     const zm = document.getElementById("zoomModal");
     zm.hidden = false;
     zm.style.display = "flex";
+    document.body.classList.add("zoom-open");
 }
 function dismissZoom() {
     const zm = document.getElementById("zoomModal");
     zm.style.display = "none";
     zm.hidden = true;
+    document.body.classList.remove("zoom-open");
 }
 function closeModal() {
     dismissZoom();
@@ -930,7 +1100,9 @@ function closeModal() {
     modal.hidden = true;
     document.body.classList.remove("modal-open");
     clearInterval(rotationInterval);
+    currentModalProduct = null;
     window.scrollTo({ top: savedScrollPosition, behavior: "instant" });
+    if (lastFocusedBeforeModal?.focus) lastFocusedBeforeModal.focus();
 }
 function closeModalToHome() {
     closeModal();
@@ -948,6 +1120,11 @@ function goHome() {
 window.addEventListener("popstate", () => {
     dismissZoom();
     closeModal();
+});
+document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" && e.key !== "Esc") return;
+    if (document.getElementById("zoomModal").style.display === "flex") { dismissZoom(); return; }
+    if (document.getElementById("productModal").style.display === "flex") closeModalToHome();
 });
 document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
@@ -1014,7 +1191,6 @@ async function loadCatalog() {
     }
 }
 
-/* Footer Install App */
 window.addEventListener("beforeinstallprompt", e => {
     e.preventDefault();
     deferredPrompt = e;
@@ -1022,11 +1198,9 @@ window.addEventListener("beforeinstallprompt", e => {
 function triggerInstall() {
     if (deferredPrompt) {
         deferredPrompt.prompt();
-        deferredPrompt.userChoice.finally(() => {
-            deferredPrompt = null;
-        });
+        deferredPrompt.userChoice.finally(() => { deferredPrompt = null; });
     } else {
-        alert("To install app: Open your browser menu (⋮ or ⬆) → Tap 'Add to Home Screen' or 'Install App'.");
+        alert("To install app: Open your browser menu → Add to Home Screen / Install App.");
     }
 }
 
