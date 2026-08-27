@@ -71,9 +71,7 @@
             font-size: 11px; font-weight: 500; letter-spacing: 0.5px; z-index: 102;
         }
         body.dark-mode #topBanner { background: #000; border-bottom: 1px solid #2a2a2a; }
-        #topBanner .banner-text {
-            flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff !important;
-        }
+        #topBanner .banner-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff !important; }
         .banner-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         .banner-btn {
             background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
@@ -129,19 +127,11 @@
             border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); cursor: pointer;
         }
 
-        /* Testimonials */
         .testimonials-section { padding: 10px 15px 30px; max-width: 1400px; margin: 0 auto; }
-        .testimonials-head {
-            text-align: center; margin-bottom: 20px;
-        }
-        .testimonials-head h2 {
-            font-family: 'Fraunces', serif; font-weight: 300; font-size: 22px; margin: 0 0 6px; color: var(--text-main);
-        }
+        .testimonials-head { text-align: center; margin-bottom: 20px; }
+        .testimonials-head h2 { font-family: 'Fraunces', serif; font-weight: 300; font-size: 22px; margin: 0 0 6px; color: var(--text-main); }
         .testimonials-head p { margin: 0; font-size: 13px; color: var(--text-muted); font-weight: 300; }
-        .testimonials-track {
-            display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px;
-            scroll-snap-type: x mandatory; scrollbar-width: none;
-        }
+        .testimonials-track { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; scrollbar-width: none; }
         .testimonials-track::-webkit-scrollbar { display: none; }
         .testimonial-card {
             flex: 0 0 min(300px, 85vw); scroll-snap-align: start;
@@ -149,10 +139,7 @@
             padding: 20px; border-radius: 8px;
         }
         .testimonial-stars { color: var(--star); font-size: 13px; letter-spacing: 2px; margin-bottom: 10px; }
-        .testimonial-text {
-            font-size: 13px; line-height: 1.65; color: var(--text-main); font-weight: 300;
-            margin: 0 0 14px; font-style: italic;
-        }
+        .testimonial-text { font-size: 13px; line-height: 1.6; color: var(--text-main); font-weight: 300; margin: 0 0 14px; font-style: italic; }
         .testimonial-name { font-size: 11px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; }
 
         .carousel-viewport { width: 100%; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scroll-padding-inline: var(--carousel-pad); scrollbar-width: none; cursor: grab; }
@@ -181,10 +168,7 @@
             font-size: 13px; color: var(--text-main); margin: 0 0 6px; font-weight: 400;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;
         }
-        .card-rating {
-            display: flex; align-items: center; justify-content: center; gap: 5px;
-            margin: 0 0 8px; min-height: 16px;
-        }
+        .card-rating { display: flex; align-items: center; justify-content: center; gap: 5px; margin: 0 0 8px; min-height: 16px; }
         .card-rating .stars { color: var(--star); font-size: 11px; letter-spacing: 1px; }
         .card-rating .rating-meta { font-size: 10px; color: var(--text-muted); font-weight: 400; }
         .card-price-row { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: auto; }
@@ -217,9 +201,7 @@
         .modal-thumb.active { border-color: var(--text-main); opacity: 1; }
         .modal-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 400; color: var(--text-main); margin: 0 0 10px; line-height: 1.3; }
         
-        .modal-rating-row {
-            display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 18px;
-        }
+        .modal-rating-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 18px; }
         .modal-rating-row .stars { color: var(--star); font-size: 15px; letter-spacing: 2px; }
         .modal-rating-row .rating-score { font-size: 14px; font-weight: 500; color: var(--text-main); }
         .modal-rating-row .rating-count { font-size: 12px; color: var(--text-muted); }
@@ -232,29 +214,41 @@
         .premium-promise h4 { margin: 0 0 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main); }
         .premium-promise ul { margin: 0; padding-left: 16px; color: var(--text-muted); font-size: 13px; line-height: 1.8; font-weight: 300; }
 
-        /* Product reviews block */
-        .product-reviews { margin-top: 8px; margin-bottom: 20px; }
-        .product-reviews h3 {
-            font-family: 'Fraunces', serif; font-size: 18px; font-weight: 400;
-            margin: 0 0 14px; color: var(--text-main);
-        }
-        .review-item {
-            padding: 14px 0; border-top: 1px solid var(--border-color);
-        }
-        .review-item:last-child { border-bottom: 1px solid var(--border-color); }
+        /* Direct On-Website Reviews UI */
+        .product-reviews { margin-top: 25px; margin-bottom: 25px; border-top: 1px solid var(--border-color); padding-top: 20px; }
+        .product-reviews h3 { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 400; margin: 0 0 14px; color: var(--text-main); }
+        .review-item { padding: 14px 0; border-bottom: 1px solid var(--border-color); }
         .review-item .stars { color: var(--star); font-size: 12px; letter-spacing: 1px; margin-bottom: 6px; }
         .review-item .review-body { font-size: 13px; line-height: 1.6; color: var(--text-main); font-weight: 300; margin: 0 0 8px; }
         .review-item .review-author { font-size: 11px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.3px; }
-        .review-empty { font-size: 13px; color: var(--text-muted); font-weight: 300; margin: 0 0 12px; line-height: 1.5; }
+        .review-empty { font-size: 13px; color: var(--text-muted); font-weight: 300; margin: 0 0 15px; line-height: 1.5; }
+        
         .write-review-btn {
-            display: inline-flex; align-items: center; gap: 8px;
-            margin-top: 12px; padding: 10px 16px;
-            border: 1px solid var(--border-color); border-radius: 4px;
-            background: var(--card-bg); color: var(--text-main);
-            font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit;
-            letter-spacing: 0.3px; transition: border-color .2s, background .2s;
+            display: inline-flex; align-items: center; gap: 8px; margin-top: 10px;
+            padding: 10px 18px; border: 1px solid var(--text-main); border-radius: 4px;
+            background: var(--card-bg); color: var(--text-main); font-size: 12px; font-weight: 500;
+            cursor: pointer; font-family: inherit; letter-spacing: 0.5px; text-transform: uppercase; transition: all .2s;
         }
-        .write-review-btn:hover { border-color: var(--text-main); }
+        .write-review-btn:hover { background: var(--text-main); color: var(--card-bg); }
+
+        /* Review Form Popup Inside Site */
+        .review-form-box {
+            display: none; background: var(--bg-color); border: 1px solid var(--border-color);
+            padding: 20px; border-radius: 6px; margin-top: 15px; text-align: left;
+        }
+        .review-form-box h4 { margin: 0 0 12px; font-size: 14px; font-weight: 600; color: var(--text-main); }
+        .star-rating-select { display: flex; gap: 6px; font-size: 24px; color: var(--border-color); cursor: pointer; margin-bottom: 15px; }
+        .star-rating-select span { transition: color 0.15s; }
+        .star-rating-select span.active { color: var(--star); }
+        .review-input, .review-textarea {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 4px;
+            font-size: 13px; font-family: inherit; background: var(--card-bg); color: var(--text-main); margin-bottom: 12px; outline: none;
+        }
+        .review-input:focus, .review-textarea:focus { border-color: var(--text-main); }
+        .submit-review-btn {
+            background: var(--text-main); color: var(--card-bg); border: none; padding: 10px 20px;
+            border-radius: 4px; font-size: 12px; font-weight: 500; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
+        }
 
         .whatsapp-btn {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 400px;
@@ -375,7 +369,6 @@
         </div>
     </div>
 
-    <!-- Home testimonials -->
     <div class="testimonials-section" id="testimonialsSection" style="display:none;">
         <div class="testimonials-head">
             <h2>Loved by our customers</h2>
@@ -400,7 +393,7 @@
 
 <div id="productModal" class="modal" role="dialog" aria-modal="true" hidden>
     <div class="modal-header">
-        <button class="back-btn" type="button" onclick="closeModalToHome()" aria-label="Close">✕</button>
+        <button class="back-btn" type="button" onclick="closeModalToHome()">✕</button>
         <span style="font-size: 12px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">Details</span>
         <div style="width:24px;"></div>
     </div>
@@ -438,7 +431,23 @@
             <div class="product-reviews" id="productReviews">
                 <h3>Customer reviews</h3>
                 <div id="mReviewsList"></div>
-                <button type="button" class="write-review-btn" id="writeReviewBtn">✎ Write a review</button>
+                
+                <button type="button" class="write-review-btn" onclick="toggleReviewForm()">✎ Write a review</button>
+                
+                <!-- Direct On-Website Review Submission Form -->
+                <div class="review-form-box" id="reviewFormBox">
+                    <h4>Leave a Review</h4>
+                    <div class="star-rating-select" id="starRatingSelect">
+                        <span onclick="setFormRating(1)">★</span>
+                        <span onclick="setFormRating(2)">★</span>
+                        <span onclick="setFormRating(3)">★</span>
+                        <span onclick="setFormRating(4)">★</span>
+                        <span onclick="setFormRating(5)">★</span>
+                    </div>
+                    <input type="text" id="revName" class="review-input" placeholder="Your Name" required>
+                    <textarea id="revText" class="review-textarea" rows="3" placeholder="Share your experience with this piece..." required></textarea>
+                    <button type="button" class="submit-review-btn" onclick="submitReviewDirectly()">Submit Review</button>
+                </div>
             </div>
             
             <a id="mWhatsapp" href="#" class="whatsapp-btn" target="_blank" rel="noopener">
@@ -450,7 +459,7 @@
 </div>
 
 <div id="zoomModal" class="zoom-modal" role="dialog" hidden onclick="dismissZoom()">
-    <button class="zoom-close-btn" type="button" onclick="event.stopPropagation();dismissZoom();" aria-label="Close">✕</button>
+    <button class="zoom-close-btn" type="button" onclick="event.stopPropagation();dismissZoom();">✕</button>
     <div class="zoom-img-container" onclick="event.stopPropagation()">
         <img id="zoomImg" src="" alt="">
     </div>
@@ -460,7 +469,11 @@
 const WHATSAPP_NUMBER = "918287567099";
 const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
-const PRODUCT_CACHE_KEY = "abt_products_cache_v6";
+
+// PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE TO SAVE REVIEWS DIRECTLY TO YOUR GOOGLE SHEET:
+const REVIEWS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwwEVVu-KFN3271O3Ju3fp7aqEBdPwMf7-A5NeU4V_XKCdiCmHnns9DXx9OQZmJNwmKtQ/exec"; 
+
+const PRODUCT_CACHE_KEY = "abt_products_cache_v7";
 const SORT_PREF_KEY = "abt_sort_pref_v2";
 const CAROUSEL_SPEED = 3000;
 const CATEGORY_ORDER = ["NEW LAUNCH","TOP SELLING","NECKLACE","NECKLACES","RINGS","RING","BRACELETS","BRACELET","BANGLES","BANGLE","EARRINGS","EARRING"];
@@ -468,7 +481,6 @@ const MUSIC_VOLUME = 0.20;
 const MUSIC_PREF_KEY = "abt_music_pref_v3";
 const SPECIAL_CATS = new Set(["TOP SELLING", "NEW LAUNCH"]);
 
-/* ===== Edit these homepage testimonials anytime ===== */
 const SITE_TESTIMONIALS = [
     { name: "Ananya M.", rating: 5, text: "The finish is so refined — I wore the haar set to a wedding and got endless compliments." },
     { name: "Riya K.", rating: 5, text: "Beautiful packaging and even more beautiful jewellery. Feels premium without the marketplace fuss." },
@@ -501,6 +513,7 @@ let audioSourceIndex = 0;
 let audioObj = null;
 let musicOn = false;
 let currentModalProduct = null;
+let currentSelectedFormRating = 5;
 
 function initMusicEngine() {
     if (audioObj) return;
@@ -559,7 +572,7 @@ function getASIN(p) {
     return String(p["Amazon ASIN Code"] || p["Amazon ASIN code"] || p["ASIN Code"] || p["ASIN"] || p["SKU Code"] || p["SKU"] || "").trim();
 }
 
-/* ===== RATINGS & REVIEWS ===== */
+/* ===== RATINGS & REVIEWS ENGINE ===== */
 function clampRating(n) {
     if (!n || n < 0) return 0;
     if (n > 5) return 5;
@@ -575,9 +588,19 @@ function getProductRating(p) {
     if (!count || count < 0) count = 0;
     return { rating, count };
 }
+
+function getLocalSubmittedReviews(productId) {
+    try {
+        const raw = localStorage.getItem("user_reviews_" + productId);
+        return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+}
+
 function getProductReviewList(p) {
     const list = [];
     if (!p) return list;
+    
+    // 1. First get reviews from Google Sheet columns
     for (let i = 1; i <= 5; i++) {
         const text = String(p[`Review ${i}`] || p[`Review${i}`] || p[`Customer Review ${i}`] || "").trim();
         if (!text) continue;
@@ -586,22 +609,87 @@ function getProductReviewList(p) {
         const r = clampRating(parseFloat(String(rRaw).replace(/[^\d.]/g, ""))) || 5;
         list.push({ text, name, rating: r });
     }
-    return list;
+    
+    // 2. Combine with reviews submitted directly on the website
+    const localRevs = getLocalSubmittedReviews(p._id);
+    return [...localRevs, ...list];
 }
+
 function starsString(rating, max = 5) {
-    const full = Math.floor(rating);
-    const half = rating - full >= 0.3 && rating - full < 0.8;
-    const empty = max - full - (half ? 1 : 0);
-    // Use ★ and ☆ for broad font support; half shown as ★ for simplicity
-    let s = "★".repeat(Math.max(0, full));
-    if (half) s += "★";
-    s += "☆".repeat(Math.max(0, empty - (half ? 0 : 0)));
-    // Normalize length
     const filled = Math.min(max, Math.round(rating));
     return "★".repeat(filled) + "☆".repeat(max - filled);
 }
 function renderStarsHtml(rating) {
     return `<span class="stars" aria-label="${rating} out of 5 stars">${starsString(rating)}</span>`;
+}
+
+/* --- Direct On-Website Review Submission Logic --- */
+function toggleReviewForm() {
+    const box = document.getElementById("reviewFormBox");
+    const isHidden = box.style.display === "none" || !box.style.display;
+    box.style.display = isHidden ? "block" : "none";
+    if (isHidden) setFormRating(5);
+}
+
+function setFormRating(n) {
+    currentSelectedFormRating = n;
+    const stars = document.querySelectorAll("#starRatingSelect span");
+    stars.forEach((s, idx) => {
+        if (idx < n) s.classList.add("active");
+        else s.classList.remove("active");
+    });
+}
+
+function submitReviewDirectly() {
+    if (!currentModalProduct) return;
+    const nameInput = document.getElementById("revName");
+    const textInput = document.getElementById("revText");
+    const name = nameInput.value.trim();
+    const text = textInput.value.trim();
+
+    if (!name || !text) {
+        alert("Please enter your name and a brief review.");
+        return;
+    }
+
+    const newReview = {
+        name: name,
+        rating: currentSelectedFormRating,
+        text: text,
+        date: new Date().toISOString()
+    };
+
+    // Save to device LocalStorage instantly so user sees it right away
+    const localRevs = getLocalSubmittedReviews(currentModalProduct._id);
+    localRevs.unshift(newReview);
+    try {
+        localStorage.setItem("user_reviews_" + currentModalProduct._id, JSON.stringify(localRevs));
+    } catch (e) {}
+
+    // Send to Google Sheet if Webhook URL is set
+    if (REVIEWS_WEBHOOK_URL) {
+        fetch(REVIEWS_WEBHOOK_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                productId: currentModalProduct._id,
+                productName: currentModalProduct["Product Name"],
+                name: name,
+                rating: currentSelectedFormRating,
+                text: text
+            })
+        }).catch(() => {});
+    }
+
+    // Reset Form UI
+    nameInput.value = "";
+    textInput.value = "";
+    document.getElementById("reviewFormBox").style.display = "none";
+    
+    // Refresh modal review list
+    openModal(currentModalProduct._id);
+    alert("Thank you! Your review has been submitted.");
 }
 
 function parseCSV(text) {
@@ -976,21 +1064,6 @@ function activateModalImage(idx) {
     clearInterval(rotationInterval);
 }
 
-function openWriteReview(p) {
-    const name = p?.["Product Name"] || "your jewellery";
-    const asin = getASIN(p);
-    const msg =
-`Hello Art By Tisha,
-
-I would like to share a review for:
-*${name}*${asin ? `\nItem Code: ${asin}` : ""}
-
-My rating: _ / 5
-My review:
-`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
-}
-
 function openModal(id) {
     const p = products.find(i => i._id === id);
     if (!p) return;
@@ -1027,6 +1100,10 @@ function openModal(id) {
         ratingRow.hidden = true;
     }
 
+    // Hide review submission form initially
+    const revBox = document.getElementById("reviewFormBox");
+    if (revBox) revBox.style.display = "none";
+
     // Reviews list
     const listEl = document.getElementById("mReviewsList");
     listEl.innerHTML = "";
@@ -1045,8 +1122,6 @@ function openModal(id) {
     } else {
         listEl.innerHTML = `<p class="review-empty">No written reviews yet. If you own this piece, we’d love to hear from you.</p>`;
     }
-
-    document.getElementById("writeReviewBtn").onclick = () => openWriteReview(p);
 
     const msg = `Hello Art By Tisha,\n\nI would like to purchase the following item:\n\n*${p["Product Name"]}*\nPrice: ${price.sellingText}` +
                 (asin ? `\nItem Code: ${asin}` : "") +
@@ -1200,7 +1275,7 @@ function triggerInstall() {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.finally(() => { deferredPrompt = null; });
     } else {
-        alert("To install app: Open your browser menu → Add to Home Screen / Install App.");
+        alert("To install app: Open your browser menu (⋮ or ⬆) → Tap 'Add to Home Screen' or 'Install App'.");
     }
 }
 
