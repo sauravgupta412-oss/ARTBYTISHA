@@ -429,22 +429,22 @@
         </div>
     </div>
 
-    <!-- NEW LAUNCH AUTO-SCROLL CAROUSEL -->
-    <div id="newLaunchSection" style="display:none;">
-        <div class="section-header">
-            ✨ Just Launched <span class="count" id="newLaunchHeaderCount"></span><span class="line"></span>
-            <button type="button" class="chip" style="margin:0;padding:5px 12px;font-size:11px;" onclick="jumpToNewLaunch()">View all</button>
-        </div>
-        <div class="carousel-viewport" id="newLaunchViewport">
-            <div id="newLaunchTrack" class="carousel-track"></div>
-        </div>
-    </div>
-
-    <!-- TOP SELLING AUTO-SCROLL CAROUSEL -->
+    <!-- 1. TOP SELLING AUTO-SCROLL CAROUSEL -->
     <div id="carouselSection" style="display:none;">
         <div class="section-header">🏆 Featured Top Sellers<span class="line"></span></div>
         <div class="carousel-viewport" id="carouselViewport">
             <div id="carouselTrack" class="carousel-track"></div>
+        </div>
+    </div>
+
+    <!-- 2. NEW LAUNCH AUTO-SCROLL CAROUSEL -->
+    <div id="newLaunchSection" style="display:none;">
+        <div class="section-header">
+            ✨ Just Launched <span class="count" id="newLaunchHeaderCount"></span><span class="line"></span>
+            <button type="button" class="chip" style="margin:0;padding:5px 12px;font-size:11px;" onclick="forceNewLaunchFilter()">View all</button>
+        </div>
+        <div class="carousel-viewport" id="newLaunchViewport">
+            <div id="newLaunchTrack" class="carousel-track"></div>
         </div>
     </div>
 
@@ -814,11 +814,23 @@ function selectCategory(catVal, clickedChip) {
 }
 function jumpToNewLaunch() {
     const chip = document.querySelector('.chip[data-value="NEW_LAUNCH"]');
-    if (chip) selectCategory("NEW_LAUNCH", chip);
-    else {
-        const sec = document.getElementById("newLaunchSection");
-        if (sec && sec.style.display !== "none") sec.scrollIntoView({ behavior: "smooth", block: "start" });
+    const sec = document.getElementById("newLaunchSection");
+    
+    // If on home view, beautifully scroll down directly to the carousel
+    if (activeCategory === "ALL" && sec && sec.style.display !== "none") {
+        const headerOffset = 130; 
+        const elementPosition = sec.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+    } else {
+        // Otherwise activate the filter
+        if (chip) selectCategory("NEW_LAUNCH", chip);
     }
+}
+function forceNewLaunchFilter() {
+    const chip = document.querySelector('.chip[data-value="NEW_LAUNCH"]');
+    if (chip) selectCategory("NEW_LAUNCH", chip);
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 function updateNewLaunchSpotlight() {
     const spot = document.getElementById("newLaunchSpotlight");
@@ -903,7 +915,6 @@ function renderSection(container, icon, title, items, badgeEmoji) {
     container.appendChild(grid);
 }
 
-// Global auto-scroller for all visible carousels
 function startInfiniteCarousel() {
     clearInterval(carouselInterval);
     if (document.hidden || userTouchingCarousel) return;
@@ -912,7 +923,7 @@ function startInfiniteCarousel() {
         if (userTouchingCarousel || document.hidden) return;
         
         document.querySelectorAll('.carousel-viewport').forEach(vp => {
-            if (vp.offsetParent === null) return; // Skip if hidden
+            if (vp.offsetParent === null) return; 
             const tr = vp.querySelector('.carousel-track');
             if (!tr || tr.children.length < 3) return;
             
@@ -929,28 +940,6 @@ function startInfiniteCarousel() {
             }
         });
     }, CAROUSEL_SPEED);
-}
-
-function renderNewLaunchCarousel() {
-    const items = products.filter(isNewLaunch);
-    const section = document.getElementById("newLaunchSection");
-    const tr = document.getElementById("newLaunchTrack");
-    const vp = document.getElementById("newLaunchViewport");
-    const countEl = document.getElementById("newLaunchHeaderCount");
-    tr.innerHTML = "";
-    if (!items.length) { section.style.display = "none"; return; }
-    section.style.display = "block";
-    if (countEl) countEl.textContent = `(${items.length})`;
-    updateCarouselMetrics();
-    
-    // Duplicate to allow infinite scrolling
-    const loopItems = items.length > 2 ? [...items, ...items] : [...items];
-    loopItems.forEach(item => tr.appendChild(createCard(item, "✨", true)));
-    
-    requestAnimationFrame(() => {
-        vp.scrollLeft = 0;
-        if (items.length > 2) startInfiniteCarousel();
-    });
 }
 
 function renderTopCarousel() {
@@ -972,6 +961,27 @@ function renderTopCarousel() {
     });
 }
 
+function renderNewLaunchCarousel() {
+    const items = products.filter(isNewLaunch);
+    const section = document.getElementById("newLaunchSection");
+    const tr = document.getElementById("newLaunchTrack");
+    const vp = document.getElementById("newLaunchViewport");
+    const countEl = document.getElementById("newLaunchHeaderCount");
+    tr.innerHTML = "";
+    if (!items.length) { section.style.display = "none"; return; }
+    section.style.display = "block";
+    if (countEl) countEl.textContent = `(${items.length})`;
+    updateCarouselMetrics();
+    
+    const loopItems = items.length > 2 ? [...items, ...items] : [...items];
+    loopItems.forEach(item => tr.appendChild(createCard(item, "✨", true)));
+    
+    requestAnimationFrame(() => {
+        vp.scrollLeft = 0;
+        if (items.length > 2) startInfiniteCarousel();
+    });
+}
+
 function applyFilters() {
     const query = document.getElementById("searchInput").value.toLowerCase().trim();
     const grid = document.getElementById("productGrid");
@@ -979,8 +989,8 @@ function applyFilters() {
 
     const showHomeCarousels = !query && activeCategory === "ALL";
     if (showHomeCarousels) {
-        renderNewLaunchCarousel();
         renderTopCarousel();
+        renderNewLaunchCarousel();
     } else {
         document.getElementById("newLaunchSection").style.display = "none";
         document.getElementById("carouselSection").style.display = "none";
@@ -1183,7 +1193,6 @@ function goHome() {
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 }
-
 document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape" && e.key !== "Esc") return;
     if (isZoomOpen()) { e.preventDefault(); dismissZoom(); return; }
@@ -1205,16 +1214,13 @@ document.addEventListener("visibilitychange", () => {
         if (musicOn && musicEl) musicEl.play().catch(() => {});
     }
 });
-
 document.getElementById("searchInput").addEventListener("input", () => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(applyFilters, 200);
 });
-
-// Bind touch/mouse pause events to ALL active carousels dynamically
 function bindCarouselEvents() {
     document.querySelectorAll(".carousel-viewport").forEach(vpEl => {
-        if (vpEl.dataset.eventsBound) return; // Prevent double binding
+        if (vpEl.dataset.eventsBound) return;
         ["touchstart", "mousedown"].forEach(evt => {
             vpEl.addEventListener(evt, () => { userTouchingCarousel = true; clearInterval(carouselInterval); }, { passive: true });
         });
@@ -1227,9 +1233,7 @@ function bindCarouselEvents() {
         vpEl.dataset.eventsBound = "true";
     });
 }
-
 window.addEventListener("resize", updateCarouselMetrics);
-
 function saveProductCache(list) {
     try { localStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify({ ts: Date.now(), products: list })); } catch (e) {}
 }
@@ -1293,7 +1297,6 @@ async function loadCatalog(isRetry) {
         } else showErrorState();
     }
 }
-
 window.addEventListener("load", async () => {
     initTheme();
     initMusic();
