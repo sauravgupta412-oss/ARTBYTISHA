@@ -6,7 +6,7 @@
     <title>Art By Tisha - Premium Jewelry Collection</title>
     <meta name="description" content="Art By Tisha Official Store. Browse premium jewelry: necklaces, rings, bracelets, bangles, and earrings.">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#121212" id="themeColorMeta">
+    <meta name="theme-color" content="#ffffff" id="themeColorMeta">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="launchericon-192x192.png">
@@ -368,13 +368,13 @@
         }
     </style>
 </head>
-<body class="dark-mode">
+<body> <!-- Default is now light mode (no dark-mode class here) -->
 <div class="store-container">
     <div id="topBanner">
         <span class="banner-text">🎉 Launch prices · Free shipping above ₹499</span>
         <div class="banner-actions">
             <button id="musicToggleBtn" class="banner-btn" type="button" onclick="toggleMusic()" aria-pressed="false">🎵 Music</button>
-            <button id="themeToggleBtn" class="banner-btn" type="button" onclick="toggleTheme()">☀️ Light</button>
+            <button id="themeToggleBtn" class="banner-btn" type="button" onclick="toggleTheme()"></button>
         </div>
     </div>
 
@@ -572,12 +572,16 @@ function parseCSV(text) {
 }
 
 function initTheme() {
-    const saved = localStorage.getItem("tisha_theme");
-    const useDark = saved !== "light";
+    let saved = localStorage.getItem("tisha_theme");
+    // DEFAULT TO LIGHT MODE IF NEVER VISITED BEFORE
+    if (!saved) {
+        saved = "light";
+        localStorage.setItem("tisha_theme", "light");
+    }
+    const useDark = saved === "dark";
     document.body.classList.toggle("dark-mode", useDark);
     document.getElementById("themeToggleBtn").innerText = useDark ? "☀️ Light" : "🌙 Dark";
     document.getElementById("themeColorMeta").setAttribute("content", useDark ? "#121212" : "#ffffff");
-    if (!saved) localStorage.setItem("tisha_theme", "dark");
 }
 function toggleTheme() {
     document.body.classList.toggle("dark-mode");
@@ -816,14 +820,13 @@ function jumpToNewLaunch() {
     const chip = document.querySelector('.chip[data-value="NEW_LAUNCH"]');
     const sec = document.getElementById("newLaunchSection");
     
-    // If on home view, beautifully scroll down directly to the carousel
+    // If on home view, smoothly scroll down directly to the New Launch carousel
     if (activeCategory === "ALL" && sec && sec.style.display !== "none") {
         const headerOffset = 130; 
         const elementPosition = sec.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
         window.scrollTo({ top: offsetPosition, behavior: "smooth" });
     } else {
-        // Otherwise activate the filter
         if (chip) selectCategory("NEW_LAUNCH", chip);
     }
 }
@@ -1100,7 +1103,7 @@ function openModal(id) {
         mSave.innerText = "🎉 " + price.savingsText;
         mSave.hidden = false;
         mNote.hidden = false;
-        mReason.hidden = false;
+        mReason.hidden = false; 
     } else {
         mMrp.innerText = price.amazonText ? "Amazon " + price.amazonText : "";
         mDisc.hidden = true;
@@ -1218,6 +1221,7 @@ document.getElementById("searchInput").addEventListener("input", () => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(applyFilters, 200);
 });
+
 function bindCarouselEvents() {
     document.querySelectorAll(".carousel-viewport").forEach(vpEl => {
         if (vpEl.dataset.eventsBound) return;
@@ -1234,6 +1238,7 @@ function bindCarouselEvents() {
     });
 }
 window.addEventListener("resize", updateCarouselMetrics);
+
 function saveProductCache(list) {
     try { localStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify({ ts: Date.now(), products: list })); } catch (e) {}
 }
@@ -1297,6 +1302,7 @@ async function loadCatalog(isRetry) {
         } else showErrorState();
     }
 }
+
 window.addEventListener("load", async () => {
     initTheme();
     initMusic();
