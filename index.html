@@ -580,6 +580,9 @@ function getASIN(p) {
     if (!p) return "";
     return String(p["Amazon ASIN Code"] || p["Amazon ASIN code"] || p["ASIN Code"] || p["ASIN"] || p["SKU Code"] || p["SKU"] || "").trim();
 }
+function getProductCode(p) {
+    return getASIN(p) || p._id;
+}
 
 /* ===== RATINGS & REVIEWS ENGINE ===== */
 function clampRating(n) {
@@ -706,7 +709,7 @@ function submitReviewDirectly() {
     document.getElementById("reviewFormBox").style.display = "none";
     
     // Refresh modal review list
-    openModal(currentModalProduct._id);
+    openModal(currentModalProduct._id, false);
     alert("Thank you! Your review has been submitted.");
 }
 
@@ -783,7 +786,7 @@ function sortProducts(list) {
     switch (currentSort) {
         case "price-asc": return arr.sort((a, b) => toNumber(a["Selling"]) - toNumber(b["Selling"]));
         case "price-desc": return arr.sort((a, b) => toNumber(b["Selling"]) - toNumber(a["Selling"]));
-        case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
         case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
         case "rating-desc":
             return arr.sort((a, b) => {
@@ -822,7 +825,7 @@ function makeChip(label, value, isActive, extraClass) {
     chip.className = "chip" + (extraClass ? " " + extraClass : "") + (isActive ? " active" : "");
     chip.textContent = label;
     chip.dataset.value = value;
-    chip.addEventListener("click", () => selectCategory(value, chip));
+    chip.addEventListener("click", () => selectCategory(value, chip, true));
     return chip;
 }
 function populateCategories() {
@@ -841,13 +844,21 @@ function populateCategories() {
     container.appendChild(makeChip("Bestsellers", "TOP_SELLING", false));
     sortCategoryNames([...cats]).forEach(cat => container.appendChild(makeChip(cat, cat.toUpperCase(), false)));
 }
-function selectCategory(catVal, clickedChip) {
+function selectCategory(catVal, clickedChip, pushHash = true) {
     activeCategory = catVal;
     document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c === clickedChip));
     if (clickedChip) clickedChip.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
     const hero = document.getElementById("heroSection");
     if (hero) hero.style.display = (catVal === "ALL" && !document.getElementById("searchInput").value) ? "block" : "none";
-    // Track category selection in Google Analytics
+    
+    if (pushHash) {
+        if (catVal === "ALL") {
+            if (location.hash) history.pushState({}, "", location.pathname + location.search);
+        } else {
+            history.pushState({ page: "category", cat: catVal }, "", "#" + encodeURIComponent(catVal));
+        }
+    }
+
     if (typeof gtag === "function") {
         gtag("event", "select_category", { category_name: catVal });
     }
@@ -855,7 +866,7 @@ function selectCategory(catVal, clickedChip) {
 }
 function forceNewLaunchFilter() {
     const chip = document.querySelector('.chip[data-value="NEW_LAUNCH"]');
-    if (chip) selectCategory("NEW_LAUNCH", chip);
+    if (chip) selectCategory("NEW_LAUNCH", chip, true);
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -880,7 +891,7 @@ function createCard(item, eagerLoad) {
     const ratingInfo = getProductRating(item);
     const card = document.createElement("article");
     card.className = "product-card";
-    card.onclick = () => openModal(item._id);
+    card.onclick = () => openModal(item._id, true);
 
     let badgeHtml = "";
     if (isNewLaunch(item)) badgeHtml = `<div class="card-new-badge">NEW</div>`;
@@ -1036,7 +1047,6 @@ function applyFilters() {
         return sMatch && cMatch;
     });
 
-    // Track search event in Google Analytics
     if (query && typeof gtag === "function") {
         gtag("event", "search", { search_term: query, results_count: filtered.length });
     }
@@ -1091,11 +1101,18 @@ function activateModalImage(idx) {
     clearInterval(rotationInterval);
 }
 
-function openModal(id) {
+function openModal(id, pushHash = true) {
     const p = products.find(i => i._id === id);
     if (!p) return;
     currentModalProduct = p;
     const asin = getASIN(p);
+    const productCode = getProductCode(p);
+    
+    // Update URL hash with ASIN or product ID (e.g. artbytisha.in/#B0GXPGBZ48)
+    if (pushHash && location.hash !== "#" + productCode) {
+        history.pushState({ page: "product", code: productCode }, "", "#" + productCode);
+    }
+
     lastFocusedBeforeModal = document.activeElement;
     savedScrollPosition = window.scrollY;
     const price = calcPricing(p["Selling"], p["Amazon Price"] || p["MRP"]);
@@ -1114,7 +1131,6 @@ function openModal(id) {
         mMrp.hidden = true;
     }
 
-    // Rating summary
     const ratingRow = document.getElementById("mRatingRow");
     if (ratingInfo) {
         ratingRow.hidden = false;
@@ -1127,11 +1143,9 @@ function openModal(id) {
         ratingRow.hidden = true;
     }
 
-    // Hide review submission form initially
     const revBox = document.getElementById("reviewFormBox");
     if (revBox) revBox.style.display = "none";
 
-    // Reviews list
     const listEl = document.getElementById("mReviewsList");
     listEl.innerHTML = "";
     if (reviewList.length) {
@@ -1150,9 +1164,11 @@ function openModal(id) {
         listEl.innerHTML = `<p class="review-empty">No written reviews yet. If you own this piece, we’d love to hear from you.</p>`;
     }
 
+    // Direct product link includes exact ASIN code hash
+    const directProductUrl = `${location.origin}${location.pathname}#${productCode}`;
     const msg = `Hello Art By Tisha,\n\nI would like to purchase the following item:\n\n*${p["Product Name"]}*\nPrice: ${price.sellingText}` +
                 (asin ? `\nItem Code: ${asin}` : "") +
-                `\n\nLink: ${location.origin}${location.pathname}`;
+                `\n\nLink: ${directProductUrl}`;
     document.getElementById("mWhatsapp").href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
 
     modalImages = [1,2,3,4,5].map(i => cleanImageUrl(p[`Image ${i}`], 1200)).filter(u => u && u.length > 5);
@@ -1176,10 +1192,8 @@ function openModal(id) {
     modal.hidden = false;
     modal.style.display = "flex";
     document.body.classList.add("modal-open");
-    history.pushState({ page: "product" }, "", "#product");
     maybeStartMusicOnProductOpen();
 
-    // Track product view event in Google Analytics
     if (typeof gtag === "function") {
         gtag("event", "view_item", {
             currency: "INR",
@@ -1240,21 +1254,68 @@ function closeModal() {
 }
 function closeModalToHome() {
     closeModal();
-    if (location.hash) history.back();
+    if (location.hash) {
+        history.pushState({}, "", location.pathname + location.search);
+        handleHashRouting();
+    }
 }
 function goHome() {
     dismissZoom();
-    closeModalToHome();
+    closeModal();
+    if (location.hash) history.pushState({}, "", location.pathname + location.search);
     document.getElementById("searchInput").value = "";
     const firstChip = document.querySelector(".chip");
-    if (firstChip) selectCategory("ALL", firstChip);
+    if (firstChip) selectCategory("ALL", firstChip, false);
     window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* SMART HASH ROUTER ENGINE */
+function handleHashRouting() {
+    const rawHash = decodeURIComponent(window.location.hash.replace(/^#/, "").trim());
+    if (!rawHash) {
+        closeModal();
+        const allChip = document.querySelector('.chip[data-value="ALL"]');
+        selectCategory("ALL", allChip, false);
+        return;
+    }
+
+    const upperHash = rawHash.toUpperCase();
+
+    // 1. Check if hash matches an ASIN or Product ID
+    const matchedProduct = products.find(p => {
+        const code = getASIN(p);
+        return (code && code.toUpperCase() === upperHash) || p._id.toUpperCase() === upperHash;
+    });
+
+    if (matchedProduct) {
+        openModal(matchedProduct._id, false);
+        return;
+    }
+
+    // 2. Check if hash matches a Category Chip
+    const chips = Array.from(document.querySelectorAll('.chip'));
+    const matchedChip = chips.find(c => c.dataset.value.toUpperCase() === upperHash || c.textContent.trim().toUpperCase() === upperHash);
+    
+    if (matchedChip) {
+        closeModal();
+        selectCategory(matchedChip.dataset.value, matchedChip, false);
+        return;
+    }
+
+    // If modal is open but hash doesn't match any product, close modal
+    if (document.getElementById("productModal").style.display === "flex") {
+        closeModal();
+    }
 }
 
 window.addEventListener("popstate", () => {
     dismissZoom();
-    closeModal();
+    handleHashRouting();
 });
+window.addEventListener("hashchange", () => {
+    handleHashRouting();
+});
+
 document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape" && e.key !== "Esc") return;
     if (document.getElementById("zoomModal").style.display === "flex") { dismissZoom(); return; }
@@ -1297,6 +1358,7 @@ function renderCatalog() {
     populateCategories();
     applyFilters();
     bindCarouselEvents();
+    handleHashRouting(); // Process any direct deep-link from URL
 }
 async function loadCatalog() {
     try {
@@ -1320,7 +1382,7 @@ async function loadCatalog() {
         if (!next.length) throw new Error("No products");
         products = next;
         renderCatalog();
-        // Track catalog load success in Google Analytics
+        
         if (typeof gtag === "function") {
             gtag("event", "catalog_loaded", { product_count: products.length });
         }
@@ -1337,7 +1399,6 @@ function triggerInstall() {
     if (deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.finally(() => { deferredPrompt = null; });
-        // Track PWA install in Google Analytics
         if (typeof gtag === "function") gtag("event", "install_pwa_prompt");
     } else {
         alert("To install app: Open your browser menu (⋮ or ⬆) → Tap 'Add to Home Screen' or 'Install App'.");
@@ -1355,7 +1416,7 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 
-<!-- Enhanced GoatCounter Tag -->
+<!-- GoatCounter Visitor Analytics Tag -->
 <script data-goatcounter="https://artbytisha.goatcounter.com/count"
         data-goatcounter-settings='{"allow_local": true}'
         async src="https://gc.zgo.at/count.js"></script>
