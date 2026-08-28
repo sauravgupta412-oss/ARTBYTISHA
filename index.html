@@ -781,8 +781,8 @@ function sortProducts(list) {
     switch (currentSort) {
         case "price-asc": return arr.sort((a, b) => toNumber(a["Selling"]) - toNumber(b["Selling"]));
         case "price-desc": return arr.sort((a, b) => toNumber(b["Selling"]) - toNumber(a["Selling"]));
-        case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
-        case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
         case "rating-desc":
             return arr.sort((a, b) => {
                 const ra = getProductRating(a)?.rating || 0;
@@ -916,7 +916,7 @@ function createCard(item, eagerLoad, overrideCategory) {
     const ratingInfo = getProductRating(item);
     const card = document.createElement("article");
     card.className = "product-card";
-    // Product URL uses category from where user clicked (or current active category)
+    // Product URL uses category from where user clicked
     const contextCategory = overrideCategory || activeCategory || catOf(item) || "ALL";
     card.onclick = () => openModal(item._id, true, contextCategory);
 
@@ -949,13 +949,53 @@ function createCard(item, eagerLoad, overrideCategory) {
 function renderSection(container, title, items, sectionCategory) {
     if (!items.length) return;
     const sorted = sortProducts(items);
+    const query = document.getElementById("searchInput").value.toLowerCase().trim();
+    
+    // Check if we are on the Home view (ALL categories) and NOT searching
+    const isHomeView = activeCategory === "ALL" && !query;
+
+    let displayItems = sorted;
+    let showViewAll = false;
+
+    // Limit to 8 items on Home page and show "View all" if there are more
+    if (isHomeView && items.length > 8) {
+        displayItems = sorted.slice(0, 8);
+        showViewAll = true;
+    }
+
     const header = document.createElement("div");
     header.className = "section-header";
-    header.innerHTML = `<div>${title} <span class="count">${sorted.length}</span></div>`;
-    header.appendChild(makeSortSelect());
+    
+    const titleDiv = document.createElement("div");
+    titleDiv.innerHTML = `${title} <span class="count">${sorted.length}</span>`;
+    
+    const actionsDiv = document.createElement("div");
+    actionsDiv.style.display = "flex";
+    actionsDiv.style.alignItems = "center";
+    actionsDiv.style.gap = "10px";
+    actionsDiv.style.marginLeft = "auto";
+
+    actionsDiv.appendChild(makeSortSelect());
+
+    // Inject "View all" button next to sort if limited to 8
+    if (showViewAll) {
+        const viewAllBtn = document.createElement("button");
+        viewAllBtn.type = "button";
+        viewAllBtn.className = "chip";
+        viewAllBtn.style.padding = "4px 12px";
+        viewAllBtn.style.fontSize = "10px";
+        viewAllBtn.textContent = "View all";
+        viewAllBtn.onclick = () => jumpToCategory(sectionCategory);
+        actionsDiv.appendChild(viewAllBtn);
+    }
+
+    header.appendChild(titleDiv);
+    header.appendChild(actionsDiv);
+
     const grid = document.createElement("div");
     grid.className = "grid";
-    sorted.forEach((item, i) => grid.appendChild(createCard(item, i < 4, sectionCategory)));
+    displayItems.forEach((item, i) => grid.appendChild(createCard(item, i < 4, sectionCategory)));
+    
     container.appendChild(header);
     container.appendChild(grid);
 }
@@ -1153,7 +1193,6 @@ function openModal(id, pushHash = true, contextCategory = null) {
     const productCode = getProductCode(p);
     const productCategory = contextCategory || activeCategory || catOf(p) || "ALL";
     
-    // Push nested hash: #CATEGORY/PRODUCTCODE
     if (pushHash) pushRouteState(productCategory, productCode);
 
     updateBreadcrumb(productCategory);
@@ -1209,7 +1248,6 @@ function openModal(id, pushHash = true, contextCategory = null) {
         listEl.innerHTML = `<p class="review-empty">No written reviews yet. If you own this piece, we’d love to hear from you.</p>`;
     }
 
-    // Direct shareable link includes full nested route
     const directProductUrl = `${location.origin}${location.pathname}${buildHash(productCategory, productCode)}`;
     const msg = `Hello Art By Tisha,\n\nI would like to purchase the following item:\n\n*${p["Product Name"]}*\nPrice: ${price.sellingText}` +
                 (asin ? `\nItem Code: ${asin}` : "") +
@@ -1297,7 +1335,6 @@ function closeModal() {
     if (lastFocusedBeforeModal?.focus) lastFocusedBeforeModal.focus();
 }
 function closeModalToHome() {
-    // Go back to category listing (keep category, drop product)
     const categoryToKeep = activeCategory || "ALL";
     closeModal();
     pushRouteState(categoryToKeep, null);
@@ -1319,7 +1356,6 @@ function parseHashParts() {
     const parts = rawHash.split("/").map(p => decodeURIComponent(p.replace(/_/g, " ")).trim()).filter(Boolean);
     if (parts.length === 0) return { category: null, productCode: null };
     if (parts.length === 1) {
-        // Could be either a category or a product code
         const single = parts[0].toUpperCase();
         const matchedProduct = products.find(p => {
             const code = getASIN(p);
@@ -1328,7 +1364,6 @@ function parseHashParts() {
         if (matchedProduct) return { category: catOf(matchedProduct) || "ALL", productCode: single };
         return { category: single, productCode: null };
     }
-    // parts.length >= 2 - first is category, second is product
     return { category: parts[0].toUpperCase(), productCode: parts[1].toUpperCase() };
 }
 
@@ -1343,7 +1378,6 @@ function handleHashRouting() {
         return;
     }
 
-    // Set category first (without triggering another URL push)
     if (category) {
         const targetCategory = category === "ALL" ? "ALL" : category;
         const chip = document.querySelector(`.chip[data-value="${targetCategory}"]`);
@@ -1355,7 +1389,6 @@ function handleHashRouting() {
         }
     }
 
-    // Then open product if specified
     if (productCode) {
         const matchedProduct = products.find(p => {
             const code = getASIN(p);
@@ -1367,7 +1400,6 @@ function handleHashRouting() {
             closeModal();
         }
     } else {
-        // No product in URL - close modal if open
         if (document.getElementById("productModal").style.display === "flex") {
             closeModal();
         }
@@ -1424,7 +1456,7 @@ function renderCatalog() {
     populateCategories();
     applyFilters();
     bindCarouselEvents();
-    handleHashRouting(); // Process any deep link from URL
+    handleHashRouting(); 
 }
 async function loadCatalog() {
     try {
