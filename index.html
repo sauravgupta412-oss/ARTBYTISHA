@@ -201,6 +201,10 @@
             border-bottom: 1px solid var(--border-color); position: sticky; top: 0; background: var(--card-bg); z-index: 10;
         }
         .back-btn { background: none; border: none; font-size: 24px; color: var(--text-main); cursor: pointer; font-weight: 300; }
+        .modal-breadcrumb { font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; }
+        .modal-breadcrumb .sep { margin: 0 6px; opacity: 0.5; }
+        .modal-breadcrumb .crumb-link { cursor: pointer; color: var(--text-main); }
+        .modal-breadcrumb .crumb-link:hover { text-decoration: underline; }
         .modal-content { padding: 20px; padding-bottom: 100px; }
         .modal-img-wrapper { position: relative; margin-bottom: 20px; touch-action: pan-y; background: var(--bg-color); }
         .modal-img { display: block; width: 100%; height: min(55vh, 450px); object-fit: contain; cursor: zoom-in; }
@@ -319,7 +323,7 @@
 <div class="store-container">
     
     <div id="topBanner">
-        <span class="banner-text">Free shipping on orders above ₹499</span>
+        <span class="banner-text">Free shipping on orders above ₹999</span>
         <div class="banner-actions">
             <button id="musicToggleBtn" class="banner-btn" type="button" onclick="toggleMusic()" aria-pressed="false" title="Play music">Music</button>
             <button id="themeToggleBtn" class="banner-btn" type="button" onclick="toggleTheme()">Dark</button>
@@ -393,7 +397,7 @@
     <span class="footer-logo">ART BY TISHA</span>
     <div class="footer-links">
         <a href="https://wa.me/918287567099" target="_blank" rel="noopener">Contact Us</a>
-        <a href="#" onclick="event.preventDefault();alert('Free shipping on orders over ₹499. Standard delivery 3–5 business days.');">Shipping</a>
+        <a href="#" onclick="event.preventDefault();alert('Free shipping on orders over ₹999. Standard delivery 3–5 business days.');">Shipping</a>
         <a href="#" onclick="event.preventDefault();">Instagram</a>
         <button id="installBtn" class="footer-install-link" type="button" onclick="triggerInstall()" title="Install Art By Tisha app">Install App</button>
     </div>
@@ -403,7 +407,7 @@
 <div id="productModal" class="modal" role="dialog" aria-modal="true" hidden>
     <div class="modal-header">
         <button class="back-btn" type="button" onclick="closeModalToHome()">✕</button>
-        <span style="font-size: 12px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">Details</span>
+        <div id="modalBreadcrumb" class="modal-breadcrumb"></div>
         <div style="width:24px;"></div>
     </div>
     <div class="modal-content">
@@ -523,6 +527,7 @@ let audioObj = null;
 let musicOn = false;
 let currentModalProduct = null;
 let currentSelectedFormRating = 5;
+let isRoutingInProgress = false;
 
 function initMusicEngine() {
     if (audioObj) return;
@@ -611,8 +616,6 @@ function getLocalSubmittedReviews(productId) {
 function getProductReviewList(p) {
     const list = [];
     if (!p) return list;
-    
-    // 1. First get reviews from Google Sheet columns
     for (let i = 1; i <= 5; i++) {
         const text = String(p[`Review ${i}`] || p[`Review${i}`] || p[`Customer Review ${i}`] || "").trim();
         if (!text) continue;
@@ -621,8 +624,6 @@ function getProductReviewList(p) {
         const r = clampRating(parseFloat(String(rRaw).replace(/[^\d.]/g, ""))) || 5;
         list.push({ text, name, rating: r });
     }
-    
-    // 2. Combine with reviews submitted directly on the website
     const localRevs = getLocalSubmittedReviews(p._id);
     return [...localRevs, ...list];
 }
@@ -635,7 +636,6 @@ function renderStarsHtml(rating) {
     return `<span class="stars" aria-label="${rating} out of 5 stars">${starsString(rating)}</span>`;
 }
 
-/* --- Direct On-Website Review Submission Logic --- */
 function toggleReviewForm() {
     const box = document.getElementById("reviewFormBox");
     const isHidden = box.style.display === "none" || !box.style.display;
@@ -671,14 +671,12 @@ function submitReviewDirectly() {
         date: new Date().toISOString()
     };
 
-    // Save to device LocalStorage instantly so user sees it right away
     const localRevs = getLocalSubmittedReviews(currentModalProduct._id);
     localRevs.unshift(newReview);
     try {
         localStorage.setItem("user_reviews_" + currentModalProduct._id, JSON.stringify(localRevs));
     } catch (e) {}
 
-    // Send to Google Sheet if Webhook URL is set
     if (REVIEWS_WEBHOOK_URL) {
         fetch(REVIEWS_WEBHOOK_URL, {
             method: "POST",
@@ -694,7 +692,6 @@ function submitReviewDirectly() {
         }).catch(() => {});
     }
 
-    // Track review submission in Google Analytics
     if (typeof gtag === "function") {
         gtag("event", "submit_review", {
             product_id: currentModalProduct._id,
@@ -703,13 +700,11 @@ function submitReviewDirectly() {
         });
     }
 
-    // Reset Form UI
     nameInput.value = "";
     textInput.value = "";
     document.getElementById("reviewFormBox").style.display = "none";
     
-    // Refresh modal review list
-    openModal(currentModalProduct._id, false);
+    openModal(currentModalProduct._id, false, activeCategory);
     alert("Thank you! Your review has been submitted.");
 }
 
@@ -786,8 +781,8 @@ function sortProducts(list) {
     switch (currentSort) {
         case "price-asc": return arr.sort((a, b) => toNumber(a["Selling"]) - toNumber(b["Selling"]));
         case "price-desc": return arr.sort((a, b) => toNumber(b["Selling"]) - toNumber(a["Selling"]));
-        case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
-        case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
         case "rating-desc":
             return arr.sort((a, b) => {
                 const ra = getProductRating(a)?.rating || 0;
@@ -825,6 +820,7 @@ function makeChip(label, value, isActive, extraClass) {
     chip.className = "chip" + (extraClass ? " " + extraClass : "") + (isActive ? " active" : "");
     chip.textContent = label;
     chip.dataset.value = value;
+    chip.dataset.label = label;
     chip.addEventListener("click", () => selectCategory(value, chip, true));
     return chip;
 }
@@ -844,20 +840,49 @@ function populateCategories() {
     container.appendChild(makeChip("Bestsellers", "TOP_SELLING", false));
     sortCategoryNames([...cats]).forEach(cat => container.appendChild(makeChip(cat, cat.toUpperCase(), false)));
 }
+
+/* ===== NESTED HASH ROUTING ENGINE ===== */
+function encodeHashPart(str) {
+    return encodeURIComponent(str).replace(/%20/g, "_");
+}
+function buildHash(category, productCode) {
+    let parts = [];
+    if (category && category !== "ALL") parts.push(encodeHashPart(category));
+    else if (productCode) parts.push("ALL");
+    if (productCode) parts.push(encodeHashPart(productCode));
+    return parts.length ? "#" + parts.join("/") : "";
+}
+function pushRouteState(category, productCode) {
+    const newHash = buildHash(category, productCode);
+    const currentHash = location.hash;
+    if (newHash !== currentHash) {
+        isRoutingInProgress = true;
+        if (!newHash) {
+            history.pushState({}, "", location.pathname + location.search);
+        } else {
+            history.pushState({ page: productCode ? "product" : "category", cat: category, code: productCode }, "", newHash);
+        }
+        setTimeout(() => { isRoutingInProgress = false; }, 50);
+    }
+}
+
+function getCategoryDisplayLabel(catValue) {
+    if (catValue === "ALL") return "All";
+    if (catValue === "TOP_SELLING") return "Bestsellers";
+    if (catValue === "NEW_LAUNCH") return "New Collection";
+    const chip = document.querySelector(`.chip[data-value="${catValue}"]`);
+    if (chip) return chip.dataset.label || chip.textContent;
+    return catValue.charAt(0).toUpperCase() + catValue.slice(1).toLowerCase();
+}
+
 function selectCategory(catVal, clickedChip, pushHash = true) {
     activeCategory = catVal;
-    document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c === clickedChip));
+    document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c.dataset.value === catVal));
     if (clickedChip) clickedChip.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
     const hero = document.getElementById("heroSection");
     if (hero) hero.style.display = (catVal === "ALL" && !document.getElementById("searchInput").value) ? "block" : "none";
     
-    if (pushHash) {
-        if (catVal === "ALL") {
-            if (location.hash) history.pushState({}, "", location.pathname + location.search);
-        } else {
-            history.pushState({ page: "category", cat: catVal }, "", "#" + encodeURIComponent(catVal));
-        }
-    }
+    if (pushHash) pushRouteState(catVal, null);
 
     if (typeof gtag === "function") {
         gtag("event", "select_category", { category_name: catVal });
@@ -885,13 +910,15 @@ function updateCarouselMetrics() {
     document.documentElement.style.setProperty("--carousel-item-width", carouselItemWidth + "px");
 }
 
-function createCard(item, eagerLoad) {
+function createCard(item, eagerLoad, overrideCategory) {
     const pricing = calcPricing(item["Selling"], item["Amazon Price"] || item["MRP"]);
     const url = cleanImageUrl(item["Image 1"], 600);
     const ratingInfo = getProductRating(item);
     const card = document.createElement("article");
     card.className = "product-card";
-    card.onclick = () => openModal(item._id, true);
+    // Product URL uses category from where user clicked (or current active category)
+    const contextCategory = overrideCategory || activeCategory || catOf(item) || "ALL";
+    card.onclick = () => openModal(item._id, true, contextCategory);
 
     let badgeHtml = "";
     if (isNewLaunch(item)) badgeHtml = `<div class="card-new-badge">NEW</div>`;
@@ -919,7 +946,7 @@ function createCard(item, eagerLoad) {
     return card;
 }
 
-function renderSection(container, title, items) {
+function renderSection(container, title, items, sectionCategory) {
     if (!items.length) return;
     const sorted = sortProducts(items);
     const header = document.createElement("div");
@@ -928,7 +955,7 @@ function renderSection(container, title, items) {
     header.appendChild(makeSortSelect());
     const grid = document.createElement("div");
     grid.className = "grid";
-    sorted.forEach((item, i) => grid.appendChild(createCard(item, i < 4)));
+    sorted.forEach((item, i) => grid.appendChild(createCard(item, i < 4, sectionCategory)));
     container.appendChild(header);
     container.appendChild(grid);
 }
@@ -988,7 +1015,7 @@ function renderTopCarousel() {
     section.style.display = "block";
     updateCarouselMetrics();
     const loopItems = topItems.length > 2 ? [...topItems, ...topItems] : [...topItems];
-    loopItems.forEach(item => tr.appendChild(createCard(item, true)));
+    loopItems.forEach(item => tr.appendChild(createCard(item, true, "TOP_SELLING")));
     requestAnimationFrame(() => {
         vp.scrollLeft = 0;
         if (topItems.length > 2) startInfiniteCarousel();
@@ -1007,7 +1034,7 @@ function renderNewLaunchCarousel() {
     if (countEl) countEl.textContent = String(items.length);
     updateCarouselMetrics();
     const loopItems = items.length > 2 ? [...items, ...items] : [...items];
-    loopItems.forEach(item => tr.appendChild(createCard(item, true)));
+    loopItems.forEach(item => tr.appendChild(createCard(item, true, "NEW_LAUNCH")));
     requestAnimationFrame(() => {
         vp.scrollLeft = 0;
         if (items.length > 2) startInfiniteCarousel();
@@ -1071,10 +1098,10 @@ function applyFilters() {
                 if (!groups[cat].includes(p)) groups[cat].push(p);
             });
         }
-        sortCategoryNames(Object.keys(groups)).forEach(cat => renderSection(grid, cat, groups[cat]));
+        sortCategoryNames(Object.keys(groups)).forEach(cat => renderSection(grid, cat, groups[cat], cat.toUpperCase()));
     } else {
         const title = activeCategory === "TOP_SELLING" ? "Bestsellers" : activeCategory === "NEW_LAUNCH" ? "New Collection" : activeCategory;
-        renderSection(grid, title, filtered);
+        renderSection(grid, title, filtered, activeCategory);
     }
 }
 
@@ -1101,17 +1128,35 @@ function activateModalImage(idx) {
     clearInterval(rotationInterval);
 }
 
-function openModal(id, pushHash = true) {
+function updateBreadcrumb(categoryValue) {
+    const bc = document.getElementById("modalBreadcrumb");
+    if (!bc) return;
+    const catLabel = getCategoryDisplayLabel(categoryValue || activeCategory || "ALL");
+    bc.innerHTML = `<span class="crumb-link" onclick="jumpToCategory('${categoryValue || activeCategory || "ALL"}')">${catLabel}</span><span class="sep">/</span><span>Details</span>`;
+}
+
+function jumpToCategory(catValue) {
+    closeModal();
+    const chip = document.querySelector(`.chip[data-value="${catValue}"]`);
+    if (chip) selectCategory(catValue, chip, true);
+    else {
+        const allChip = document.querySelector('.chip[data-value="ALL"]');
+        selectCategory("ALL", allChip, true);
+    }
+}
+
+function openModal(id, pushHash = true, contextCategory = null) {
     const p = products.find(i => i._id === id);
     if (!p) return;
     currentModalProduct = p;
     const asin = getASIN(p);
     const productCode = getProductCode(p);
+    const productCategory = contextCategory || activeCategory || catOf(p) || "ALL";
     
-    // Update URL hash with ASIN or product ID (e.g. artbytisha.in/#B0GXPGBZ48)
-    if (pushHash && location.hash !== "#" + productCode) {
-        history.pushState({ page: "product", code: productCode }, "", "#" + productCode);
-    }
+    // Push nested hash: #CATEGORY/PRODUCTCODE
+    if (pushHash) pushRouteState(productCategory, productCode);
+
+    updateBreadcrumb(productCategory);
 
     lastFocusedBeforeModal = document.activeElement;
     savedScrollPosition = window.scrollY;
@@ -1164,8 +1209,8 @@ function openModal(id, pushHash = true) {
         listEl.innerHTML = `<p class="review-empty">No written reviews yet. If you own this piece, we’d love to hear from you.</p>`;
     }
 
-    // Direct product link includes exact ASIN code hash
-    const directProductUrl = `${location.origin}${location.pathname}#${productCode}`;
+    // Direct shareable link includes full nested route
+    const directProductUrl = `${location.origin}${location.pathname}${buildHash(productCategory, productCode)}`;
     const msg = `Hello Art By Tisha,\n\nI would like to purchase the following item:\n\n*${p["Product Name"]}*\nPrice: ${price.sellingText}` +
                 (asin ? `\nItem Code: ${asin}` : "") +
                 `\n\nLink: ${directProductUrl}`;
@@ -1208,7 +1253,6 @@ function openModal(id, pushHash = true) {
     }
 }
 
-// Track WhatsApp purchase clicks in Google Analytics
 document.addEventListener("click", (e) => {
     const wa = e.target.closest("#mWhatsapp");
     if (!wa || !currentModalProduct || typeof gtag !== "function") return;
@@ -1253,58 +1297,80 @@ function closeModal() {
     if (lastFocusedBeforeModal?.focus) lastFocusedBeforeModal.focus();
 }
 function closeModalToHome() {
+    // Go back to category listing (keep category, drop product)
+    const categoryToKeep = activeCategory || "ALL";
     closeModal();
-    if (location.hash) {
-        history.pushState({}, "", location.pathname + location.search);
-        handleHashRouting();
-    }
+    pushRouteState(categoryToKeep, null);
 }
 function goHome() {
     dismissZoom();
     closeModal();
-    if (location.hash) history.pushState({}, "", location.pathname + location.search);
+    pushRouteState("ALL", null);
     document.getElementById("searchInput").value = "";
     const firstChip = document.querySelector(".chip");
     if (firstChip) selectCategory("ALL", firstChip, false);
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-/* SMART HASH ROUTER ENGINE */
+/* SMART NESTED HASH ROUTER */
+function parseHashParts() {
+    const rawHash = window.location.hash.replace(/^#/, "").trim();
+    if (!rawHash) return { category: null, productCode: null };
+    const parts = rawHash.split("/").map(p => decodeURIComponent(p.replace(/_/g, " ")).trim()).filter(Boolean);
+    if (parts.length === 0) return { category: null, productCode: null };
+    if (parts.length === 1) {
+        // Could be either a category or a product code
+        const single = parts[0].toUpperCase();
+        const matchedProduct = products.find(p => {
+            const code = getASIN(p);
+            return (code && code.toUpperCase() === single) || p._id.toUpperCase() === single;
+        });
+        if (matchedProduct) return { category: catOf(matchedProduct) || "ALL", productCode: single };
+        return { category: single, productCode: null };
+    }
+    // parts.length >= 2 - first is category, second is product
+    return { category: parts[0].toUpperCase(), productCode: parts[1].toUpperCase() };
+}
+
 function handleHashRouting() {
-    const rawHash = decodeURIComponent(window.location.hash.replace(/^#/, "").trim());
-    if (!rawHash) {
+    if (isRoutingInProgress) return;
+    const { category, productCode } = parseHashParts();
+
+    if (!category && !productCode) {
         closeModal();
         const allChip = document.querySelector('.chip[data-value="ALL"]');
         selectCategory("ALL", allChip, false);
         return;
     }
 
-    const upperHash = rawHash.toUpperCase();
-
-    // 1. Check if hash matches an ASIN or Product ID
-    const matchedProduct = products.find(p => {
-        const code = getASIN(p);
-        return (code && code.toUpperCase() === upperHash) || p._id.toUpperCase() === upperHash;
-    });
-
-    if (matchedProduct) {
-        openModal(matchedProduct._id, false);
-        return;
+    // Set category first (without triggering another URL push)
+    if (category) {
+        const targetCategory = category === "ALL" ? "ALL" : category;
+        const chip = document.querySelector(`.chip[data-value="${targetCategory}"]`);
+        if (chip) {
+            selectCategory(targetCategory, chip, false);
+        } else {
+            const allChip = document.querySelector('.chip[data-value="ALL"]');
+            selectCategory("ALL", allChip, false);
+        }
     }
 
-    // 2. Check if hash matches a Category Chip
-    const chips = Array.from(document.querySelectorAll('.chip'));
-    const matchedChip = chips.find(c => c.dataset.value.toUpperCase() === upperHash || c.textContent.trim().toUpperCase() === upperHash);
-    
-    if (matchedChip) {
-        closeModal();
-        selectCategory(matchedChip.dataset.value, matchedChip, false);
-        return;
-    }
-
-    // If modal is open but hash doesn't match any product, close modal
-    if (document.getElementById("productModal").style.display === "flex") {
-        closeModal();
+    // Then open product if specified
+    if (productCode) {
+        const matchedProduct = products.find(p => {
+            const code = getASIN(p);
+            return (code && code.toUpperCase() === productCode) || p._id.toUpperCase() === productCode;
+        });
+        if (matchedProduct) {
+            openModal(matchedProduct._id, false, category);
+        } else {
+            closeModal();
+        }
+    } else {
+        // No product in URL - close modal if open
+        if (document.getElementById("productModal").style.display === "flex") {
+            closeModal();
+        }
     }
 }
 
@@ -1313,7 +1379,7 @@ window.addEventListener("popstate", () => {
     handleHashRouting();
 });
 window.addEventListener("hashchange", () => {
-    handleHashRouting();
+    if (!isRoutingInProgress) handleHashRouting();
 });
 
 document.addEventListener("keydown", (e) => {
@@ -1358,7 +1424,7 @@ function renderCatalog() {
     populateCategories();
     applyFilters();
     bindCarouselEvents();
-    handleHashRouting(); // Process any direct deep-link from URL
+    handleHashRouting(); // Process any deep link from URL
 }
 async function loadCatalog() {
     try {
