@@ -342,7 +342,7 @@
             </header>
             <div class="search-wrapper">
                 <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="search" id="searchInput" class="search-input" placeholder="Search our collection..." autocomplete="off" aria-label="Search">
+                <input type="search" id="searchInput" class="search-input" placeholder="Search by name or ASIN code..." autocomplete="off" aria-label="Search">
             </div>
         </div>
     </div>
@@ -581,10 +581,20 @@ function maybeStartMusicOnProductOpen() {
     audioObj.play().catch(() => { musicOn = false; updateMusicUI(); });
 }
 
+/* Enhanced Robust ASIN extraction utility */
 function getASIN(p) {
     if (!p) return "";
-    return String(p["Amazon ASIN Code"] || p["Amazon ASIN code"] || p["ASIN Code"] || p["ASIN"] || p["SKU Code"] || p["SKU"] || "").trim();
+    // Dynamically checks for exact or partial key variations with stripped whitespaces and characters
+    const searchKeys = ["amazonasincode", "asincode", "asin", "skucode", "sku"];
+    for (const rawKey of Object.keys(p)) {
+        const normalizedKey = rawKey.toLowerCase().replace(/[^a-z0-9]/g, "");
+        if (searchKeys.includes(normalizedKey)) {
+            return String(p[rawKey] || "").trim();
+        }
+    }
+    return "";
 }
+
 function getProductCode(p) {
     return getASIN(p) || p._id;
 }
@@ -1106,11 +1116,19 @@ function applyFilters() {
         const name = (p["Product Name"] || "").toLowerCase();
         const asin = getASIN(p).toLowerCase();
         const cat = catOf(p);
+        
+        // Match product by name OR dynamically extracted Amazon ASIN / SKU
         const sMatch = !query || name.includes(query) || asin.includes(query);
+        
+        // If query is an exact match for an ASIN/SKU, search globally and bypass active tab category filters
+        const isExactAsinMatch = query && (asin === query);
+        
         let cMatch = true;
-        if (activeCategory === "TOP_SELLING") cMatch = cat === "TOP SELLING";
-        else if (activeCategory === "NEW_LAUNCH") cMatch = cat === "NEW LAUNCH";
-        else if (activeCategory !== "ALL") cMatch = cat === activeCategory;
+        if (!isExactAsinMatch) {
+            if (activeCategory === "TOP_SELLING") cMatch = cat === "TOP SELLING";
+            else if (activeCategory === "NEW_LAUNCH") cMatch = cat === "NEW LAUNCH";
+            else if (activeCategory !== "ALL") cMatch = cat === activeCategory;
+        }
         return sMatch && cMatch;
     });
 
@@ -1123,7 +1141,7 @@ function applyFilters() {
         return;
     }
 
-    if (activeCategory === "ALL") {
+    if (activeCategory === "ALL" || (query && filtered.length > 0)) {
         const groups = {};
         filtered.forEach(p => {
             if (!query && (isTopSelling(p) || isNewLaunch(p))) return;
