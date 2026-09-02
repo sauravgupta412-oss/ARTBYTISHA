@@ -291,6 +291,43 @@
         .share-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
         .share-btn .share-label { display: none; }
 
+        /* Elegant Action Sheet / Share Sheet UI */
+        .share-sheet-backdrop {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2400;
+            display: none; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .share-sheet-backdrop.active { display: block; opacity: 1; }
+        
+        .share-sheet {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--card-bg); border-top-left-radius: 16px; border-top-right-radius: 16px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.15); z-index: 2500;
+            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: none; flex-direction: column; padding: 24px; max-width: 500px; margin: 0 auto;
+        }
+        .share-sheet.active { display: flex; transform: translateY(0); }
+        
+        .share-sheet-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+        }
+        .share-sheet-title {
+            font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; color: var(--text-main); margin: 0;
+        }
+        .share-sheet-close {
+            background: none; border: none; font-size: 22px; color: var(--text-muted); cursor: pointer; padding: 4px;
+        }
+        .share-options-list { display: flex; flex-direction: column; gap: 12px; }
+        
+        .share-option-btn {
+            display: flex; align-items: center; gap: 14px; padding: 14px 18px;
+            border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color);
+            color: var(--text-main); font-family: inherit; font-size: 14px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s; text-align: left; width: 100%;
+        }
+        .share-option-btn:hover { background: var(--border-color); border-color: var(--text-main); }
+        .share-option-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .share-option-btn.opt-whatsapp svg { color: #25D366; fill: currentColor; }
+
         /* Share Toast Notification */
         .share-toast {
             position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(80px);
@@ -540,6 +577,29 @@
     </div>
 </div>
 
+<!-- Backdrops and Overlays for the Share Action Sheet -->
+<div id="shareSheetBackdrop" class="share-sheet-backdrop" onclick="closeShareSheet()"></div>
+<div id="shareSheet" class="share-sheet" role="dialog">
+    <div class="share-sheet-header">
+        <h3 class="share-sheet-title">Share Jewelry design</h3>
+        <button type="button" class="share-sheet-close" onclick="closeShareSheet()">✕</button>
+    </div>
+    <div class="share-options-list">
+        <button type="button" class="share-option-btn opt-whatsapp" onclick="triggerWhatsAppShare()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm.08 17.52c-1.56 0-3.1-.42-4.47-1.21l-.32-.19-3.14.82.84-3.06-.2-.33c-.87-1.39-1.33-3-1.33-4.65 0-4.83 3.94-8.77 8.77-8.77 2.34 0 4.54.91 6.19 2.57 1.66 1.65 2.57 3.85 2.57 6.19-.01 4.83-3.95 8.78-8.79 8.78z"/></svg>
+            <span>Share on WhatsApp (Website Link)</span>
+        </button>
+        <button type="button" class="share-option-btn" onclick="triggerSystemShare()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            <span>Other Apps (Instagram / Email Share)</span>
+        </button>
+        <button type="button" class="share-option-btn" onclick="triggerCopyDetails()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy Description details</span>
+        </button>
+    </div>
+</div>
+
 <!-- Share Toast Notification -->
 <div id="shareToast" class="share-toast"></div>
 
@@ -661,33 +721,55 @@ function getProductCode(p) {
     return getASIN(p) || p._id;
 }
 
-/* ===== SHARE PRODUCT ENGINE ===== */
+/* ===== SAFE SHARING SHEET SYSTEM ===== */
 function showShareToast(message, duration = 3000) {
     const toast = document.getElementById("shareToast");
-    toast.textContent = message;
-    toast.classList.add("visible");
-    setTimeout(() => toast.classList.remove("visible"), duration);
+    if (toast) {
+        toast.textContent = message;
+        toast.classList.add("visible");
+        setTimeout(() => toast.classList.remove("visible"), duration);
+    }
 }
 
-// Converts a URL to an actual File Object that the system can attach to WhatsApp/Instagram
+function closeShareSheet() {
+    const sheet = document.getElementById("shareSheet");
+    const backdrop = document.getElementById("shareSheetBackdrop");
+    if (sheet) sheet.classList.remove("active");
+    if (backdrop) backdrop.classList.remove("active");
+    setTimeout(() => {
+        if (sheet) sheet.style.display = "none";
+    }, 300);
+}
+
+function shareProduct() {
+    if (!currentModalProduct) return;
+    const sheet = document.getElementById("shareSheet");
+    const backdrop = document.getElementById("shareSheetBackdrop");
+    if (sheet && backdrop) {
+        sheet.style.display = "flex";
+        sheet.offsetHeight; // Forces engine reflow
+        sheet.classList.add("active");
+        backdrop.classList.add("active");
+    }
+}
+
 async function fetchImageAsFile(imageUrl, productName) {
     try {
         const response = await fetch(imageUrl, { mode: "cors" });
-        if (!response.ok) throw new Error("Image fetch failed");
+        if (!response.ok) throw new Error("Fetch failed");
         const blob = await response.blob();
         const ext = blob.type.includes("png") ? "png" : "jpg";
         const safeName = (productName || "product").replace(/[^a-zA-Z0-9]/g, "-").substring(0, 30);
         return new File([blob], `${safeName}.${ext}`, { type: blob.type });
     } catch (e) {
-        console.error("CORS fetch failed, trying standard fetch:", e);
         return null;
     }
 }
 
-async function shareProduct() {
-    if (!currentModalProduct) return;
-    
+function buildShareContent() {
     const p = currentModalProduct;
+    if (!p) return null;
+    
     const asin = getASIN(p);
     const productCode = getProductCode(p);
     const price = calcPricing(p["Selling"], p["Amazon Price"] || p["MRP"]);
@@ -697,8 +779,9 @@ async function shareProduct() {
     
     let shareTitle = p["Product Name"] || "Art By Tisha Jewelry";
     let shareLines = [];
+    
     shareLines.push(`✨ ${shareTitle}`);
-    shareLines.push("");
+    shareLines.push(``);
     shareLines.push(`💰 Price: ${price.sellingText}`);
     if (price.hasDiscount) shareLines.push(`   MRP: ${price.mrpText}`);
     if (asin) shareLines.push(`📦 Item Code: ${asin}`);
@@ -707,71 +790,85 @@ async function shareProduct() {
     }
     const cat = (p["Category"] || "").trim();
     if (cat) shareLines.push(`🏷️ Category: ${cat}`);
-    shareLines.push("");
+    shareLines.push(``);
     shareLines.push(`🛍️ View & Order: ${directUrl}`);
-    shareLines.push("");
-    shareLines.push("— Art By Tisha | Fine Jewelry Studio");
+    shareLines.push(``);
+    shareLines.push(`— Art By Tisha | Fine Jewelry Studio`);
     
-    const shareText = shareLines.join("\n");
-    // Share a medium-size (600px) optimized image so that it downloads instantly on cellular networks
-    const currentImageUrl = cleanImageUrl(modalImages[currentImgIdx] || modalImages[0], 600);
+    const imgUrl = (modalImages && modalImages.length > 0) ? modalImages[currentImgIdx] || modalImages[0] : "";
+    
+    return {
+        title: shareTitle,
+        text: shareLines.join("\n"),
+        url: directUrl,
+        rawImageUrl: cleanImageUrl(imgUrl, 600)
+    };
+}
 
-    // Dynamic Tracking
-    if (typeof gtag === "function") {
-        gtag("event", "share", {
-            method: navigator.share ? "native" : "clipboard",
-            content_type: "product",
-            item_id: asin || p._id,
-            item_name: shareTitle
-        });
-    }
+function triggerWhatsAppShare() {
+    const payload = buildShareContent();
+    if (!payload) return;
+    
+    closeShareSheet();
+    const encodedText = encodeURIComponent(payload.text);
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const url = isMobile ? `https://api.whatsapp.com/send?text=${encodedText}` : `https://web.whatsapp.com/send?text=${encodedText}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+}
 
-    // Try Native Image attachment sharing on iOS/Android
+async function triggerSystemShare() {
+    const payload = buildShareContent();
+    if (!payload) return;
+    
+    closeShareSheet();
+
     if (navigator.share) {
-        showShareToast("🎨 Preparing your jewelry image to share...", 1500);
         try {
-            const imageFile = await fetchImageAsFile(currentImageUrl, shareTitle);
-            
+            const imageFile = await fetchImageAsFile(payload.rawImageUrl, payload.title);
             if (imageFile) {
                 const shareData = {
                     files: [imageFile],
-                    text: shareText, // WhatsApp/Telegram will read this as the direct image caption!
-                    title: shareTitle
+                    text: payload.text,
+                    title: payload.title
                 };
-                
                 if (navigator.canShare && navigator.canShare(shareData)) {
                     await navigator.share(shareData);
                     return;
                 }
             }
-            
-            // If sharing files isn't supported, fall back to native link sharing
             await navigator.share({
-                title: shareTitle,
-                text: shareText,
-                url: directUrl
+                title: payload.title,
+                text: payload.text,
+                url: payload.url
             });
             return;
         } catch (err) {
-            if (err.name === "AbortError") return; // User cancelled, do nothing
+            if (err.name === "AbortError") return;
         }
     }
+    triggerCopyDetails();
+}
 
-    // Desktop & Browser Fallback: Copy to Clipboard
+async function triggerCopyDetails() {
+    const payload = buildShareContent();
+    if (!payload) return;
+    
+    closeShareSheet();
+
     try {
-        await navigator.clipboard.writeText(shareText);
-        showShareToast("✓ Details copied! You can also right-click or long-press the product image to save/copy it directly.", 4000);
+        await navigator.clipboard.writeText(payload.text);
+        showShareToast("✓ Details copied to clipboard!", 3000);
     } catch (e) {
         const textarea = document.createElement("textarea");
-        textarea.value = shareText;
+        textarea.value = payload.text;
         textarea.style.cssText = "position:fixed;left:-9999px;top:-9999px;opacity:0;";
         document.body.appendChild(textarea);
         textarea.select();
         try {
             document.execCommand("copy");
-            showShareToast("✓ Details copied! Long-press image to copy design.", 4000);
+            showShareToast("✓ Details copied!", 3000);
         } catch (e2) {
-            showShareToast("Please copy the browser address bar link manually to share.");
+            showShareToast("Sharing not supported.");
         }
         document.body.removeChild(textarea);
     }
@@ -826,9 +923,11 @@ function renderStarsHtml(rating) {
 
 function toggleReviewForm() {
     const box = document.getElementById("reviewFormBox");
-    const isHidden = box.style.display === "none" || !box.style.display;
-    box.style.display = isHidden ? "block" : "none";
-    if (isHidden) setFormRating(5);
+    if (box) {
+        const isHidden = box.style.display === "none" || !box.style.display;
+        box.style.display = isHidden ? "block" : "none";
+        if (isHidden) setFormRating(5);
+    }
 }
 
 function setFormRating(n) {
@@ -844,6 +943,7 @@ function submitReviewDirectly() {
     if (!currentModalProduct) return;
     const nameInput = document.getElementById("revName");
     const textInput = document.getElementById("revText");
+    if (!nameInput || !textInput) return;
     const name = nameInput.value.trim();
     const text = textInput.value.trim();
 
@@ -890,7 +990,8 @@ function submitReviewDirectly() {
 
     nameInput.value = "";
     textInput.value = "";
-    document.getElementById("reviewFormBox").style.display = "none";
+    const box = document.getElementById("reviewFormBox");
+    if (box) box.style.display = "none";
     
     openModal(currentModalProduct._id, false, activeCategory);
     alert("Thank you! Your review has been submitted.");
@@ -915,19 +1016,26 @@ function parseCSV(text) {
 }
 
 function initTheme() {
-    let saved = localStorage.getItem("tisha_theme");
-    if (!saved) { saved = "light"; localStorage.setItem("tisha_theme", "light"); }
+    let saved = localStorage.getItem("tisha_theme") || "light";
     const useDark = saved === "dark";
     document.body.classList.toggle("dark-mode", useDark);
-    document.getElementById("themeToggleBtn").innerText = useDark ? "Light" : "Dark";
-    document.getElementById("themeColorMeta").setAttribute("content", useDark ? "#121212" : "#ffffff");
+    
+    const themeBtn = document.getElementById("themeToggleBtn");
+    if (themeBtn) themeBtn.innerText = useDark ? "Light" : "Dark";
+    
+    const themeMeta = document.getElementById("themeColorMeta");
+    if (themeMeta) themeMeta.setAttribute("content", useDark ? "#121212" : "#ffffff");
 }
 function toggleTheme() {
     document.body.classList.toggle("dark-mode");
     const isDark = document.body.classList.contains("dark-mode");
     localStorage.setItem("tisha_theme", isDark ? "dark" : "light");
-    document.getElementById("themeToggleBtn").innerText = isDark ? "Light" : "Dark";
-    document.getElementById("themeColorMeta").setAttribute("content", isDark ? "#121212" : "#ffffff");
+    
+    const themeBtn = document.getElementById("themeToggleBtn");
+    if (themeBtn) themeBtn.innerText = isDark ? "Light" : "Dark";
+    
+    const themeMeta = document.getElementById("themeColorMeta");
+    if (themeMeta) themeMeta.setAttribute("content", isDark ? "#121212" : "#ffffff");
 }
 
 function toNumber(v) { return parseFloat(String(v == null ? "" : v).replace(/[^\d.]/g, "")) || 0; }
@@ -970,7 +1078,7 @@ function sortProducts(list) {
         case "price-asc": return arr.sort((a, b) => toNumber(a["Selling"]) - toNumber(b["Selling"]));
         case "price-desc": return arr.sort((a, b) => toNumber(b["Selling"]) - toNumber(a["Selling"]));
         case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
-        case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
         case "rating-desc":
             return arr.sort((a, b) => {
                 const ra = getProductRating(a)?.rating || 0;
@@ -1014,6 +1122,7 @@ function makeChip(label, value, isActive, extraClass) {
 }
 function populateCategories() {
     const container = document.getElementById("chipContainer");
+    if (!container) return;
     container.innerHTML = "";
     const cats = new Set();
     let hasNew = false;
@@ -1066,8 +1175,11 @@ function selectCategory(catVal, clickedChip, pushHash = true) {
     activeCategory = catVal;
     document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c.dataset.value === catVal));
     if (clickedChip) clickedChip.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    
     const hero = document.getElementById("heroSection");
-    if (hero) hero.style.display = (catVal === "ALL" && !document.getElementById("searchInput").value) ? "block" : "none";
+    const searchInp = document.getElementById("searchInput");
+    const searchVal = searchInp ? searchInp.value : "";
+    if (hero) hero.style.display = (catVal === "ALL" && !searchVal) ? "block" : "none";
     
     if (pushHash) pushRouteState(catVal, null);
 
@@ -1135,7 +1247,8 @@ function createCard(item, eagerLoad, overrideCategory) {
 function renderSection(container, title, items, sectionCategory) {
     if (!items.length) return;
     const sorted = sortProducts(items);
-    const query = document.getElementById("searchInput").value.toLowerCase().trim();
+    const searchInp = document.getElementById("searchInput");
+    const query = searchInp ? searchInp.value.toLowerCase().trim() : "";
     const isHomeView = activeCategory === "ALL" && !query;
 
     let displayItems = sorted;
@@ -1232,6 +1345,7 @@ function renderTopCarousel() {
     const section = document.getElementById("carouselSection");
     const tr = document.getElementById("carouselTrack");
     const vp = document.getElementById("carouselViewport");
+    if (!tr || !section) return;
     tr.innerHTML = "";
     if (!topItems.length) { section.style.display = "none"; return; }
     section.style.display = "block";
@@ -1239,7 +1353,7 @@ function renderTopCarousel() {
     const loopItems = topItems.length > 2 ? [...topItems, ...topItems] : [...topItems];
     loopItems.forEach(item => tr.appendChild(createCard(item, true, "TOP_SELLING")));
     requestAnimationFrame(() => {
-        vp.scrollLeft = 0;
+        if (vp) vp.scrollLeft = 0;
         if (topItems.length > 2) startInfiniteCarousel();
     });
 }
@@ -1250,6 +1364,7 @@ function renderNewLaunchCarousel() {
     const tr = document.getElementById("newLaunchTrack");
     const vp = document.getElementById("newLaunchViewport");
     const countEl = document.getElementById("newLaunchHeaderCount");
+    if (!tr || !section) return;
     tr.innerHTML = "";
     if (!items.length) { section.style.display = "none"; return; }
     section.style.display = "block";
@@ -1258,29 +1373,34 @@ function renderNewLaunchCarousel() {
     const loopItems = items.length > 2 ? [...items, ...items] : [...items];
     loopItems.forEach(item => tr.appendChild(createCard(item, true, "NEW_LAUNCH")));
     requestAnimationFrame(() => {
-        vp.scrollLeft = 0;
+        if (vp) vp.scrollLeft = 0;
         if (items.length > 2) startInfiniteCarousel();
     });
 }
 
 function applyFilters() {
-    const query = document.getElementById("searchInput").value.toLowerCase().trim();
+    const searchInp = document.getElementById("searchInput");
+    const query = searchInp ? searchInp.value.toLowerCase().trim() : "";
     const grid = document.getElementById("productGrid");
+    if (!grid) return;
     grid.innerHTML = "";
 
     const showHome = !query && activeCategory === "ALL";
     const hero = document.getElementById("heroSection");
     const testimonials = document.getElementById("testimonialsSection");
     if (hero) hero.style.display = showHome ? "block" : "none";
-    if (testimonials) testimonials.style.display = showHome && SITE_TESTIMONIALS.length ? "block" : "none";
+    if (testimonials) testimonials.style.display = (showHome && SITE_TESTIMONIALS.length) ? "block" : "none";
+
+    const topSect = document.getElementById("carouselSection");
+    const newSect = document.getElementById("newLaunchSection");
 
     if (showHome) {
         renderTopCarousel();
         renderNewLaunchCarousel();
         renderTestimonials();
     } else {
-        document.getElementById("newLaunchSection").style.display = "none";
-        document.getElementById("carouselSection").style.display = "none";
+        if (newSect) newSect.style.display = "none";
+        if (topSect) topSect.style.display = "none";
         clearInterval(carouselInterval);
     }
 
@@ -1347,7 +1467,8 @@ function handleSwipe() {
 }
 function activateModalImage(idx) {
     currentImgIdx = idx;
-    document.getElementById("mImg").src = modalImages[idx];
+    const mImg = document.getElementById("mImg");
+    if (mImg) mImg.src = modalImages[idx];
     document.querySelectorAll(".modal-thumb").forEach((el, i) => {
         el.classList.toggle("active", i === idx);
         if (i === idx) el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
@@ -1368,7 +1489,7 @@ function jumpToCategory(catValue) {
     if (chip) selectCategory(catValue, chip, true);
     else {
         const allChip = document.querySelector('.chip[data-value="ALL"]');
-        selectCategory("ALL", allChip, true);
+        if (allChip) selectCategory("ALL", allChip, true);
     }
 }
 
@@ -1390,77 +1511,99 @@ function openModal(id, pushHash = true, contextCategory = null) {
     const ratingInfo = getProductRating(p);
     const reviewList = getProductReviewList(p);
 
-    document.getElementById("mTitle").innerText = p["Product Name"] || "";
-    document.getElementById("mPrice").innerText = price.sellingText;
+    const mTitle = document.getElementById("mTitle");
+    const mPrice = document.getElementById("mPrice");
+    if (mTitle) mTitle.innerText = p["Product Name"] || "";
+    if (mPrice) mPrice.innerText = price.sellingText;
 
     const mMrp = document.getElementById("mMrp");
-    if (price.hasDiscount) {
-        mMrp.innerText = price.mrpText;
-        mMrp.hidden = false;
-    } else {
-        mMrp.innerText = "";
-        mMrp.hidden = true;
+    if (mMrp) {
+        if (price.hasDiscount) {
+            mMrp.innerText = price.mrpText;
+            mMrp.hidden = false;
+        } else {
+            mMrp.innerText = "";
+            mMrp.hidden = true;
+        }
     }
 
     const ratingRow = document.getElementById("mRatingRow");
-    if (ratingInfo) {
-        ratingRow.hidden = false;
-        document.getElementById("mStars").textContent = starsString(ratingInfo.rating);
-        document.getElementById("mRatingScore").textContent = ratingInfo.rating.toFixed(1);
-        document.getElementById("mRatingCount").textContent = ratingInfo.count > 0
-            ? `· ${ratingInfo.count} review${ratingInfo.count === 1 ? "" : "s"}`
-            : "· Customer rated";
-    } else {
-        ratingRow.hidden = true;
+    if (ratingRow) {
+        if (ratingInfo) {
+            ratingRow.hidden = false;
+            const mStars = document.getElementById("mStars");
+            const mScore = document.getElementById("mRatingScore");
+            const mCount = document.getElementById("mRatingCount");
+            if (mStars) mStars.textContent = starsString(ratingInfo.rating);
+            if (mScore) mScore.textContent = ratingInfo.rating.toFixed(1);
+            if (mCount) {
+                mCount.textContent = ratingInfo.count > 0
+                    ? `· ${ratingInfo.count} review${ratingInfo.count === 1 ? "" : "s"}`
+                    : "· Customer rated";
+            }
+        } else {
+            ratingRow.hidden = true;
+        }
     }
 
     const revBox = document.getElementById("reviewFormBox");
     if (revBox) revBox.style.display = "none";
 
     const listEl = document.getElementById("mReviewsList");
-    listEl.innerHTML = "";
-    if (reviewList.length) {
-        reviewList.forEach(r => {
-            const item = document.createElement("div");
-            item.className = "review-item";
-            item.innerHTML = `
-                <div class="stars">${starsString(r.rating)}</div>
-                <p class="review-body">"${r.text}"</p>
-                <div class="review-author">— ${r.name}</div>`;
-            listEl.appendChild(item);
-        });
-    } else if (ratingInfo) {
-        listEl.innerHTML = `<p class="review-empty">This piece is rated ${ratingInfo.rating.toFixed(1)}/5${ratingInfo.count ? ` by ${ratingInfo.count} customers` : ""}. Be the next to share your experience.</p>`;
-    } else {
-        listEl.innerHTML = `<p class="review-empty">No written reviews yet. If you own this piece, we'd love to hear from you.</p>`;
+    if (listEl) {
+        listEl.innerHTML = "";
+        if (reviewList.length) {
+            reviewList.forEach(r => {
+                const item = document.createElement("div");
+                item.className = "review-item";
+                item.innerHTML = `
+                    <div class="stars">${starsString(r.rating)}</div>
+                    <p class="review-body">"${r.text}"</p>
+                    <div class="review-author">— ${r.name}</div>`;
+                listEl.appendChild(item);
+            });
+        } else if (ratingInfo) {
+            listEl.innerHTML = `<p class="review-empty">This piece is rated ${ratingInfo.rating.toFixed(1)}/5${ratingInfo.count ? ` by ${ratingInfo.count} customers` : ""}. Be the next to share your experience.</p>`;
+        } else {
+            listEl.innerHTML = `<p class="review-empty">No written reviews yet. If you own this piece, we'd love to hear from you.</p>`;
+        }
     }
 
     const directProductUrl = `${location.origin}${location.pathname}${buildHash(productCategory, productCode)}`;
     const msg = `Hello Art By Tisha,\n\nI would like to purchase the following item:\n\n*${p["Product Name"]}*\nPrice: ${price.sellingText}` +
                 (asin ? `\nItem Code: ${asin}` : "") +
                 `\n\nLink: ${directProductUrl}`;
-    document.getElementById("mWhatsapp").href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+    
+    const mWhatsapp = document.getElementById("mWhatsapp");
+    if (mWhatsapp) mWhatsapp.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
 
     modalImages = [1,2,3,4,5].map(i => cleanImageUrl(p[`Image ${i}`], 1200)).filter(u => u && u.length > 5);
     const mImg = document.getElementById("mImg");
     const thumbs = document.getElementById("mThumbs");
     clearInterval(rotationInterval);
-    thumbs.innerHTML = "";
+    
+    if (thumbs) {
+        thumbs.innerHTML = "";
+        modalImages.forEach((url, i) => {
+            const t = document.createElement("img");
+            t.src = cleanImageUrl(url.replace(/=w\d+/, ""), 200) || url;
+            t.className = "modal-thumb" + (i === 0 ? " active" : "");
+            t.onclick = () => activateModalImage(i);
+            thumbs.appendChild(t);
+        });
+    }
+    
     currentImgIdx = 0;
-    mImg.src = modalImages[0] || "";
-    mImg.alt = p["Product Name"] || "";
-
-    modalImages.forEach((url, i) => {
-        const t = document.createElement("img");
-        t.src = cleanImageUrl(url.replace(/=w\d+/, ""), 200) || url;
-        t.className = "modal-thumb" + (i === 0 ? " active" : "");
-        t.onclick = () => activateModalImage(i);
-        thumbs.appendChild(t);
-    });
+    if (mImg) {
+        mImg.src = modalImages[0] || "";
+        mImg.alt = p["Product Name"] || "";
+    }
 
     const modal = document.getElementById("productModal");
-    modal.hidden = false;
-    modal.style.display = "flex";
+    if (modal) {
+        modal.hidden = false;
+        modal.style.display = "flex";
+    }
     document.body.classList.add("modal-open");
     maybeStartMusicOnProductOpen();
 
@@ -1496,25 +1639,33 @@ document.addEventListener("click", (e) => {
 });
 
 function triggerZoom() {
-    const currentSrc = document.getElementById("mImg").src;
+    const mImg = document.getElementById("mImg");
+    const currentSrc = mImg ? mImg.src : "";
     if (!currentSrc) return;
-    document.getElementById("zoomImg").src = currentSrc;
+    const zImg = document.getElementById("zoomImg");
+    if (zImg) zImg.src = currentSrc;
     const zm = document.getElementById("zoomModal");
-    zm.hidden = false;
-    zm.style.display = "flex";
+    if (zm) {
+        zm.hidden = false;
+        zm.style.display = "flex";
+    }
     document.body.classList.add("zoom-open");
 }
 function dismissZoom() {
     const zm = document.getElementById("zoomModal");
-    zm.style.display = "none";
-    zm.hidden = true;
+    if (zm) {
+        zm.style.display = "none";
+        zm.hidden = true;
+    }
     document.body.classList.remove("zoom-open");
 }
 function closeModal() {
     dismissZoom();
     const modal = document.getElementById("productModal");
-    modal.style.display = "none";
-    modal.hidden = true;
+    if (modal) {
+        modal.style.display = "none";
+        modal.hidden = true;
+    }
     document.body.classList.remove("modal-open");
     clearInterval(rotationInterval);
     currentModalProduct = null;
@@ -1530,7 +1681,8 @@ function goHome() {
     dismissZoom();
     closeModal();
     pushRouteState("ALL", null);
-    document.getElementById("searchInput").value = "";
+    const searchInp = document.getElementById("searchInput");
+    if (searchInp) searchInp.value = "";
     const firstChip = document.querySelector(".chip");
     if (firstChip) selectCategory("ALL", firstChip, false);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1557,10 +1709,13 @@ function handleHashRouting() {
     if (isRoutingInProgress) return;
     const { category, productCode } = parseHashParts();
 
+    const allModal = document.getElementById("productModal");
+    const displayVal = allModal ? allModal.style.display : "none";
+
     if (!category && !productCode) {
         closeModal();
         const allChip = document.querySelector('.chip[data-value="ALL"]');
-        selectCategory("ALL", allChip, false);
+        if (allChip) selectCategory("ALL", allChip, false);
         return;
     }
 
@@ -1571,7 +1726,7 @@ function handleHashRouting() {
             selectCategory(targetCategory, chip, false);
         } else {
             const allChip = document.querySelector('.chip[data-value="ALL"]');
-            selectCategory("ALL", allChip, false);
+            if (allChip) selectCategory("ALL", allChip, false);
         }
     }
 
@@ -1586,7 +1741,7 @@ function handleHashRouting() {
             closeModal();
         }
     } else {
-        if (document.getElementById("productModal").style.display === "flex") {
+        if (displayVal === "flex") {
             closeModal();
         }
     }
@@ -1602,8 +1757,10 @@ window.addEventListener("hashchange", () => {
 
 document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape" && e.key !== "Esc") return;
-    if (document.getElementById("zoomModal").style.display === "flex") { dismissZoom(); return; }
-    if (document.getElementById("productModal").style.display === "flex") closeModalToHome();
+    const zoomM = document.getElementById("zoomModal");
+    const prodM = document.getElementById("productModal");
+    if (zoomM && zoomM.style.display === "flex") { dismissZoom(); return; }
+    if (prodM && prodM.style.display === "flex") closeModalToHome();
 });
 document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
@@ -1615,10 +1772,13 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 
-document.getElementById("searchInput").addEventListener("input", () => {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(applyFilters, 200);
-});
+const searchBar = document.getElementById("searchInput");
+if (searchBar) {
+    searchBar.addEventListener("input", () => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(applyFilters, 200);
+    });
+}
 
 function bindCarouselEvents() {
     document.querySelectorAll(".carousel-viewport").forEach(vpEl => {
@@ -1638,7 +1798,8 @@ function bindCarouselEvents() {
 window.addEventListener("resize", updateCarouselMetrics);
 
 function renderCatalog() {
-    document.getElementById("status").style.display = "none";
+    const statusBox = document.getElementById("status");
+    if (statusBox) statusBox.style.display = "none";
     populateCategories();
     applyFilters();
     bindCarouselEvents();
@@ -1671,7 +1832,10 @@ async function loadCatalog() {
             gtag("event", "catalog_loaded", { product_count: products.length });
         }
     } catch (error) {
-        document.getElementById("status").innerHTML = `<div class="error-box"><p>Unable to load collections.</p></div>`;
+        const statusBox = document.getElementById("status");
+        if (statusBox) {
+            statusBox.innerHTML = `<div class="error-box"><p>Unable to load collections.</p></div>`;
+        }
     }
 }
 
