@@ -293,11 +293,11 @@
 
         /* Share Toast Notification */
         .share-toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+            position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(80px);
             background: var(--text-main); color: var(--card-bg); padding: 12px 24px; border-radius: 8px;
-            font-size: 13px; font-weight: 500; z-index: 3000; pointer-events: none;
+            font-size: 13px; font-weight: 500; z-index: 3000; pointer-events: none; text-align: center;
             opacity: 0; transition: all .35s cubic-bezier(.4,0,.2,1);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.2); white-space: nowrap;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2); max-width: 90%; line-height: 1.4;
         }
         .share-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -349,6 +349,7 @@
             .whatsapp-btn { position: relative; left: auto; bottom: auto; transform: none; box-shadow: none; }
             .share-btn .share-label { display: inline; }
             .testimonial-card { flex: 0 0 320px; }
+            .share-toast { bottom: 30px; }
         }
 
         @media (max-width: 767px) {
@@ -661,22 +662,24 @@ function getProductCode(p) {
 }
 
 /* ===== SHARE PRODUCT ENGINE ===== */
-function showShareToast(message) {
+function showShareToast(message, duration = 3000) {
     const toast = document.getElementById("shareToast");
     toast.textContent = message;
     toast.classList.add("visible");
-    setTimeout(() => toast.classList.remove("visible"), 2500);
+    setTimeout(() => toast.classList.remove("visible"), duration);
 }
 
+// Converts a URL to an actual File Object that the system can attach to WhatsApp/Instagram
 async function fetchImageAsFile(imageUrl, productName) {
     try {
         const response = await fetch(imageUrl, { mode: "cors" });
         if (!response.ok) throw new Error("Image fetch failed");
         const blob = await response.blob();
         const ext = blob.type.includes("png") ? "png" : "jpg";
-        const safeName = (productName || "product").replace(/[^a-zA-Z0-9]/g, "-").substring(0, 40);
+        const safeName = (productName || "product").replace(/[^a-zA-Z0-9]/g, "-").substring(0, 30);
         return new File([blob], `${safeName}.${ext}`, { type: blob.type });
     } catch (e) {
+        console.error("CORS fetch failed, trying standard fetch:", e);
         return null;
     }
 }
@@ -692,7 +695,6 @@ async function shareProduct() {
     const productCategory = activeCategory || catOf(p) || "ALL";
     const directUrl = `${location.origin}${location.pathname}${buildHash(productCategory, productCode)}`;
     
-    // Build share text with all available product information
     let shareTitle = p["Product Name"] || "Art By Tisha Jewelry";
     let shareLines = [];
     shareLines.push(`✨ ${shareTitle}`);
@@ -711,9 +713,10 @@ async function shareProduct() {
     shareLines.push("— Art By Tisha | Fine Jewelry Studio");
     
     const shareText = shareLines.join("\n");
-    const currentImageUrl = modalImages[currentImgIdx] || modalImages[0] || "";
+    // Share a medium-size (600px) optimized image so that it downloads instantly on cellular networks
+    const currentImageUrl = cleanImageUrl(modalImages[currentImgIdx] || modalImages[0], 600);
 
-    // Track share event
+    // Dynamic Tracking
     if (typeof gtag === "function") {
         gtag("event", "share", {
             method: navigator.share ? "native" : "clipboard",
@@ -723,41 +726,42 @@ async function shareProduct() {
         });
     }
 
-    // Try Native Web Share API (mobile & modern browsers)
+    // Try Native Image attachment sharing on iOS/Android
     if (navigator.share) {
+        showShareToast("🎨 Preparing your jewelry image to share...", 1500);
         try {
-            let shareData = {
-                title: shareTitle,
-                text: shareText,
-                url: directUrl
-            };
+            const imageFile = await fetchImageAsFile(currentImageUrl, shareTitle);
             
-            // Try to include the product image as a file
-            if (currentImageUrl && navigator.canShare) {
-                const imageFile = await fetchImageAsFile(currentImageUrl, shareTitle);
-                if (imageFile) {
-                    const dataWithFile = { ...shareData, files: [imageFile] };
-                    if (navigator.canShare(dataWithFile)) {
-                        shareData = dataWithFile;
-                    }
+            if (imageFile) {
+                const shareData = {
+                    files: [imageFile],
+                    text: shareText, // WhatsApp/Telegram will read this as the direct image caption!
+                    title: shareTitle
+                };
+                
+                if (navigator.canShare && navigator.canShare(shareData)) {
+                    await navigator.share(shareData);
+                    return;
                 }
             }
             
-            await navigator.share(shareData);
-            showShareToast("Shared successfully!");
+            // If sharing files isn't supported, fall back to native link sharing
+            await navigator.share({
+                title: shareTitle,
+                text: shareText,
+                url: directUrl
+            });
             return;
         } catch (err) {
-            // User cancelled or share failed — fall through to clipboard
-            if (err.name === "AbortError") return;
+            if (err.name === "AbortError") return; // User cancelled, do nothing
         }
     }
 
-    // Fallback: Copy to Clipboard
+    // Desktop & Browser Fallback: Copy to Clipboard
     try {
         await navigator.clipboard.writeText(shareText);
-        showShareToast("✓ Product details copied to clipboard!");
+        showShareToast("✓ Details copied! You can also right-click or long-press the product image to save/copy it directly.", 4000);
     } catch (e) {
-        // Last resort fallback for older browsers
         const textarea = document.createElement("textarea");
         textarea.value = shareText;
         textarea.style.cssText = "position:fixed;left:-9999px;top:-9999px;opacity:0;";
@@ -765,9 +769,9 @@ async function shareProduct() {
         textarea.select();
         try {
             document.execCommand("copy");
-            showShareToast("✓ Product details copied to clipboard!");
+            showShareToast("✓ Details copied! Long-press image to copy design.", 4000);
         } catch (e2) {
-            showShareToast("Could not share. Please copy the URL manually.");
+            showShareToast("Please copy the browser address bar link manually to share.");
         }
         document.body.removeChild(textarea);
     }
@@ -965,8 +969,8 @@ function sortProducts(list) {
     switch (currentSort) {
         case "price-asc": return arr.sort((a, b) => toNumber(a["Selling"]) - toNumber(b["Selling"]));
         case "price-desc": return arr.sort((a, b) => toNumber(b["Selling"]) - toNumber(a["Selling"]));
-        case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
-        case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
         case "rating-desc":
             return arr.sort((a, b) => {
                 const ra = getProductRating(a)?.rating || 0;
