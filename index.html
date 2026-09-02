@@ -205,6 +205,15 @@
         .modal-breadcrumb .sep { margin: 0 6px; opacity: 0.5; }
         .modal-breadcrumb .crumb-link { cursor: pointer; color: var(--text-main); }
         .modal-breadcrumb .crumb-link:hover { text-decoration: underline; }
+        .modal-header-actions { display: flex; align-items: center; gap: 8px; }
+        .modal-share-icon-btn {
+            background: none; border: 1px solid var(--border-color); border-radius: 50%;
+            width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-main); transition: all .2s;
+        }
+        .modal-share-icon-btn:hover { background: var(--bg-color); border-color: var(--text-main); }
+        .modal-share-icon-btn svg { width: 16px; height: 16px; }
+
         .modal-content { padding: 20px; padding-bottom: 100px; }
         .modal-img-wrapper { position: relative; margin-bottom: 20px; touch-action: pan-y; background: var(--bg-color); }
         .modal-img { display: block; width: 100%; height: min(55vh, 450px); object-fit: contain; cursor: zoom-in; }
@@ -263,12 +272,34 @@
             border-radius: 4px; font-size: 12px; font-weight: 500; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
         }
 
+        .modal-actions-row {
+            display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px;
+        }
         .whatsapp-btn {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 400px;
+            flex: 1; min-width: 200px;
             background: var(--text-main); color: var(--card-bg); border: none; padding: 16px; border-radius: 4px; font-size: 14px;
-            font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 10px; text-decoration: none; z-index: 1001;
+            font-weight: 500; display: flex; justify-content: center; align-items: center; gap: 10px; text-decoration: none;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15); letter-spacing: 0.5px; font-family: inherit;
         }
+        .share-btn {
+            flex: 0 0 auto; min-width: 54px;
+            background: var(--card-bg); color: var(--text-main); border: 1px solid var(--text-main); padding: 16px;
+            border-radius: 4px; font-size: 14px; font-weight: 500; display: flex; justify-content: center;
+            align-items: center; gap: 8px; cursor: pointer; letter-spacing: 0.5px; font-family: inherit; transition: all .2s;
+        }
+        .share-btn:hover { background: var(--text-main); color: var(--card-bg); }
+        .share-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+        .share-btn .share-label { display: none; }
+
+        /* Share Toast Notification */
+        .share-toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+            background: var(--text-main); color: var(--card-bg); padding: 12px 24px; border-radius: 8px;
+            font-size: 13px; font-weight: 500; z-index: 3000; pointer-events: none;
+            opacity: 0; transition: all .35s cubic-bezier(.4,0,.2,1);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2); white-space: nowrap;
+        }
+        .share-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         .site-footer {
             background: var(--bg-color); border-top: 1px solid var(--border-color);
@@ -314,8 +345,22 @@
             .modal-gallery { position: sticky; top: 100px; }
             .modal-img { height: 600px; border: 1px solid var(--border-color); }
             .modal-title { font-size: 32px; }
-            .whatsapp-btn { position: relative; left: auto; bottom: auto; transform: none; width: 100%; margin-top: 30px; box-shadow: none; }
+            .modal-actions-row { position: relative; }
+            .whatsapp-btn { position: relative; left: auto; bottom: auto; transform: none; box-shadow: none; }
+            .share-btn .share-label { display: inline; }
             .testimonial-card { flex: 0 0 320px; }
+        }
+
+        @media (max-width: 767px) {
+            .whatsapp-btn {
+                position: fixed; bottom: 20px; left: 20px; right: 70px; width: auto;
+                z-index: 1001; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            }
+            .share-btn {
+                position: fixed; bottom: 20px; right: 20px; width: 54px; height: 54px;
+                z-index: 1001; box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+                border-radius: 50%; padding: 0;
+            }
         }
     </style>
 </head>
@@ -408,7 +453,14 @@
     <div class="modal-header">
         <button class="back-btn" type="button" onclick="closeModalToHome()">✕</button>
         <div id="modalBreadcrumb" class="modal-breadcrumb"></div>
-        <div style="width:24px;"></div>
+        <div class="modal-header-actions">
+            <button class="modal-share-icon-btn" type="button" onclick="shareProduct()" title="Share this product">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+            </button>
+        </div>
     </div>
     <div class="modal-content">
         <div class="modal-gallery">
@@ -447,7 +499,6 @@
                 
                 <button type="button" class="write-review-btn" onclick="toggleReviewForm()">✎ Write a review</button>
                 
-                <!-- Direct On-Website Review Submission Form -->
                 <div class="review-form-box" id="reviewFormBox">
                     <h4>Leave a Review</h4>
                     <div class="star-rating-select" id="starRatingSelect">
@@ -463,10 +514,20 @@
                 </div>
             </div>
             
-            <a id="mWhatsapp" href="#" class="whatsapp-btn" target="_blank" rel="noopener">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2z"/></svg>
-                Purchase via WhatsApp
-            </a>
+            <div class="modal-actions-row">
+                <a id="mWhatsapp" href="#" class="whatsapp-btn" target="_blank" rel="noopener">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2z"/></svg>
+                    Purchase via WhatsApp
+                </a>
+                <button type="button" class="share-btn" onclick="shareProduct()" title="Share this product">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                        <polyline points="16 6 12 2 8 6"/>
+                        <line x1="12" y1="2" x2="12" y2="15"/>
+                    </svg>
+                    <span class="share-label">Share</span>
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -478,12 +539,14 @@
     </div>
 </div>
 
+<!-- Share Toast Notification -->
+<div id="shareToast" class="share-toast"></div>
+
 <script>
 const WHATSAPP_NUMBER = "919717928285";
 const SHEET_ID = "1h9RxfOCsIBul2HuSwWUAK8LQ8nrmriMK8IG_B1TD1BQ";
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Products`;
 
-// PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE TO SAVE REVIEWS DIRECTLY TO YOUR GOOGLE SHEET:
 const REVIEWS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwwEVVu-KFN3271O3Ju3fp7aqEBdPwMf7-A5NeU4V_XKCdiCmHnns9DXx9OQZmJNwmKtQ/exec"; 
 
 const PRODUCT_CACHE_KEY = "abt_products_cache_v7";
@@ -581,10 +644,8 @@ function maybeStartMusicOnProductOpen() {
     audioObj.play().catch(() => { musicOn = false; updateMusicUI(); });
 }
 
-/* Enhanced Robust ASIN extraction utility */
 function getASIN(p) {
     if (!p) return "";
-    // Dynamically checks for exact or partial key variations with stripped whitespaces and characters
     const searchKeys = ["amazonasincode", "asincode", "asin", "skucode", "sku"];
     for (const rawKey of Object.keys(p)) {
         const normalizedKey = rawKey.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -597,6 +658,119 @@ function getASIN(p) {
 
 function getProductCode(p) {
     return getASIN(p) || p._id;
+}
+
+/* ===== SHARE PRODUCT ENGINE ===== */
+function showShareToast(message) {
+    const toast = document.getElementById("shareToast");
+    toast.textContent = message;
+    toast.classList.add("visible");
+    setTimeout(() => toast.classList.remove("visible"), 2500);
+}
+
+async function fetchImageAsFile(imageUrl, productName) {
+    try {
+        const response = await fetch(imageUrl, { mode: "cors" });
+        if (!response.ok) throw new Error("Image fetch failed");
+        const blob = await response.blob();
+        const ext = blob.type.includes("png") ? "png" : "jpg";
+        const safeName = (productName || "product").replace(/[^a-zA-Z0-9]/g, "-").substring(0, 40);
+        return new File([blob], `${safeName}.${ext}`, { type: blob.type });
+    } catch (e) {
+        return null;
+    }
+}
+
+async function shareProduct() {
+    if (!currentModalProduct) return;
+    
+    const p = currentModalProduct;
+    const asin = getASIN(p);
+    const productCode = getProductCode(p);
+    const price = calcPricing(p["Selling"], p["Amazon Price"] || p["MRP"]);
+    const ratingInfo = getProductRating(p);
+    const productCategory = activeCategory || catOf(p) || "ALL";
+    const directUrl = `${location.origin}${location.pathname}${buildHash(productCategory, productCode)}`;
+    
+    // Build share text with all available product information
+    let shareTitle = p["Product Name"] || "Art By Tisha Jewelry";
+    let shareLines = [];
+    shareLines.push(`✨ ${shareTitle}`);
+    shareLines.push("");
+    shareLines.push(`💰 Price: ${price.sellingText}`);
+    if (price.hasDiscount) shareLines.push(`   MRP: ${price.mrpText}`);
+    if (asin) shareLines.push(`📦 Item Code: ${asin}`);
+    if (ratingInfo) {
+        shareLines.push(`⭐ Rating: ${ratingInfo.rating.toFixed(1)}/5${ratingInfo.count ? ` (${ratingInfo.count} reviews)` : ""}`);
+    }
+    const cat = (p["Category"] || "").trim();
+    if (cat) shareLines.push(`🏷️ Category: ${cat}`);
+    shareLines.push("");
+    shareLines.push(`🛍️ View & Order: ${directUrl}`);
+    shareLines.push("");
+    shareLines.push("— Art By Tisha | Fine Jewelry Studio");
+    
+    const shareText = shareLines.join("\n");
+    const currentImageUrl = modalImages[currentImgIdx] || modalImages[0] || "";
+
+    // Track share event
+    if (typeof gtag === "function") {
+        gtag("event", "share", {
+            method: navigator.share ? "native" : "clipboard",
+            content_type: "product",
+            item_id: asin || p._id,
+            item_name: shareTitle
+        });
+    }
+
+    // Try Native Web Share API (mobile & modern browsers)
+    if (navigator.share) {
+        try {
+            let shareData = {
+                title: shareTitle,
+                text: shareText,
+                url: directUrl
+            };
+            
+            // Try to include the product image as a file
+            if (currentImageUrl && navigator.canShare) {
+                const imageFile = await fetchImageAsFile(currentImageUrl, shareTitle);
+                if (imageFile) {
+                    const dataWithFile = { ...shareData, files: [imageFile] };
+                    if (navigator.canShare(dataWithFile)) {
+                        shareData = dataWithFile;
+                    }
+                }
+            }
+            
+            await navigator.share(shareData);
+            showShareToast("Shared successfully!");
+            return;
+        } catch (err) {
+            // User cancelled or share failed — fall through to clipboard
+            if (err.name === "AbortError") return;
+        }
+    }
+
+    // Fallback: Copy to Clipboard
+    try {
+        await navigator.clipboard.writeText(shareText);
+        showShareToast("✓ Product details copied to clipboard!");
+    } catch (e) {
+        // Last resort fallback for older browsers
+        const textarea = document.createElement("textarea");
+        textarea.value = shareText;
+        textarea.style.cssText = "position:fixed;left:-9999px;top:-9999px;opacity:0;";
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand("copy");
+            showShareToast("✓ Product details copied to clipboard!");
+        } catch (e2) {
+            showShareToast("Could not share. Please copy the URL manually.");
+        }
+        document.body.removeChild(textarea);
+    }
 }
 
 /* ===== RATINGS & REVIEWS ENGINE ===== */
@@ -791,8 +965,8 @@ function sortProducts(list) {
     switch (currentSort) {
         case "price-asc": return arr.sort((a, b) => toNumber(a["Selling"]) - toNumber(b["Selling"]));
         case "price-desc": return arr.sort((a, b) => toNumber(b["Selling"]) - toNumber(a["Selling"]));
-        case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
-        case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "name-asc": return arr.sort((a, b) => String(a["Product Name"] || "").localeCompare(String(b["Product Name"] || ""), undefined, { sensitivity: "base" }));
+        case "name-desc": return arr.sort((a, b) => String(b["Product Name"] || "").localeCompare(String(a["Product Name"] || ""), undefined, { sensitivity: "base" }));
         case "rating-desc":
             return arr.sort((a, b) => {
                 const ra = getProductRating(a)?.rating || 0;
@@ -851,7 +1025,6 @@ function populateCategories() {
     sortCategoryNames([...cats]).forEach(cat => container.appendChild(makeChip(cat, cat.toUpperCase(), false)));
 }
 
-/* ===== NESTED HASH ROUTING ENGINE ===== */
 function encodeHashPart(str) {
     return encodeURIComponent(str).replace(/%20/g, "_");
 }
@@ -926,7 +1099,6 @@ function createCard(item, eagerLoad, overrideCategory) {
     const ratingInfo = getProductRating(item);
     const card = document.createElement("article");
     card.className = "product-card";
-    // Product URL uses category from where user clicked
     const contextCategory = overrideCategory || activeCategory || catOf(item) || "ALL";
     card.onclick = () => openModal(item._id, true, contextCategory);
 
@@ -960,14 +1132,11 @@ function renderSection(container, title, items, sectionCategory) {
     if (!items.length) return;
     const sorted = sortProducts(items);
     const query = document.getElementById("searchInput").value.toLowerCase().trim();
-    
-    // Check if we are on the Home view (ALL categories) and NOT searching
     const isHomeView = activeCategory === "ALL" && !query;
 
     let displayItems = sorted;
     let showViewAll = false;
 
-    // Limit to 8 items on Home page and show "View all" if there are more
     if (isHomeView && items.length > 8) {
         displayItems = sorted.slice(0, 8);
         showViewAll = true;
@@ -987,7 +1156,6 @@ function renderSection(container, title, items, sectionCategory) {
 
     actionsDiv.appendChild(makeSortSelect());
 
-    // Inject "View all" button next to sort if limited to 8
     if (showViewAll) {
         const viewAllBtn = document.createElement("button");
         viewAllBtn.type = "button";
@@ -1025,7 +1193,7 @@ function renderTestimonials() {
         el.className = "testimonial-card";
         el.innerHTML = `
             <div class="testimonial-stars">${starsString(t.rating || 5)}</div>
-            <p class="testimonial-text">“${t.text}”</p>
+            <p class="testimonial-text">"${t.text}"</p>
             <div class="testimonial-name">— ${t.name}</div>`;
         track.appendChild(el);
     });
@@ -1117,10 +1285,7 @@ function applyFilters() {
         const asin = getASIN(p).toLowerCase();
         const cat = catOf(p);
         
-        // Match product by name OR dynamically extracted Amazon ASIN / SKU
         const sMatch = !query || name.includes(query) || asin.includes(query);
-        
-        // If query is an exact match for an ASIN/SKU, search globally and bypass active tab category filters
         const isExactAsinMatch = query && (asin === query);
         
         let cMatch = true;
@@ -1256,14 +1421,14 @@ function openModal(id, pushHash = true, contextCategory = null) {
             item.className = "review-item";
             item.innerHTML = `
                 <div class="stars">${starsString(r.rating)}</div>
-                <p class="review-body">“${r.text}”</p>
+                <p class="review-body">"${r.text}"</p>
                 <div class="review-author">— ${r.name}</div>`;
             listEl.appendChild(item);
         });
     } else if (ratingInfo) {
         listEl.innerHTML = `<p class="review-empty">This piece is rated ${ratingInfo.rating.toFixed(1)}/5${ratingInfo.count ? ` by ${ratingInfo.count} customers` : ""}. Be the next to share your experience.</p>`;
     } else {
-        listEl.innerHTML = `<p class="review-empty">No written reviews yet. If you own this piece, we’d love to hear from you.</p>`;
+        listEl.innerHTML = `<p class="review-empty">No written reviews yet. If you own this piece, we'd love to hear from you.</p>`;
     }
 
     const directProductUrl = `${location.origin}${location.pathname}${buildHash(productCategory, productCode)}`;
@@ -1367,7 +1532,6 @@ function goHome() {
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-/* SMART NESTED HASH ROUTER */
 function parseHashParts() {
     const rawHash = window.location.hash.replace(/^#/, "").trim();
     if (!rawHash) return { category: null, productCode: null };
